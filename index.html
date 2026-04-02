@@ -234,7 +234,17 @@
     .c-emerald .campaign-badge { background: rgba(5,150,105,.08); color: var(--emerald); border: 1px solid rgba(5,150,105,.2); }
     .c-orange .campaign-badge { background: rgba(234,88,12,.08); color: var(--orange); border: 1px solid rgba(234,88,12,.2); }
 
-    .campaign-body { padding: 0; }
+    .campaign-body { padding: 0; overflow: hidden; max-height: 0; transition: max-height 0.35s ease; }
+    .campaign-body.open { max-height: 9999px; }
+    .campaign-toggle {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; background: none; border: none; border-top: 1px solid var(--border);
+      padding: 0.65rem 1.5rem; cursor: pointer; font-size: 0.78rem; font-weight: 700;
+      color: var(--primary); font-family: inherit; transition: background 0.15s;
+    }
+    .campaign-toggle:hover { background: var(--surface2); }
+    .campaign-toggle .toggle-arrow { transition: transform 0.25s; display: inline-block; }
+    .campaign-toggle.open .toggle-arrow { transform: rotate(180deg); }
 
     /* Campaign table col colors */
     .c-blue   tbody td.blue { color: var(--primary); }
@@ -537,6 +547,7 @@
         </div>
       </div>
       <div id="c1Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div>
+      <button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▼</span></button>
       <div class="campaign-body">
         <div style="padding:0.6rem 1.75rem;border-bottom:1px solid var(--border);display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
           <span style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-right:0.5rem">Show:</span>
@@ -577,6 +588,7 @@
       </div>
       <!-- Summary stat bar -->
       <div id="c2Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div>
+      <button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▼</span></button>
       <div class="campaign-body">
         <div class="table-scroll">
           <table>
@@ -606,6 +618,7 @@
           <div class="campaign-badge" id="c3Badge">0 services</div>
         </div>
       </div>
+      <button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▼</span></button>
       <div class="campaign-body">
         <div class="table-scroll">
           <table>
@@ -632,6 +645,7 @@
           <div class="campaign-badge" id="c4Badge">Top 10 pairings</div>
         </div>
       </div>
+      <button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▼</span></button>
       <div class="campaign-body">
         <div class="pairing-grid" id="c4Grid"></div>
       </div>
@@ -752,6 +766,16 @@ Chart.defaults.color = '#64748b';
 Chart.defaults.borderColor = 'rgba(219,234,254,0.8)';
 Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
 Chart.defaults.font.size = 11;
+
+// ════════════════════════════════════════════════
+// Campaign Toggle
+// ════════════════════════════════════════════════
+function toggleCampaign(btn) {
+  const body = btn.nextElementSibling;
+  const isOpen = body.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+  btn.innerHTML = (isOpen ? 'See Less' : 'See More') + ' <span class="toggle-arrow">▼</span>';
+}
 
 // ════════════════════════════════════════════════
 // Tab Switching
