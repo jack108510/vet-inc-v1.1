@@ -1,765 +1,473 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clinic IQ — Business Dashboard</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Clinic IQ — Business Dashboard</title><script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><style>
+ *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --bg:       #f0f6ff;
-      --surface:  #ffffff;
-      --surface2: #eff6ff;
-      --border:   #dbeafe;
-      --primary:  #2563eb;
-      --primary-light: #60a5fa;
-      --text:     #1e3a5f;
-      --muted:    #64748b;
-      --green:    #16a34a;
-      --red:      #ef4444;
-      --purple:   #7c3aed;
-      --emerald:  #059669;
-      --orange:   #ea580c;
-    }
+ :root {
+ --bg: #f0f6ff;
+ --surface: #ffffff;
+ --surface2: #eff6ff;
+ --border: #dbeafe;
+ --primary: #2563eb;
+ --primary-light: #60a5fa;
+ --text: #1e3a5f;
+ --muted: #64748b;
+ --green: #16a34a;
+ --red: #ef4444;
+ --purple: #7c3aed;
+ --emerald: #059669;
+ --orange: #ea580c;
+ }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      min-height: 100vh;
-      font-size: 14px;
-    }
+ body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+ min-height: 100vh;
+ font-size: 14px;
+ }
 
-    /* ════ HEADER ════ */
-    .header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 60px;
-      position: sticky;
-      top: 0;
-      z-index: 200;
-      box-shadow: 0 1px 12px rgba(37,99,235,.07);
-    }
-    .header-left { display: flex; align-items: center; gap: 1rem; }
-    .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .logo-icon {
-      width: 34px; height: 34px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
-      border-radius: 9px;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 8px rgba(37,99,235,.25);
-      flex-shrink: 0;
-    }
-    .logo-text { font-size: 1.1rem; font-weight: 800; color: var(--text); }
-    .logo-text span { color: var(--primary); }
-    .header-divider { width: 1px; height: 24px; background: var(--border); }
-    .clinic-name { font-size: 0.82rem; color: var(--muted); font-weight: 500; }
-    .header-right { display: flex; align-items: center; gap: 0.75rem; }
-    .last-updated { font-size: 0.75rem; color: var(--muted); }
-    .btn-upload {
-      display: flex; align-items: center; gap: 6px;
-      background: var(--surface2); border: 1px solid var(--border);
-      color: var(--primary); font-size: 0.78rem; font-weight: 600;
-      padding: 6px 14px; border-radius: 8px; cursor: pointer;
-      transition: all 0.15s;
-    }
-    .btn-upload:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+ /* HEADER */
+ .header {
+ background: var(--surface);
+ border-bottom: 1px solid var(--border);
+ padding: 0 2rem;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ height: 60px;
+ position: sticky;
+ top: 0;
+ z-index: 200;
+ box-shadow: 0 1px 12px rgba(37,99,235,.07);
+ }
+ .header-left { display: flex; align-items: center; gap: 1rem; }
+ .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+ .logo-icon {
+ width: 34px; height: 34px;
+ background: linear-gradient(135deg, var(--primary), var(--primary-light));
+ border-radius: 9px;
+ display: flex; align-items: center; justify-content: center;
+ box-shadow: 0 2px 8px rgba(37,99,235,.25);
+ flex-shrink: 0;
+ }
+ .logo-text { font-size: 1.1rem; font-weight: 800; color: var(--text); }
+ .logo-text span { color: var(--primary); }
+ .header-divider { width: 1px; height: 24px; background: var(--border); }
+ .clinic-name { font-size: 0.82rem; color: var(--muted); font-weight: 500; }
+ .header-right { display: flex; align-items: center; gap: 0.75rem; }
+ .last-updated { font-size: 0.75rem; color: var(--muted); }
+ .btn-upload {
+ display: flex; align-items: center; gap: 6px;
+ background: var(--surface2); border: 1px solid var(--border);
+ color: var(--primary); font-size: 0.78rem; font-weight: 600;
+ padding: 6px 14px; border-radius: 8px; cursor: pointer;
+ transition: all 0.15s;
+ }
+ .btn-upload:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-    /* ════ TAB NAV ════ */
-    .tab-nav {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      padding: 0 2rem;
-      gap: 4px;
-      height: 52px;
-    }
-    .tab-btn {
-      display: flex; align-items: center; gap: 7px;
-      background: none; border: none;
-      color: var(--muted); cursor: pointer;
-      font-size: 0.85rem; font-weight: 600;
-      padding: 7px 16px; border-radius: 8px;
-      transition: all 0.15s; letter-spacing: 0.2px;
-      white-space: nowrap;
-    }
-    .tab-btn:hover { background: var(--surface2); color: var(--text); }
-    .tab-btn.active { background: var(--primary); color: #fff; }
-    .tab-btn .tab-icon { font-size: 0.95rem; }
+ /* TAB NAV */
+ .tab-nav {
+ background: var(--surface);
+ border-bottom: 1px solid var(--border);
+ display: flex;
+ align-items: center;
+ padding: 0 2rem;
+ gap: 4px;
+ height: 52px;
+ }
+ .tab-btn {
+ display: flex; align-items: center; gap: 7px;
+ background: none; border: none;
+ color: var(--muted); cursor: pointer;
+ font-size: 0.85rem; font-weight: 600;
+ padding: 7px 16px; border-radius: 8px;
+ transition: all 0.15s; letter-spacing: 0.2px;
+ white-space: nowrap;
+ }
+ .tab-btn:hover { background: var(--surface2); color: var(--text); }
+ .tab-btn.active { background: var(--primary); color: #fff; }
+ .tab-btn .tab-icon { font-size: 0.95rem; }
 
-    /* ════ SECTIONS ════ */
-    .section { display: none; padding: 2rem; animation: fadeIn 0.2s ease; }
-    .section.active { display: block; }
-    .section.full-h { display: none; padding: 0; }
-    .section.full-h.active { display: flex; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+ /* SECTIONS */
+ .section { display: none; padding: 2rem; animation: fadeIn 0.2s ease; }
+ .section.active { display: block; }
+ .section.full-h { display: none; padding: 0; }
+ .section.full-h.active { display: flex; }
+ @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ════ LOADING ════ */
-    .loading {
-      display: flex; align-items: center; justify-content: center;
-      height: 200px; color: var(--muted); gap: 0.75rem;
-    }
-    .spinner {
-      width: 20px; height: 20px;
-      border: 2px solid var(--border);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+ /* LOADING */
+ .loading {
+ display: flex; align-items: center; justify-content: center;
+ height: 200px; color: var(--muted); gap: 0.75rem;
+ }
+ .spinner {
+ width: 20px; height: 20px;
+ border: 2px solid var(--border);
+ border-top-color: var(--primary);
+ border-radius: 50%;
+ animation: spin 0.8s linear infinite;
+ }
+ @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ════ KPI CARDS ════ */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem; margin-bottom: 2rem;
-    }
-    .kpi-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 14px; padding: 1.4rem 1.5rem;
-      position: relative; overflow: hidden;
-      transition: box-shadow 0.2s, transform 0.2s;
-    }
-    .kpi-card:hover { box-shadow: 0 8px 28px rgba(37,99,235,.11); transform: translateY(-2px); }
-    .kpi-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, var(--primary), var(--primary-light));
-    }
-    .kpi-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.6rem; }
-    .kpi-value { font-size: 1.75rem; font-weight: 900; color: var(--text); line-height: 1.1; }
-    .kpi-sub   { font-size: 0.76rem; color: var(--muted); margin-top: 0.35rem; }
-    .kpi-delta { font-size: 0.8rem; font-weight: 700; margin-top: 0.35rem; }
-    .kpi-delta.up   { color: var(--green); }
-    .kpi-delta.down { color: var(--red); }
+ /* KPI CARDS */
+ .kpi-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+ gap: 1rem; margin-bottom: 2rem;
+ }
+ .kpi-card {
+ background: var(--surface); border: 1px solid var(--border);
+ border-radius: 14px; padding: 1.4rem 1.5rem;
+ position: relative; overflow: hidden;
+ transition: box-shadow 0.2s, transform 0.2s;
+ }
+ .kpi-card:hover { box-shadow: 0 8px 28px rgba(37,99,235,.11); transform: translateY(-2px); }
+ .kpi-card::before {
+ content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+ background: linear-gradient(90deg, var(--primary), var(--primary-light));
+ }
+ .kpi-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.6rem; }
+ .kpi-value { font-size: 1.75rem; font-weight: 900; color: var(--text); line-height: 1.1; }
+ .kpi-sub { font-size: 0.76rem; color: var(--muted); margin-top: 0.35rem; }
+ .kpi-delta { font-size: 0.8rem; font-weight: 700; margin-top: 0.35rem; }
+ .kpi-delta.up { color: var(--green); }
+ .kpi-delta.down { color: var(--red); }
 
-    /* ════ CHARTS ════ */
-    .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
-    .chart-grid.full { grid-template-columns: 1fr; }
-    .chart-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 14px; padding: 1.4rem 1.5rem;
-      box-shadow: 0 2px 12px rgba(37,99,235,.04);
-    }
-    .chart-title { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.1rem; }
-    .chart-container { position: relative; }
-    .chart-container.bar-lg { height: 280px; }
-    .chart-container.donut  { height: 260px; }
-    .chart-container.hbar   { height: 320px; }
+ /* CHARTS */
+ .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+ .chart-grid.full { grid-template-columns: 1fr; }
+ .chart-card {
+ background: var(--surface); border: 1px solid var(--border);
+ border-radius: 14px; padding: 1.4rem 1.5rem;
+ box-shadow: 0 2px 12px rgba(37,99,235,.04);
+ }
+ .chart-title { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.1rem; }
+ .chart-container { position: relative; }
+ .chart-container.bar-lg { height: 280px; }
+ .chart-container.donut { height: 260px; }
+ .chart-container.hbar { height: 320px; }
 
-    /* ════ TABLES ════ */
-    .table-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 14px; overflow: hidden; margin-bottom: 2rem;
-      box-shadow: 0 2px 12px rgba(37,99,235,.04);
-    }
-    .table-header {
-      padding: 1rem 1.5rem; display: flex; align-items: center;
-      justify-content: space-between; border-bottom: 1px solid var(--border);
-      background: var(--surface2);
-    }
-    .table-header-title { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-    .table-meta { font-size: 0.74rem; color: var(--muted); }
-    .table-scroll { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-    thead th {
-      background: #f8faff; color: var(--muted);
-      font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
-      padding: 0.75rem 1rem; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border);
-    }
-    thead th.num { text-align: right; }
-    tbody tr { border-bottom: 1px solid rgba(219,234,254,0.7); transition: background 0.12s; }
-    tbody tr:nth-child(even) { background: rgba(240,246,255,0.5); }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: var(--surface2) !important; }
-    tbody td { padding: 0.7rem 1rem; color: var(--text); }
-    tbody td.num   { text-align: right; font-variant-numeric: tabular-nums; }
-    tbody td.muted { color: var(--muted); }
-    tbody td.green { color: var(--green); font-weight: 700; }
-    tbody td.red   { color: var(--red);   font-weight: 700; }
-    tbody td.blue  { color: var(--primary); font-weight: 700; }
-    .rank { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+ /* TABLES */
+ .table-card {
+ background: var(--surface); border: 1px solid var(--border);
+ border-radius: 14px; overflow: hidden; margin-bottom: 2rem;
+ box-shadow: 0 2px 12px rgba(37,99,235,.04);
+ }
+ .table-header {
+ padding: 1rem 1.5rem; display: flex; align-items: center;
+ justify-content: space-between; border-bottom: 1px solid var(--border);
+ background: var(--surface2);
+ }
+ .table-header-title { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+ .table-meta { font-size: 0.74rem; color: var(--muted); }
+ .table-scroll { overflow-x: auto; }
+ table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+ thead th {
+ background: #f8faff; color: var(--muted);
+ font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+ padding: 0.75rem 1rem; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border);
+ }
+ thead th.num { text-align: right; }
+ tbody tr { border-bottom: 1px solid rgba(219,234,254,0.7); transition: background 0.12s; }
+ tbody tr:nth-child(even) { background: rgba(240,246,255,0.5); }
+ tbody tr:last-child { border-bottom: none; }
+ tbody tr:hover { background: var(--surface2) !important; }
+ tbody td { padding: 0.7rem 1rem; color: var(--text); }
+ tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
+ tbody td.muted { color: var(--muted); }
+ tbody td.green { color: var(--green); font-weight: 700; }
+ tbody td.red { color: var(--red); font-weight: 700; }
+ tbody td.blue { color: var(--primary); font-weight: 700; }
+ .rank { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
 
-    /* ════ CAMPAIGN CARDS ════ */
-    .campaign-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 16px; margin-bottom: 1.75rem; overflow: hidden;
-      box-shadow: 0 2px 16px rgba(37,99,235,.05);
-      transition: box-shadow 0.2s;
-    }
-    .campaign-card:hover { box-shadow: 0 6px 28px rgba(37,99,235,.09); }
+ /* CAMPAIGN CARDS */
+ .campaign-card {
+ background: var(--surface); border: 1px solid var(--border);
+ border-radius: 16px; margin-bottom: 1.75rem; overflow: hidden;
+ box-shadow: 0 2px 16px rgba(37,99,235,.05);
+ transition: box-shadow 0.2s;
+ }
+ .campaign-card:hover { box-shadow: 0 6px 28px rgba(37,99,235,.09); }
 
-    .campaign-header {
-      padding: 1.4rem 1.75rem;
-      display: flex; align-items: flex-start; gap: 1rem;
-      border-bottom: 1px solid var(--border);
-      position: relative;
-    }
-    .campaign-header::before {
-      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-      border-radius: 0;
-    }
-    .c-blue   .campaign-header::before { background: var(--primary); }
-    .c-purple .campaign-header::before { background: var(--purple); }
-    .c-emerald .campaign-header::before { background: var(--emerald); }
-    .c-orange .campaign-header::before { background: var(--orange); }
+ .campaign-header {
+ padding: 1.4rem 1.75rem;
+ display: flex; align-items: flex-start; gap: 1rem;
+ border-bottom: 1px solid var(--border);
+ position: relative;
+ }
+ .campaign-header::before {
+ content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+ border-radius: 0;
+ }
+ .c-blue .campaign-header::before { background: var(--primary); }
+ .c-purple .campaign-header::before { background: var(--purple); }
+ .c-emerald .campaign-header::before { background: var(--emerald); }
+ .c-orange .campaign-header::before { background: var(--orange); }
 
-    .campaign-icon {
-      width: 44px; height: 44px; border-radius: 11px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
-    }
-    .c-blue   .campaign-icon { background: rgba(37,99,235,.1); }
-    .c-purple .campaign-icon { background: rgba(124,58,237,.1); }
-    .c-emerald .campaign-icon { background: rgba(5,150,105,.1); }
-    .c-orange .campaign-icon { background: rgba(234,88,12,.1); }
+ .campaign-icon {
+ width: 44px; height: 44px; border-radius: 11px; flex-shrink: 0;
+ display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+ }
+ .c-blue .campaign-icon { background: rgba(37,99,235,.1); }
+ .c-purple .campaign-icon { background: rgba(124,58,237,.1); }
+ .c-emerald .campaign-icon { background: rgba(5,150,105,.1); }
+ .c-orange .campaign-icon { background: rgba(234,88,12,.1); }
 
-    .campaign-meta { flex: 1; }
-    .campaign-title { font-size: 1rem; font-weight: 800; color: var(--text); margin-bottom: 0.3rem; }
-    .campaign-desc  { font-size: 0.83rem; color: var(--muted); line-height: 1.65; }
-    .campaign-badge {
-      display: inline-flex; align-items: center; gap: 0.35rem;
-      border-radius: 20px; padding: 0.3rem 0.9rem;
-      font-size: 0.7rem; font-weight: 700; margin-top: 0.6rem;
-      letter-spacing: 0.03em;
-    }
-    .c-blue   .campaign-badge { background: rgba(37,99,235,.08); color: var(--primary); border: 1px solid rgba(37,99,235,.2); }
-    .c-purple .campaign-badge { background: rgba(124,58,237,.08); color: var(--purple); border: 1px solid rgba(124,58,237,.2); }
-    .c-emerald .campaign-badge { background: rgba(5,150,105,.08); color: var(--emerald); border: 1px solid rgba(5,150,105,.2); }
-    .c-orange .campaign-badge { background: rgba(234,88,12,.08); color: var(--orange); border: 1px solid rgba(234,88,12,.2); }
+ .campaign-meta { flex: 1; }
+ .campaign-title { font-size: 1rem; font-weight: 800; color: var(--text); margin-bottom: 0.3rem; }
+ .campaign-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.65; }
+ .campaign-badge {
+ display: inline-flex; align-items: center; gap: 0.35rem;
+ border-radius: 20px; padding: 0.3rem 0.9rem;
+ font-size: 0.7rem; font-weight: 700; margin-top: 0.6rem;
+ letter-spacing: 0.03em;
+ }
+ .c-blue .campaign-badge { background: rgba(37,99,235,.08); color: var(--primary); border: 1px solid rgba(37,99,235,.2); }
+ .c-purple .campaign-badge { background: rgba(124,58,237,.08); color: var(--purple); border: 1px solid rgba(124,58,237,.2); }
+ .c-emerald .campaign-badge { background: rgba(5,150,105,.08); color: var(--emerald); border: 1px solid rgba(5,150,105,.2); }
+ .c-orange .campaign-badge { background: rgba(234,88,12,.08); color: var(--orange); border: 1px solid rgba(234,88,12,.2); }
 
-    .campaign-body { padding: 0; overflow: hidden; max-height: 0; transition: max-height 0.35s ease; }
-    .campaign-body.open { max-height: 9999px; }
-    .campaign-toggle {
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      width: 100%; background: none; border: none; border-top: 1px solid var(--border);
-      padding: 0.65rem 1.5rem; cursor: pointer; font-size: 0.78rem; font-weight: 700;
-      color: var(--primary); font-family: inherit; transition: background 0.15s;
-    }
-    .campaign-toggle:hover { background: var(--surface2); }
-    .campaign-toggle .toggle-arrow { transition: transform 0.25s; display: inline-block; }
-    .campaign-toggle.open .toggle-arrow { transform: rotate(180deg); }
+ .campaign-body { padding: 0; overflow: hidden; max-height: 0; transition: max-height 0.35s ease; }
+ .campaign-body.open { max-height: 9999px; }
+ .campaign-toggle {
+ display: flex; align-items: center; justify-content: center; gap: 6px;
+ width: 100%; background: none; border: none; border-top: 1px solid var(--border);
+ padding: 0.65rem 1.5rem; cursor: pointer; font-size: 0.78rem; font-weight: 700;
+ color: var(--primary); font-family: inherit; transition: background 0.15s;
+ }
+ .campaign-toggle:hover { background: var(--surface2); }
+ .campaign-toggle .toggle-arrow { transition: transform 0.25s; display: inline-block; }
+ .campaign-toggle.open .toggle-arrow { transform: rotate(180deg); }
 
-    /* Campaign table col colors */
-    .c-blue   tbody td.blue { color: var(--primary); }
-    .c-purple tbody td.blue { color: var(--purple); }
-    .c-emerald tbody td.blue { color: var(--emerald); }
-    .c-orange tbody td.blue  { color: var(--orange); }
+ /* Campaign table col colors */
+ .c-blue tbody td.blue { color: var(--primary); }
+ .c-purple tbody td.blue { color: var(--purple); }
+ .c-emerald tbody td.blue { color: var(--emerald); }
+ .c-orange tbody td.blue { color: var(--orange); }
 
-    /* ════ CAMPAIGN FILTER BUTTONS ════ */
-    .c1-filter {
-      background: var(--surface); border: 1px solid var(--border); color: var(--muted);
-      border-radius: 6px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600;
-      cursor: pointer; transition: all 0.15s; font-family: inherit;
-    }
-    .c1-filter:hover { border-color: var(--primary); color: var(--primary); }
-    .c1-filter.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+ /* CAMPAIGN FILTER BUTTONS */
+ .c1-filter {
+ background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+ border-radius: 6px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600;
+ cursor: pointer; transition: all 0.15s; font-family: inherit;
+ }
+ .c1-filter:hover { border-color: var(--primary); color: var(--primary); }
+ .c1-filter.active { background: var(--primary); border-color: var(--primary); color: #fff; }
 
-    /* ════ STAT BAR ════ */
-    .stat-bar-item { display: flex; flex-direction: column; gap: 2px; min-width: 120px; }
-    .stat-bar-label { font-size: 0.65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
-    .stat-bar-value { font-size: 1.1rem; font-weight: 900; color: var(--text); }
-    .stat-bar-sub   { font-size: 0.72rem; color: var(--muted); }
+ /* STAT BAR */
+ .stat-bar-item { display: flex; flex-direction: column; gap: 2px; min-width: 120px; }
+ .stat-bar-label { font-size: 0.65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+ .stat-bar-value { font-size: 1.1rem; font-weight: 900; color: var(--text); }
+ .stat-bar-sub { font-size: 0.72rem; color: var(--muted); }
 
-    /* ════ MARGIN PILLS ════ */
-    .margin-pill { display: inline-flex; align-items: center; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; }
-    .margin-low { background: rgba(239,68,68,.1); color: var(--red); }
-    .margin-ok  { background: rgba(22,163,74,.1);  color: var(--green); }
+ /* MARGIN PILLS */
+ .margin-pill { display: inline-flex; align-items: center; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; }
+ .margin-low { background: rgba(239,68,68,.1); color: var(--red); }
+ .margin-ok { background: rgba(22,163,74,.1); color: var(--green); }
 
-    /* ════ PAIRING GRID (C4) ════ */
-    .pairing-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1rem; padding: 1.5rem 1.75rem;
-    }
-    .pairing-item {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 12px; padding: 1rem 1.25rem;
-      transition: all 0.2s; position: relative; overflow: hidden;
-    }
-    .pairing-item::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, var(--orange), #fbbf24);
-    }
-    .pairing-item:hover { box-shadow: 0 4px 14px rgba(234,88,12,.1); transform: translateY(-1px); }
-    .pairing-cats { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem; line-height: 1.3; }
-    .pairing-cats .plus { color: var(--orange); margin: 0 4px; }
-    .pairing-count { font-size: 0.74rem; color: var(--muted); margin-bottom: 0.6rem; }
-    .pairing-bar { height: 4px; background: var(--border); border-radius: 3px; }
-    .pairing-bar-fill { height: 100%; background: linear-gradient(90deg, var(--orange), #fbbf24); border-radius: 3px; }
-    .pairing-pct { font-size: 0.7rem; font-weight: 800; color: var(--orange); float: right; margin-top: -1.3rem; }
+ /* PAIRING GRID (C4) */
+ .pairing-grid {
+ display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+ gap: 1rem; padding: 1.5rem 1.75rem;
+ }
+ .pairing-item {
+ background: var(--surface2); border: 1px solid var(--border);
+ border-radius: 12px; padding: 1rem 1.25rem;
+ transition: all 0.2s; position: relative; overflow: hidden;
+ }
+ .pairing-item::before {
+ content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+ background: linear-gradient(90deg, var(--orange), #fbbf24);
+ }
+ .pairing-item:hover { box-shadow: 0 4px 14px rgba(234,88,12,.1); transform: translateY(-1px); }
+ .pairing-cats { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem; line-height: 1.3; }
+ .pairing-cats .plus { color: var(--orange); margin: 0 4px; }
+ .pairing-count { font-size: 0.74rem; color: var(--muted); margin-bottom: 0.6rem; }
+ .pairing-bar { height: 4px; background: var(--border); border-radius: 3px; }
+ .pairing-bar-fill { height: 100%; background: linear-gradient(90deg, var(--orange), #fbbf24); border-radius: 3px; }
+ .pairing-pct { font-size: 0.7rem; font-weight: 800; color: var(--orange); float: right; margin-top: -1.3rem; }
 
-    /* ════ AI ASSISTANT ════ */
-    #tab-ai {
-      height: calc(100vh - 112px);
-      display: none; flex-direction: row;
-      background: var(--bg);
-    }
-    #tab-ai.active { display: flex; }
+ /* AI ASSISTANT */
+ #tab-ai {
+ height: calc(100vh - 112px);
+ display: none; flex-direction: row;
+ background: var(--bg);
+ }
+ #tab-ai.active { display: flex; }
 
-    .ai-sidebar {
-      width: 280px; flex-shrink: 0;
-      background: var(--surface); border-right: 1px solid var(--border);
-      display: flex; flex-direction: column;
-      padding: 1.5rem 1.25rem;
-      overflow-y: auto;
-    }
-    .ai-sidebar-title {
-      font-size: 0.68rem; font-weight: 700; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;
-    }
-    .quick-action {
-      display: flex; align-items: center; gap: 10px;
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 10px; padding: 0.7rem 0.9rem;
-      cursor: pointer; transition: all 0.15s;
-      font-size: 0.82rem; color: var(--text); font-weight: 500;
-      margin-bottom: 0.5rem; text-align: left; width: 100%;
-    }
-    .quick-action:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
-    .quick-action:hover .qa-icon { color: #fff; }
-    .qa-icon { font-size: 1rem; flex-shrink: 0; color: var(--primary); }
-    .ai-sidebar-sep { height: 1px; background: var(--border); margin: 1rem 0; }
-    .ai-data-status { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
-    .ai-data-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; background: var(--border); vertical-align: middle; }
-    .ai-data-dot.loaded { background: var(--green); }
+ .ai-sidebar {
+ width: 280px; flex-shrink: 0;
+ background: var(--surface); border-right: 1px solid var(--border);
+ display: flex; flex-direction: column;
+ padding: 1.5rem 1.25rem;
+ overflow-y: auto;
+ }
+ .ai-sidebar-title {
+ font-size: 0.68rem; font-weight: 700; color: var(--muted);
+ text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;
+ }
+ .quick-action {
+ display: flex; align-items: center; gap: 10px;
+ background: var(--surface2); border: 1px solid var(--border);
+ border-radius: 10px; padding: 0.7rem 0.9rem;
+ cursor: pointer; transition: all 0.15s;
+ font-size: 0.82rem; color: var(--text); font-weight: 500;
+ margin-bottom: 0.5rem; text-align: left; width: 100%;
+ }
+ .quick-action:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+ .quick-action:hover .qa-icon { color: #fff; }
+ .qa-icon { font-size: 1rem; flex-shrink: 0; color: var(--primary); }
+ .ai-sidebar-sep { height: 1px; background: var(--border); margin: 1rem 0; }
+ .ai-data-status { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+ .ai-data-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; background: var(--border); vertical-align: middle; }
+ .ai-data-dot.loaded { background: var(--green); }
 
-    .ai-main {
-      flex: 1; display: flex; flex-direction: column;
-      min-width: 0;
-    }
-    .ai-messages {
-      flex: 1; overflow-y: auto; padding: 1.5rem;
-      display: flex; flex-direction: column; gap: 1rem;
-    }
-    .msg-row {
-      display: flex; gap: 10px; align-items: flex-end;
-      animation: fadeIn 0.2s ease;
-    }
-    .msg-row.user { flex-direction: row-reverse; }
-    .msg-avatar {
-      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.9rem; font-weight: 700;
-    }
-    .msg-avatar.ai { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; }
-    .msg-avatar.user { background: var(--surface2); border: 1px solid var(--border); }
-    .msg-bubble {
-      max-width: 72%; padding: 0.85rem 1.1rem;
-      border-radius: 14px; font-size: 0.86rem; line-height: 1.65;
-    }
-    .msg-bubble.ai {
-      background: var(--surface); border: 1px solid var(--border);
-      color: var(--text); border-bottom-left-radius: 4px;
-      box-shadow: 0 2px 10px rgba(37,99,235,.05);
-    }
-    .msg-bubble.user {
-      background: var(--primary); color: #fff;
-      border-bottom-right-radius: 4px;
-    }
-    .msg-bubble table { font-size: 0.78rem; margin: 0.5rem 0; width: 100%; border-collapse: collapse; }
-    .msg-bubble table th { background: var(--surface2); color: var(--muted); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 5px 8px; text-align: left; border-bottom: 1px solid var(--border); }
-    .msg-bubble table td { padding: 5px 8px; border-bottom: 1px solid rgba(219,234,254,0.5); }
-    .msg-bubble table tr:last-child td { border-bottom: none; }
-    .msg-bubble ul { padding-left: 1.2rem; margin: 0.4rem 0; }
-    .msg-bubble li { margin-bottom: 0.3rem; }
-    .msg-bubble strong { font-weight: 700; }
-    .msg-bubble .ai-tag { display: inline-block; background: var(--surface2); border: 1px solid var(--border); color: var(--primary); font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; margin-right: 4px; }
+ .ai-main {
+ flex: 1; display: flex; flex-direction: column;
+ min-width: 0;
+ }
+ .ai-messages {
+ flex: 1; overflow-y: auto; padding: 1.5rem;
+ display: flex; flex-direction: column; gap: 1rem;
+ }
+ .msg-row {
+ display: flex; gap: 10px; align-items: flex-end;
+ animation: fadeIn 0.2s ease;
+ }
+ .msg-row.user { flex-direction: row-reverse; }
+ .msg-avatar {
+ width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+ display: flex; align-items: center; justify-content: center;
+ font-size: 0.9rem; font-weight: 700;
+ }
+ .msg-avatar.ai { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; }
+ .msg-avatar.user { background: var(--surface2); border: 1px solid var(--border); }
+ .msg-bubble {
+ max-width: 72%; padding: 0.85rem 1.1rem;
+ border-radius: 14px; font-size: 0.86rem; line-height: 1.65;
+ }
+ .msg-bubble.ai {
+ background: var(--surface); border: 1px solid var(--border);
+ color: var(--text); border-bottom-left-radius: 4px;
+ box-shadow: 0 2px 10px rgba(37,99,235,.05);
+ }
+ .msg-bubble.user {
+ background: var(--primary); color: #fff;
+ border-bottom-right-radius: 4px;
+ }
+ .msg-bubble table { font-size: 0.78rem; margin: 0.5rem 0; width: 100%; border-collapse: collapse; }
+ .msg-bubble table th { background: var(--surface2); color: var(--muted); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 5px 8px; text-align: left; border-bottom: 1px solid var(--border); }
+ .msg-bubble table td { padding: 5px 8px; border-bottom: 1px solid rgba(219,234,254,0.5); }
+ .msg-bubble table tr:last-child td { border-bottom: none; }
+ .msg-bubble ul { padding-left: 1.2rem; margin: 0.4rem 0; }
+ .msg-bubble li { margin-bottom: 0.3rem; }
+ .msg-bubble strong { font-weight: 700; }
+ .msg-bubble .ai-tag { display: inline-block; background: var(--surface2); border: 1px solid var(--border); color: var(--primary); font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; margin-right: 4px; }
 
-    /* Typing indicator */
-    .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
-    .typing-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--muted); animation: typingBounce 1.2s infinite;
-    }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes typingBounce {
-      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-      30% { transform: translateY(-5px); opacity: 1; }
-    }
+ /* Typing indicator */
+ .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+ .typing-dot {
+ width: 7px; height: 7px; border-radius: 50%;
+ background: var(--muted); animation: typingBounce 1.2s infinite;
+ }
+ .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+ .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+ @keyframes typingBounce {
+ 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+ 30% { transform: translateY(-5px); opacity: 1; }
+ }
 
-    .ai-input-bar {
-      background: var(--surface); border-top: 1px solid var(--border);
-      padding: 1rem 1.5rem; display: flex; gap: 0.75rem; align-items: center;
-    }
-    .ai-input {
-      flex: 1; background: var(--surface2); border: 1px solid var(--border);
-      color: var(--text); border-radius: 10px; padding: 0.65rem 1rem;
-      font-size: 0.88rem; font-family: inherit; outline: none;
-      transition: border-color 0.15s;
-    }
-    .ai-input:focus { border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
-    .ai-input::placeholder { color: var(--muted); }
-    .ai-send {
-      background: var(--primary); color: #fff; border: none;
-      border-radius: 10px; padding: 0.65rem 1.25rem;
-      font-size: 0.88rem; font-weight: 700; cursor: pointer;
-      transition: all 0.15s; display: flex; align-items: center; gap: 6px;
-      font-family: inherit;
-    }
-    .ai-send:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,.3); }
-    .ai-send:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+ .ai-input-bar {
+ background: var(--surface); border-top: 1px solid var(--border);
+ padding: 1rem 1.5rem; display: flex; gap: 0.75rem; align-items: center;
+ }
+ .ai-input {
+ flex: 1; background: var(--surface2); border: 1px solid var(--border);
+ color: var(--text); border-radius: 10px; padding: 0.65rem 1rem;
+ font-size: 0.88rem; font-family: inherit; outline: none;
+ transition: border-color 0.15s;
+ }
+ .ai-input:focus { border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+ .ai-input::placeholder { color: var(--muted); }
+ .ai-send {
+ background: var(--primary); color: #fff; border: none;
+ border-radius: 10px; padding: 0.65rem 1.25rem;
+ font-size: 0.88rem; font-weight: 700; cursor: pointer;
+ transition: all 0.15s; display: flex; align-items: center; gap: 6px;
+ font-family: inherit;
+ }
+ .ai-send:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,.3); }
+ .ai-send:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
 
-    /* ════ RESPONSIVE ════ */
-    @media (max-width: 900px) {
-      .chart-grid { grid-template-columns: 1fr; }
-      .section { padding: 1rem; }
-      .ai-sidebar { display: none; }
-      #tab-ai { height: calc(100vh - 112px); }
-    }
-    @media (max-width: 600px) {
-      .header { padding: 0 1rem; }
-      .tab-nav { padding: 0 1rem; overflow-x: auto; }
-      .header-divider, .clinic-name { display: none; }
-    }
-  </style>
-</head>
-<body>
-
-<!-- ════ HEADER ════ -->
-<header class="header">
-  <div class="header-left">
-    <div class="logo-wrap">
-      <div class="logo-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-      </div>
-      <div class="logo-text">Clinic<span>IQ</span></div>
-    </div>
-    <div class="header-divider"></div>
-    <div class="clinic-name" id="clinicName">Tudor Glen Veterinary Hospital</div>
-  </div>
-  <div class="header-right">
-    <span class="last-updated" id="lastUpdated">Loading data…</span>
-    <button class="btn-upload">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      Upload Data
-    </button>
-  </div>
-</header>
-
-<!-- ════ TAB NAV ════ -->
-<nav class="tab-nav">
-  <button class="tab-btn active" onclick="showTab('analytics', this)">
-    <span class="tab-icon">📊</span> Analytics &amp; KPIs
-  </button>
-  <button class="tab-btn" onclick="showTab('campaigns', this)">
-    <span class="tab-icon">🚀</span> Campaigns
-  </button>
-  <button class="tab-btn" onclick="showTab('ai', this)">
-    <span class="tab-icon">🤖</span> AI Assistant
-  </button>
-</nav>
-
-<!-- ════════════════════════════════════════════
-     SECTION 1: Analytics & KPIs
-═════════════════════════════════════════════ -->
-<section id="tab-analytics" class="section active">
-  <div id="analyticsLoading" class="loading">
-    <div class="spinner"></div> Parsing service data…
-  </div>
-  <div id="analyticsContent" style="display:none">
-
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-label">Total Revenue</div>
-        <div class="kpi-value" id="kpiTotalRevenue">—</div>
-        <div class="kpi-sub">All services · Mar 2025 – Feb 2026</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">This Month vs Last Month</div>
-        <div class="kpi-value" id="kpiThisMonth">—</div>
-        <div class="kpi-delta" id="kpiMoMDelta">—</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Top Revenue Category</div>
-        <div class="kpi-value" id="kpiTopCat" style="font-size:1.2rem">—</div>
-        <div class="kpi-sub" id="kpiTopCatRev">—</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Total Transactions</div>
-        <div class="kpi-value" id="kpiTotalQty">—</div>
-        <div class="kpi-sub">Sum of all quantity entries</div>
-      </div>
-    </div>
-
-    <div class="chart-grid full">
-      <div class="chart-card">
-        <div class="chart-title">Monthly Revenue — Last 12 Months</div>
-        <div class="chart-container bar-lg"><canvas id="chartMonthly"></canvas></div>
-      </div>
-    </div>
-
-    <div class="chart-grid">
-      <div class="chart-card">
-        <div class="chart-title">Revenue by Category</div>
-        <div class="chart-container donut"><canvas id="chartDonut"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-title">Top 10 Services by Revenue</div>
-        <div class="chart-container hbar"><canvas id="chartTopServices"></canvas></div>
-      </div>
-    </div>
-
-    <div class="table-card">
-      <div class="table-header">
-        <div class="table-header-title">Top 20 Services by Revenue</div>
-        <div class="table-meta">Sorted by total revenue descending</div>
-      </div>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th><th>Service Name</th><th>Category</th>
-              <th class="num">Total Revenue</th><th class="num">Total Qty</th><th class="num">Avg Price</th>
-            </tr>
-          </thead>
-          <tbody id="topServicesTable"></tbody>
-        </table>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════
-     SECTION 2: Campaigns
-═════════════════════════════════════════════ -->
-<section id="tab-campaigns" class="section">
-  <div id="campaignsLoading" class="loading">
-    <div class="spinner"></div> Analyzing pricing opportunities…
-  </div>
-  <div id="campaignsContent" style="display:none">
-
-    <!-- Campaign 1: Inflation Adjuster -->
-    <div class="campaign-card c-blue">
-      <div class="campaign-header">
-        <div class="campaign-icon">📊</div>
-        <div class="campaign-meta">
-          <div class="campaign-title">Inflation Price Adjustment Report</div>
-          <div class="campaign-desc">Uses real price history (exact last-modified date per item) and actual transaction volume over the last 365 days. Canadian CPI is compounded from the last price change to today — showing exactly what each item should cost now and the annual revenue left on the table.</div>
-          <div class="campaign-badge" id="c1Badge">Loading price history…</div>
-        </div>
-      </div>
-      <div id="c1Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div>
-      <button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▼</span></button>
-      <div class="campaign-body">
-        <div style="padding:0.6rem 1.75rem;border-bottom:1px solid var(--border);display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
-          <span style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-right:0.5rem">Show:</span>
-          <button class="c1-filter active" onclick="c1Filter(this,'all')">All Behind</button>
-          <button class="c1-filter" onclick="c1Filter(this,'used')">With Usage Only</button>
-          <button class="c1-filter" onclick="c1Filter(this,'urgent')">Urgent (&gt;15%)</button>
-        </div>
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Item Name</th>
-                <th class="num">Last Changed</th>
-                <th class="num">Days Stale</th>
-                <th class="num">Infl. %</th>
-                <th class="num">Current Price</th>
-                <th class="num">Suggested Price</th>
-                <th class="num">Delta</th>
-                <th class="num">Usage / yr</th>
-                <th class="num">Est. Uplift / yr</th>
-              </tr>
-            </thead>
-            <tbody id="c1Table"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Campaign 2: .99 Pricing Opportunity -->
-    <div class="campaign-card c-purple">
-      <div class="campaign-header">
-        <div class="campaign-icon">🎯</div>
-        <div class="campaign-meta">
-          <div class="campaign-title">.99 Pricing Revenue Recovery</div>
-          <div class="campaign-desc">Based on actual transaction history: if every line item that <em>wasn't</em> already at a .99 price had been rounded up to the next .99, how much additional revenue would the clinic have captured last year? This shows real missed dollars — not theory.</div>
-          <div class="campaign-badge" id="c2Badge">Calculating…</div>
-        </div>
-      </div>
-      <!-- Summary stat bar -->
-      <div id="c2Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div>
-      <button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▼</span></button>
-      <div class="campaign-body">
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Service / Item</th><th>Category</th>
-                <th class="num">Current Price</th>
-                <th class="num">.99 Price</th>
-                <th class="num">Gain / Txn</th>
-                <th class="num">Annual Volume</th>
-                <th class="num">Annual Uplift</th>
-              </tr>
-            </thead>
-            <tbody id="c2Table"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Campaign 3: Shoppable Services -->
-    <div class="campaign-card c-emerald">
-      <div class="campaign-header">
-        <div class="campaign-icon">📈</div>
-        <div class="campaign-meta">
-          <div class="campaign-title">Shoppable Services</div>
-          <div class="campaign-desc">High-frequency services priced under $100. At scale, even a small price adjustment creates outsized annual revenue impact. These are your highest-leverage opportunities.</div>
-          <div class="campaign-badge" id="c3Badge">0 services</div>
-        </div>
-      </div>
-      <button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▼</span></button>
-      <div class="campaign-body">
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Service Name</th>
-                <th class="num">Annual Volume</th><th class="num">Current Price</th>
-                <th class="num">+$5 / Year</th><th class="num">+$10 / Year</th>
-              </tr>
-            </thead>
-            <tbody id="c3Table"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Campaign 4: Common Pairings -->
-    <div class="campaign-card c-orange">
-      <div class="campaign-header">
-        <div class="campaign-icon">🔗</div>
-        <div class="campaign-meta">
-          <div class="campaign-title">Common Service Pairings</div>
-          <div class="campaign-desc">Service categories that appear together most often across months. These natural bundles are prime candidates for package deals, cross-sell reminders, or wellness plan inclusions.</div>
-          <div class="campaign-badge" id="c4Badge">Top 10 pairings</div>
-        </div>
-      </div>
-      <button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▼</span></button>
-      <div class="campaign-body">
-        <div class="pairing-grid" id="c4Grid"></div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════
-     SECTION 3: AI Assistant
-═════════════════════════════════════════════ -->
-<section id="tab-ai" class="section full-h">
-
-  <!-- Sidebar -->
-  <aside class="ai-sidebar">
-    <div class="ai-sidebar-title">Quick Actions</div>
-
-    <button class="quick-action" onclick="sendQuickAction('Summarize this month\'s performance')">
-      <span class="qa-icon">📅</span> This month's summary
-    </button>
-    <button class="quick-action" onclick="sendQuickAction('What are our top 10 services by revenue?')">
-      <span class="qa-icon">📊</span> Top 10 services
-    </button>
-    <button class="quick-action" onclick="sendQuickAction('What is our best performing category?')">
-      <span class="qa-icon">🏆</span> Best category breakdown
-    </button>
-    <button class="quick-action" onclick="sendQuickAction('Which services are growing month over month?')">
-      <span class="qa-icon">📈</span> Growing services
-    </button>
-    <button class="quick-action" onclick="sendQuickAction('Show me the inflation pricing analysis')">
-      <span class="qa-icon">📊</span> Inflation pricing gaps
-    </button>
-    <button class="quick-action" onclick="sendQuickAction('How much revenue did we miss with .99 pricing last year?')">
-      <span class="qa-icon">🎯</span> .99 pricing missed revenue
-    </button>
-    <button class="quick-action" onclick="sendQuickAction('What was our best month this year?')">
-      <span class="qa-icon">🗓️</span> Best month this year
-    </button>
-    <button class="quick-action" onclick="sendQuickAction('Forecast next month revenue')">
-      <span class="qa-icon">🔮</span> Revenue forecast
-    </button>
-    <button class="quick-action" onclick="sendQuickAction('Create a sample invoice for a wellness exam')">
-      <span class="qa-icon">🧾</span> Create sample invoice
-    </button>
-    <button class="quick-action" onclick="sendQuickAction('Which services have declining revenue?')">
-      <span class="qa-icon">📉</span> Declining services
-    </button>
-    <button class="quick-action" onclick="sendQuickAction('Show me dental department performance')">
-      <span class="qa-icon">🦷</span> Dental performance
-    </button>
-
-    <div class="ai-sidebar-sep"></div>
-    <div class="ai-sidebar-title">Data Status</div>
-    <div class="ai-data-status">
-      <div><span class="ai-data-dot" id="dotService"></span> Service Usage CSV</div>
-      <div style="margin-top:6px"><span class="ai-data-dot" id="dotCatalog"></span> Item Catalog CSV</div>
-    </div>
-  </aside>
-
-  <!-- Chat -->
-  <div class="ai-main">
-    <div class="ai-messages" id="aiMessages">
-      <!-- Welcome message -->
-      <div class="msg-row">
-        <div class="msg-avatar ai">IQ</div>
-        <div class="msg-bubble ai">
-          <strong>Hi, I'm your Clinic IQ Assistant.</strong> 👋<br><br>
-          I have full access to Tudor Glen's service history, pricing catalog, revenue trends, and transaction data. Ask me anything — I'll give you real numbers from your actual data.<br><br>
-          <span style="color:#64748b;font-size:0.82rem">Try: <em>"How did we do last month?"</em> · <em>"What's driving dental revenue?"</em> · <em>"Which services are growing?"</em> · <em>"Build me an invoice for a wellness visit"</em></span>
-        </div>
-      </div>
-    </div>
-    <div class="ai-input-bar">
-      <input class="ai-input" id="aiInput" type="text" placeholder="Ask about your clinic data…" onkeydown="if(event.key==='Enter') sendAIMessage()" />
-      <button class="ai-send" id="aiSendBtn" onclick="sendAIMessage()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        Send
-      </button>
-    </div>
-  </div>
-
-</section>
-
-<script>
-// ════════════════════════════════════════════════
+ /* RESPONSIVE */
+ @media (max-width: 900px) {
+ .chart-grid { grid-template-columns: 1fr; }
+ .section { padding: 1rem; }
+ .ai-sidebar { display: none; }
+ #tab-ai { height: calc(100vh - 112px); }
+ }
+ @media (max-width: 600px) {
+ .header { padding: 0 1rem; }
+ .tab-nav { padding: 0 1rem; overflow-x: auto; }
+ .header-divider, .clinic-name { display: none; }
+ }
+ </style></head><body><!-- HEADER --><header class="header"><div class="header-left"><div class="logo-wrap"><div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="logo-text">Clinic<span>IQ</span></div></div><div class="header-divider"></div><div class="clinic-name" id="clinicName">Tudor Glen Veterinary Hospital</div></div><div class="header-right"><span class="last-updated" id="lastUpdated">Loading data…</span><button class="btn-upload"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+ Upload Data
+ </button></div></header><!-- TAB NAV --><nav class="tab-nav"><button class="tab-btn active" onclick="showTab('analytics', this)"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg></span> Analytics &amp; KPIs
+ </button><button class="tab-btn" onclick="showTab('campaigns', this)"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span> Campaigns
+ </button><button class="tab-btn" onclick="showTab('ai', this)"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span> AI Assistant
+ </button></nav><!-- 
+ SECTION 1: Analytics & KPIs
+ --><section id="tab-analytics" class="section active"><div id="analyticsLoading" class="loading"><div class="spinner"></div> Parsing service data…
+ </div><div id="analyticsContent" style="display:none"><div class="kpi-grid"><div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value" id="kpiTotalRevenue">—</div><div class="kpi-sub">All services · Mar 2025 – Feb 2026</div></div><div class="kpi-card"><div class="kpi-label">This Month vs Last Month</div><div class="kpi-value" id="kpiThisMonth">—</div><div class="kpi-delta" id="kpiMoMDelta">—</div></div><div class="kpi-card"><div class="kpi-label">Top Revenue Category</div><div class="kpi-value" id="kpiTopCat" style="font-size:1.2rem">—</div><div class="kpi-sub" id="kpiTopCatRev">—</div></div><div class="kpi-card"><div class="kpi-label">Total Transactions</div><div class="kpi-value" id="kpiTotalQty">—</div><div class="kpi-sub">Sum of all quantity entries</div></div></div><div class="chart-grid full"><div class="chart-card"><div class="chart-title">Monthly Revenue — Last 12 Months</div><div class="chart-container bar-lg"><canvas id="chartMonthly"></canvas></div></div></div><div class="chart-grid"><div class="chart-card"><div class="chart-title">Revenue by Category</div><div class="chart-container donut"><canvas id="chartDonut"></canvas></div></div><div class="chart-card"><div class="chart-title">Top 10 Services by Revenue</div><div class="chart-container hbar"><canvas id="chartTopServices"></canvas></div></div></div><div class="table-card"><div class="table-header"><div class="table-header-title">Top 20 Services by Revenue</div><div class="table-meta">Sorted by total revenue descending</div></div><div class="table-scroll"><table><thead><tr><th>#</th><th>Service Name</th><th>Category</th><th class="num">Total Revenue</th><th class="num">Total Qty</th><th class="num">Avg Price</th></tr></thead><tbody id="topServicesTable"></tbody></table></div></div></div></section><!-- 
+ SECTION 2: Campaigns
+ --><section id="tab-campaigns" class="section"><div id="campaignsLoading" class="loading"><div class="spinner"></div> Analyzing pricing opportunities…
+ </div><div id="campaignsContent" style="display:none"><!-- Campaign 1: Inflation Adjuster --><div class="campaign-card c-blue"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div class="campaign-meta"><div class="campaign-title">Inflation Price Adjustment Report</div><div class="campaign-desc">Uses real price history (exact last-modified date per item) and actual transaction volume over the last 365 days. Canadian CPI is compounded from the last price change to today — showing exactly what each item should cost now and the annual revenue left on the table.</div><div class="campaign-badge" id="c1Badge">Loading price history…</div></div></div><div id="c1Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▾</span></button><div class="campaign-body"><div style="padding:0.6rem 1.75rem;border-bottom:1px solid var(--border);display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap"><span style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-right:0.5rem">Show:</span><button class="c1-filter active" onclick="c1Filter(this,'all')">All Behind</button><button class="c1-filter" onclick="c1Filter(this,'used')">With Usage Only</button><button class="c1-filter" onclick="c1Filter(this,'urgent')">Urgent (&gt;15%)</button></div><div class="table-scroll"><table><thead><tr><th>Item Name</th><th class="num">Last Changed</th><th class="num">Days Stale</th><th class="num">Infl. %</th><th class="num">Current Price</th><th class="num">Suggested Price</th><th class="num">Delta</th><th class="num">Usage / yr</th><th class="num">Est. Uplift / yr</th></tr></thead><tbody id="c1Table"></tbody></table></div></div></div><!-- Campaign 2: .99 Pricing Opportunity --><div class="campaign-card c-purple"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8"/><path d="M12 6v2m0 8v2"/></svg></div><div class="campaign-meta"><div class="campaign-title">.99 Pricing Revenue Recovery</div><div class="campaign-desc">Based on actual transaction history: if every line item that <em>wasn't</em> already at a .99 price had been rounded up to the next .99, how much additional revenue would the clinic have captured last year? This shows real missed dollars — not theory.</div><div class="campaign-badge" id="c2Badge">Calculating…</div></div></div><!-- Summary stat bar --><div id="c2Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▾</span></button><div class="campaign-body"><div class="table-scroll"><table><thead><tr><th>Service / Item</th><th>Category</th><th class="num">Current Price</th><th class="num">.99 Price</th><th class="num">Gain / Txn</th><th class="num">Annual Volume</th><th class="num">Annual Uplift</th></tr></thead><tbody id="c2Table"></tbody></table></div></div></div><!-- Campaign 3: Shoppable Services --><div class="campaign-card c-emerald"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div><div class="campaign-meta"><div class="campaign-title">Shoppable Services</div><div class="campaign-desc">High-frequency services priced under $100. At scale, even a small price adjustment creates outsized annual revenue impact. These are your highest-leverage opportunities.</div><div class="campaign-badge" id="c3Badge">0 services</div></div></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▾</span></button><div class="campaign-body"><div class="table-scroll"><table><thead><tr><th>Service Name</th><th class="num">Annual Volume</th><th class="num">Current Price</th><th class="num">+$5 / Year</th><th class="num">+$10 / Year</th></tr></thead><tbody id="c3Table"></tbody></table></div></div></div><!-- Campaign 4: Common Pairings --><div class="campaign-card c-orange"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></div><div class="campaign-meta"><div class="campaign-title">Common Service Pairings</div><div class="campaign-desc">Service categories that appear together most often across months. These natural bundles are prime candidates for package deals, cross-sell reminders, or wellness plan inclusions.</div><div class="campaign-badge" id="c4Badge">Top 10 pairings</div></div></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▾</span></button><div class="campaign-body"><div class="pairing-grid" id="c4Grid"></div></div></div></div></section><!-- 
+ SECTION 3: AI Assistant
+ --><section id="tab-ai" class="section full-h"><!-- Sidebar --><aside class="ai-sidebar"><div class="ai-sidebar-title">Quick Actions</div><button class="quick-action" onclick="sendQuickAction('Summarize this month\'s performance')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> This month's summary
+ </button><button class="quick-action" onclick="sendQuickAction('What are our top 10 services by revenue?')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Top 10 services
+ </button><button class="quick-action" onclick="sendQuickAction('What is our best performing category?')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Best category breakdown
+ </button><button class="quick-action" onclick="sendQuickAction('Which services are growing month over month?')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Growing services
+ </button><button class="quick-action" onclick="sendQuickAction('Show me the inflation pricing analysis')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Inflation pricing gaps
+ </button><button class="quick-action" onclick="sendQuickAction('How much revenue did we miss with .99 pricing last year?')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> .99 pricing missed revenue
+ </button><button class="quick-action" onclick="sendQuickAction('What was our best month this year?')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Best month this year
+ </button><button class="quick-action" onclick="sendQuickAction('Forecast next month revenue')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Revenue forecast
+ </button><button class="quick-action" onclick="sendQuickAction('Create a sample invoice for a wellness exam')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Create sample invoice
+ </button><button class="quick-action" onclick="sendQuickAction('Which services have declining revenue?')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Declining services
+ </button><button class="quick-action" onclick="sendQuickAction('Show me dental department performance')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Dental performance
+ </button><div class="ai-sidebar-sep"></div><div class="ai-sidebar-title">Data Status</div><div class="ai-data-status"><div><span class="ai-data-dot" id="dotService"></span> Service Usage CSV</div><div style="margin-top:6px"><span class="ai-data-dot" id="dotCatalog"></span> Item Catalog CSV</div></div></aside><!-- Chat --><div class="ai-main"><div class="ai-messages" id="aiMessages"><!-- Welcome message --><div class="msg-row"><div class="msg-avatar ai">IQ</div><div class="msg-bubble ai"><strong>Hi, I'm your Clinic IQ Assistant.</strong><br><br>
+ I have full access to Tudor Glen's service history, pricing catalog, revenue trends, and transaction data. Ask me anything — I'll give you real numbers from your actual data.<br><br><span style="color:#64748b;font-size:0.82rem">Try: <em>"How did we do last month?"</em> · <em>"What's driving dental revenue?"</em> · <em>"Which services are growing?"</em> · <em>"Build me an invoice for a wellness visit"</em></span></div></div></div><div class="ai-input-bar"><input class="ai-input" id="aiInput" type="text" placeholder="Ask about your clinic data…" onkeydown="if(event.key==='Enter') sendAIMessage()" /><button class="ai-send" id="aiSendBtn" onclick="sendAIMessage()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+ Send
+ </button></div></div></section><script>
+// 
 // Utilities
-// ════════════════════════════════════════════════
-function fmt$(n)   { return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
-function fmtN(n)   { return n.toLocaleString(); }
+// 
+function fmt$(n) { return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function fmtN(n) { return n.toLocaleString(); }
 function fmtPct(n) { return (n * 100).toFixed(1) + '%'; }
 function escHtml(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+ return String(str)
+ .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 function parseTxnDate(str) {
-  if (!str) return null;
-  const parts = str.split(' ')[0].split('/');
-  if (parts.length < 3) return null;
-  const month = parseInt(parts[0], 10);
-  const year  = parseInt(parts[2], 10);
-  if (isNaN(month) || isNaN(year)) return null;
-  return { year, month, key: `${year}-${String(month).padStart(2,'0')}` };
+ if (!str) return null;
+ const parts = str.split(' ')[0].split('/');
+ if (parts.length < 3) return null;
+ const month = parseInt(parts[0], 10);
+ const year = parseInt(parts[2], 10);
+ if (isNaN(month) || isNaN(year)) return null;
+ return { year, month, key: `${year}-${String(month).padStart(2,'0')}` };
 }
 
 function monthLabel(key) {
-  const [y, m] = key.split('-');
-  return MONTH_NAMES[parseInt(m,10)-1] + ' ' + y.slice(2);
+ const [y, m] = key.split('-');
+ return MONTH_NAMES[parseInt(m,10)-1] + ' ' + y.slice(2);
 }
 
 function sortMonthKeys(keys) {
-  return keys.slice().sort((a,b) => a.localeCompare(b));
+ return keys.slice().sort((a,b) => a.localeCompare(b));
 }
 
 Chart.defaults.color = '#64748b';
@@ -767,1431 +475,1344 @@ Chart.defaults.borderColor = 'rgba(219,234,254,0.8)';
 Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
 Chart.defaults.font.size = 11;
 
-// ════════════════════════════════════════════════
+// 
 // Campaign Toggle
-// ════════════════════════════════════════════════
+// 
 function toggleCampaign(btn) {
-  const body = btn.nextElementSibling;
-  const isOpen = body.classList.toggle('open');
-  btn.classList.toggle('open', isOpen);
-  btn.innerHTML = (isOpen ? 'See Less' : 'See More') + ' <span class="toggle-arrow">▼</span>';
+ const body = btn.nextElementSibling;
+ const isOpen = body.classList.toggle('open');
+ btn.classList.toggle('open', isOpen);
+ btn.innerHTML = (isOpen ? 'See Less' : 'See More') + ' <span class="toggle-arrow"></span>';
 }
 
-// ════════════════════════════════════════════════
+// 
 // Tab Switching
-// ════════════════════════════════════════════════
+// 
 function showTab(name, btn) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  if (btn) btn.classList.add('active');
+ document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+ document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+ document.getElementById('tab-' + name).classList.add('active');
+ if (btn) btn.classList.add('active');
 }
 
-// ════════════════════════════════════════════════
+// 
 // Data Loading
-// ════════════════════════════════════════════════
-let serviceData    = null;
-let catalogData    = null;
+// 
+let serviceData = null;
+let catalogData = null;
 let analyticsReady = false;
 let campaignsReady = false;
 
 // Shared analytics objects (for AI access)
 let AI_byService = {};
-let AI_byCat     = {};
-let AI_byMonth   = {};
+let AI_byCat = {};
+let AI_byMonth = {};
 let AI_monthKeys = [];
 let AI_totalRevenue = 0;
 
 function parseCSV(file, callback) {
-  Papa.parse(file, {
-    download: true, header: false, skipEmptyLines: true,
-    complete: results => callback(results.data)
-  });
+ Papa.parse(file, {
+ download: true, header: false, skipEmptyLines: true,
+ complete: results => callback(results.data)
+ });
 }
 
 parseCSV('ServiceUsage.csv', rows => {
-  serviceData = rows.slice(1);
-  document.getElementById('dotService').classList.add('loaded');
-  buildAnalytics();
-  buildCampaigns();
+ serviceData = rows.slice(1);
+ document.getElementById('dotService').classList.add('loaded');
+ buildAnalytics();
+ buildCampaigns();
 });
 
 parseCSV('InvoiceItemSetup.csv', rows => {
-  catalogData = rows.slice(1);
-  document.getElementById('dotCatalog').classList.add('loaded');
-  buildCampaigns();
+ catalogData = rows.slice(1);
+ document.getElementById('dotCatalog').classList.add('loaded');
+ buildCampaigns();
 });
 
-// ════════════════════════════════════════════════
+// 
 // SECTION 1: Analytics & KPIs
-// ════════════════════════════════════════════════
+// 
 function buildAnalytics() {
-  if (!serviceData || analyticsReady) return;
-  analyticsReady = true;
+ if (!serviceData || analyticsReady) return;
+ analyticsReady = true;
 
-  let totalRevenue = 0, totalQty = 0;
-  const byMonth = {}, byCat = {}, byService = {};
+ let totalRevenue = 0, totalQty = 0;
+ const byMonth = {}, byCat = {}, byService = {};
 
-  for (const row of serviceData) {
-    const classid = (row[1] || '').trim();
-    const qty     = parseFloat(row[4]) || 0;
-    const tot     = parseFloat(row[5]) || 0;
-    const desc    = (row[8] || '').trim() || (row[2] || '').trim() || 'Unknown';
-    const txn     = parseTxnDate(row[12]);
+ for (const row of serviceData) {
+ const classid = (row[1] || '').trim();
+ const qty = parseFloat(row[4]) || 0;
+ const tot = parseFloat(row[5]) || 0;
+ const desc = (row[8] || '').trim() || (row[2] || '').trim() || 'Unknown';
+ const txn = parseTxnDate(row[12]);
 
-    totalRevenue += tot;
-    totalQty     += qty;
+ totalRevenue += tot;
+ totalQty += qty;
 
-    if (txn) {
-      if (!byMonth[txn.key]) byMonth[txn.key] = { rev: 0, qty: 0 };
-      byMonth[txn.key].rev += tot;
-      byMonth[txn.key].qty += qty;
-    }
-    if (classid) {
-      if (!byCat[classid]) byCat[classid] = { rev: 0 };
-      byCat[classid].rev += tot;
-    }
-    if (desc) {
-      if (!byService[desc]) byService[desc] = { rev: 0, qty: 0, classid };
-      byService[desc].rev += tot;
-      byService[desc].qty += qty;
-    }
-  }
+ if (txn) {
+ if (!byMonth[txn.key]) byMonth[txn.key] = { rev: 0, qty: 0 };
+ byMonth[txn.key].rev += tot;
+ byMonth[txn.key].qty += qty;
+ }
+ if (classid) {
+ if (!byCat[classid]) byCat[classid] = { rev: 0 };
+ byCat[classid].rev += tot;
+ }
+ if (desc) {
+ if (!byService[desc]) byService[desc] = { rev: 0, qty: 0, classid };
+ byService[desc].rev += tot;
+ byService[desc].qty += qty;
+ }
+ }
 
-  // Save for AI
-  AI_byService = byService;
-  AI_byCat     = byCat;
-  AI_byMonth   = byMonth;
-  AI_totalRevenue = totalRevenue;
+ // Save for AI
+ AI_byService = byService;
+ AI_byCat = byCat;
+ AI_byMonth = byMonth;
+ AI_totalRevenue = totalRevenue;
 
-  const monthKeys = sortMonthKeys(Object.keys(byMonth));
-  AI_monthKeys = monthKeys;
+ const monthKeys = sortMonthKeys(Object.keys(byMonth));
+ AI_monthKeys = monthKeys;
 
-  document.getElementById('kpiTotalRevenue').textContent = fmt$(totalRevenue);
-  document.getElementById('kpiTotalQty').textContent = fmtN(Math.round(totalQty));
+ document.getElementById('kpiTotalRevenue').textContent = fmt$(totalRevenue);
+ document.getElementById('kpiTotalQty').textContent = fmtN(Math.round(totalQty));
 
-  const lastKey  = monthKeys[monthKeys.length - 1];
-  const prevKey  = monthKeys[monthKeys.length - 2];
-  const thisMRev = lastKey ? (byMonth[lastKey]?.rev || 0) : 0;
-  const prevMRev = prevKey ? (byMonth[prevKey]?.rev || 0) : 0;
-  const momDiff  = thisMRev - prevMRev;
-  const momPct   = prevMRev !== 0 ? (momDiff / Math.abs(prevMRev)) : 0;
+ const lastKey = monthKeys[monthKeys.length - 1];
+ const prevKey = monthKeys[monthKeys.length - 2];
+ const thisMRev = lastKey ? (byMonth[lastKey]?.rev || 0) : 0;
+ const prevMRev = prevKey ? (byMonth[prevKey]?.rev || 0) : 0;
+ const momDiff = thisMRev - prevMRev;
+ const momPct = prevMRev !== 0 ? (momDiff / Math.abs(prevMRev)) : 0;
 
-  document.getElementById('kpiThisMonth').textContent = fmt$(thisMRev);
-  const deltaEl = document.getElementById('kpiMoMDelta');
-  const arrow = momDiff >= 0 ? '↑' : '↓';
-  const sign  = momDiff >= 0 ? '+' : '';
-  deltaEl.textContent = `${arrow} ${sign}${fmt$(momDiff)} (${sign}${(momPct*100).toFixed(1)}%) vs ${prevKey ? monthLabel(prevKey) : 'prior'}`;
-  deltaEl.className   = 'kpi-delta ' + (momDiff >= 0 ? 'up' : 'down');
+ document.getElementById('kpiThisMonth').textContent = fmt$(thisMRev);
+ const deltaEl = document.getElementById('kpiMoMDelta');
+ const arrow = momDiff >= 0 ? '↑' : '↓';
+ const sign = momDiff >= 0 ? '+' : '';
+ deltaEl.textContent = `${arrow} ${sign}${fmt$(momDiff)} (${sign}${(momPct*100).toFixed(1)}%) vs ${prevKey ? monthLabel(prevKey) : 'prior'}`;
+ deltaEl.className = 'kpi-delta ' + (momDiff >= 0 ? 'up' : 'down');
 
-  const catsSorted = Object.entries(byCat).sort((a,b) => b[1].rev - a[1].rev);
-  if (catsSorted.length > 0) {
-    document.getElementById('kpiTopCat').textContent    = catsSorted[0][0];
-    document.getElementById('kpiTopCatRev').textContent = fmt$(catsSorted[0][1].rev) + ' total revenue';
-  }
+ const catsSorted = Object.entries(byCat).sort((a,b) => b[1].rev - a[1].rev);
+ if (catsSorted.length > 0) {
+ document.getElementById('kpiTopCat').textContent = catsSorted[0][0];
+ document.getElementById('kpiTopCatRev').textContent = fmt$(catsSorted[0][1].rev) + ' total revenue';
+ }
 
-  const monthRevs = monthKeys.map(k => byMonth[k].rev);
-  new Chart(document.getElementById('chartMonthly'), {
-    type: 'bar',
-    data: {
-      labels: monthKeys.map(monthLabel),
-      datasets: [{
-        data: monthRevs,
-        backgroundColor: monthKeys.map((k,i) =>
-          i === monthKeys.length-1 ? 'rgba(37,99,235,0.9)' : 'rgba(96,165,250,0.5)'
-        ),
-        borderRadius: 5, borderSkipped: false,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + fmt$(ctx.raw) } } },
-      scales: {
-        x: { grid: { display: false } },
-        y: { grid: { color: 'rgba(219,234,254,0.8)' }, ticks: { callback: v => '$' + (v>=1000 ? (v/1000).toFixed(0)+'k' : v) } }
-      }
-    }
-  });
+ const monthRevs = monthKeys.map(k => byMonth[k].rev);
+ new Chart(document.getElementById('chartMonthly'), {
+ type: 'bar',
+ data: {
+ labels: monthKeys.map(monthLabel),
+ datasets: [{
+ data: monthRevs,
+ backgroundColor: monthKeys.map((k,i) =>
+ i === monthKeys.length-1 ? 'rgba(37,99,235,0.9)' : 'rgba(96,165,250,0.5)'
+ ),
+ borderRadius: 5, borderSkipped: false,
+ }]
+ },
+ options: {
+ responsive: true, maintainAspectRatio: false,
+ plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + fmt$(ctx.raw) } } },
+ scales: {
+ x: { grid: { display: false } },
+ y: { grid: { color: 'rgba(219,234,254,0.8)' }, ticks: { callback: v => '$' + (v>=1000 ? (v/1000).toFixed(0)+'k' : v) } }
+ }
+ }
+ });
 
-  const topCats  = catsSorted.slice(0,8);
-  const otherRev = catsSorted.slice(8).reduce((s,[,v]) => s+v.rev, 0);
-  const donutLabels = topCats.map(([k]) => k);
-  const donutData   = topCats.map(([,v]) => v.rev);
-  if (otherRev > 0) { donutLabels.push('Other'); donutData.push(otherRev); }
+ const topCats = catsSorted.slice(0,8);
+ const otherRev = catsSorted.slice(8).reduce((s,[,v]) => s+v.rev, 0);
+ const donutLabels = topCats.map(([k]) => k);
+ const donutData = topCats.map(([,v]) => v.rev);
+ if (otherRev > 0) { donutLabels.push('Other'); donutData.push(otherRev); }
 
-  const palette = ['#2563eb','#60a5fa','#3b82f6','#7c3aed','#a78bfa','#0ea5e9','#16a34a','#f472b6','#94a3b8'];
-  new Chart(document.getElementById('chartDonut'), {
-    type: 'doughnut',
-    data: { labels: donutLabels, datasets: [{ data: donutData, backgroundColor: palette, borderWidth: 2, borderColor: '#fff' }] },
-    options: {
-      responsive: true, maintainAspectRatio: false, cutout: '62%',
-      plugins: {
-        legend: { position: 'right', labels: { boxWidth: 12, padding: 10, font: { size: 10 } } },
-        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmt$(ctx.raw)}` } }
-      }
-    }
-  });
+ const palette = ['#2563eb','#60a5fa','#3b82f6','#7c3aed','#a78bfa','#0ea5e9','#16a34a','#f472b6','#94a3b8'];
+ new Chart(document.getElementById('chartDonut'), {
+ type: 'doughnut',
+ data: { labels: donutLabels, datasets: [{ data: donutData, backgroundColor: palette, borderWidth: 2, borderColor: '#fff' }] },
+ options: {
+ responsive: true, maintainAspectRatio: false, cutout: '62%',
+ plugins: {
+ legend: { position: 'right', labels: { boxWidth: 12, padding: 10, font: { size: 10 } } },
+ tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmt$(ctx.raw)}` } }
+ }
+ }
+ });
 
-  const svcSorted = Object.entries(byService).sort((a,b) => b[1].rev - a[1].rev).slice(0,10);
-  new Chart(document.getElementById('chartTopServices'), {
-    type: 'bar',
-    data: {
-      labels: svcSorted.map(([k]) => k.length>28 ? k.slice(0,26)+'…' : k),
-      datasets: [{ data: svcSorted.map(([,v]) => v.rev), backgroundColor: 'rgba(37,99,235,0.65)', borderRadius: 3 }]
-    },
-    options: {
-      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + fmt$(ctx.raw) } } },
-      scales: {
-        x: { grid: { color: 'rgba(219,234,254,0.8)' }, ticks: { callback: v => '$' + (v>=1000 ? (v/1000).toFixed(0)+'k' : v) } },
-        y: { grid: { display: false } }
-      }
-    }
-  });
+ const svcSorted = Object.entries(byService).sort((a,b) => b[1].rev - a[1].rev).slice(0,10);
+ new Chart(document.getElementById('chartTopServices'), {
+ type: 'bar',
+ data: {
+ labels: svcSorted.map(([k]) => k.length>28 ? k.slice(0,26)+'…' : k),
+ datasets: [{ data: svcSorted.map(([,v]) => v.rev), backgroundColor: 'rgba(37,99,235,0.65)', borderRadius: 3 }]
+ },
+ options: {
+ indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+ plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + fmt$(ctx.raw) } } },
+ scales: {
+ x: { grid: { color: 'rgba(219,234,254,0.8)' }, ticks: { callback: v => '$' + (v>=1000 ? (v/1000).toFixed(0)+'k' : v) } },
+ y: { grid: { display: false } }
+ }
+ }
+ });
 
-  const top20 = Object.entries(byService).sort((a,b) => b[1].rev - a[1].rev).slice(0,20);
-  document.getElementById('topServicesTable').innerHTML = top20.map(([name,v],i) => {
-    const avgPrice = v.qty > 0 ? v.rev / v.qty : 0;
-    return `<tr>
-      <td class="muted rank">${i+1}</td>
-      <td>${escHtml(name)}</td>
-      <td class="muted">${escHtml(v.classid)}</td>
-      <td class="num blue">${fmt$(v.rev)}</td>
-      <td class="num">${fmtN(Math.round(v.qty))}</td>
-      <td class="num">${fmt$(avgPrice)}</td>
-    </tr>`;
-  }).join('');
+ const top20 = Object.entries(byService).sort((a,b) => b[1].rev - a[1].rev).slice(0,20);
+ document.getElementById('topServicesTable').innerHTML = top20.map(([name,v],i) => {
+ const avgPrice = v.qty > 0 ? v.rev / v.qty : 0;
+ return `<tr><td class="muted rank">${i+1}</td><td>${escHtml(name)}</td><td class="muted">${escHtml(v.classid)}</td><td class="num blue">${fmt$(v.rev)}</td><td class="num">${fmtN(Math.round(v.qty))}</td><td class="num">${fmt$(avgPrice)}</td></tr>`;
+ }).join('');
 
-  document.getElementById('analyticsLoading').style.display = 'none';
-  document.getElementById('analyticsContent').style.display = 'block';
-  document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleString();
+ document.getElementById('analyticsLoading').style.display = 'none';
+ document.getElementById('analyticsContent').style.display = 'block';
+ document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleString();
 }
 
-// ════════════════════════════════════════════════
+// 
 // SECTION 2: Campaigns
-// ════════════════════════════════════════════════
+// 
 function buildCampaigns() {
-  if (!serviceData || !catalogData || campaignsReady) return;
-  campaignsReady = true;
-  buildC1(); buildC2(); buildC3(); buildC4();
-  document.getElementById('campaignsLoading').style.display = 'none';
-  document.getElementById('campaignsContent').style.display = 'block';
+ if (!serviceData || !catalogData || campaignsReady) return;
+ campaignsReady = true;
+ buildC1(); buildC2(); buildC3(); buildC4();
+ document.getElementById('campaignsLoading').style.display = 'none';
+ document.getElementById('campaignsContent').style.display = 'block';
 }
 
-// ── Canadian Veterinary CPI Inflation Rates (annual) ──
+// Canadian Veterinary CPI Inflation Rates (annual) 
 // Source: Bank of Canada CPI, veterinary services category
 const CPI_RATES = {
-  2008: 0.024, 2009: -0.003, 2010: 0.018, 2011: 0.029, 2012: 0.015,
-  2013: 0.009, 2014: 0.020,  2015: 0.013, 2016: 0.014, 2017: 0.016,
-  2018: 0.022, 2019: 0.034,  2020: 0.021, 2021: 0.041,
-  2022: 0.068, 2023: 0.058,  2024: 0.052,
-  2025: 0.043  // projected / partial year
+ 2008: 0.024, 2009: -0.003, 2010: 0.018, 2011: 0.029, 2012: 0.015,
+ 2013: 0.009, 2014: 0.020, 2015: 0.013, 2016: 0.014, 2017: 0.016,
+ 2018: 0.022, 2019: 0.034, 2020: 0.021, 2021: 0.041,
+ 2022: 0.068, 2023: 0.058, 2024: 0.052,
+ 2025: 0.043 // projected / partial year
 };
 const FORECAST_RATE_2026 = 0.038; // BoC target range midpoint forecast
 
 // Compound inflation from year Y to today (2025)
 function compoundInflation(fromYear, toYear) {
-  let factor = 1.0;
-  for (let y = fromYear; y < toYear; y++) {
-    factor *= (1 + (CPI_RATES[y] || 0.04));
-  }
-  return factor;
+ let factor = 1.0;
+ for (let y = fromYear; y < toYear; y++) {
+ factor *= (1 + (CPI_RATES[y] || 0.04));
+ }
+ return factor;
 }
 
 let c1AllItems = [];
 let c1CurrentFilter = 'all';
 
-// ── Real CPI rates (Statistics Canada) ──
+// Real CPI rates (Statistics Canada) 
 // Override the earlier partial table with the full accurate set
 Object.assign(CPI_RATES, {
-  2005: 0.022, 2006: 0.020, 2007: 0.021,
-  2008: 0.024, 2009:-0.003, 2010: 0.018,
-  2011: 0.029, 2012: 0.015, 2013: 0.009,
-  2014: 0.020, 2015: 0.013, 2016: 0.014,
-  2017: 0.016, 2018: 0.022, 2019: 0.034,
-  2020: 0.021, 2021: 0.041, 2022: 0.068,
-  2023: 0.058, 2024: 0.052  // through end of 2024 — no forecast rates used
+ 2005: 0.022, 2006: 0.020, 2007: 0.021,
+ 2008: 0.024, 2009:-0.003, 2010: 0.018,
+ 2011: 0.029, 2012: 0.015, 2013: 0.009,
+ 2014: 0.020, 2015: 0.013, 2016: 0.014,
+ 2017: 0.016, 2018: 0.022, 2019: 0.034,
+ 2020: 0.021, 2021: 0.041, 2022: 0.068,
+ 2023: 0.058, 2024: 0.052 // through end of 2024 — no forecast rates used
 });
 
 let priceHistoryData = null;
-let c1DataReady      = false;
+let c1DataReady = false;
 
 function buildC1() {
-  Papa.parse('pricehistory.csv', {
-    download: true, header: false, skipEmptyLines: true,
-    complete: r => { priceHistoryData = r.data.slice(1); computeC1(); }
-  });
+ Papa.parse('pricehistory.csv', {
+ download: true, header: false, skipEmptyLines: true,
+ complete: r => { priceHistoryData = r.data.slice(1); computeC1(); }
+ });
 }
 
 function parseDate(s) {
-  if (!s) return null;
-  const m = s.match(/(\d+)\/(\d+)\/(\d{4})/);
-  return m ? new Date(parseInt(m[3]), parseInt(m[1]) - 1, parseInt(m[2])) : null;
+ if (!s) return null;
+ const m = s.match(/(\d+)\/(\d+)\/(\d{4})/);
+ return m ? new Date(parseInt(m[3]), parseInt(m[1]) - 1, parseInt(m[2])) : null;
 }
 
 function computeC1() {
-  if (c1DataReady) return;
-  c1DataReady = true;
+ if (c1DataReady) return;
+ c1DataReady = true;
 
-  // ── 1. Build price map: invoiceitemid → { lastMod: Date, price, name } ──
-  // pricehistory cols: 0=invoiceitemid, 1=description, 2=invoicedescription,
-  //   3=dispensingfee, 4=minimumprice, 5=mod_date, 6=quanitytunitprice, 7=unitmeas_desc
-  const priceMap = {};
-  for (const row of priceHistoryData) {
-    const id    = (row[0] || '').trim();
-    const price = parseFloat(row[6]) || 0;
-    const name  = (row[2] || row[1] || '').trim();
-    const d     = parseDate(row[5]);
-    if (!id || !d || price <= 0) continue;
-    if (!priceMap[id] || d > priceMap[id].lastMod) {
-      priceMap[id] = { lastMod: d, price, name: name || priceMap[id]?.name || '' };
-    }
-    if (!priceMap[id].name && name) priceMap[id].name = name;
-  }
+ // 1. Build price map: invoiceitemid → { lastMod: Date, price, name } 
+ // pricehistory cols: 0=invoiceitemid, 1=description, 2=invoicedescription,
+ // 3=dispensingfee, 4=minimumprice, 5=mod_date, 6=quanitytunitprice, 7=unitmeas_desc
+ const priceMap = {};
+ for (const row of priceHistoryData) {
+ const id = (row[0] || '').trim();
+ const price = parseFloat(row[6]) || 0;
+ const name = (row[2] || row[1] || '').trim();
+ const d = parseDate(row[5]);
+ if (!id || !d || price <= 0) continue;
+ if (!priceMap[id] || d > priceMap[id].lastMod) {
+ priceMap[id] = { lastMod: d, price, name: name || priceMap[id]?.name || '' };
+ }
+ if (!priceMap[id].name && name) priceMap[id].name = name;
+ }
 
-  // ── 2. Build usage map from ServiceUsage (already loaded, covers the dataset period) ──
-  // ServiceUsage: col[0]=invid (= invoiceitemid), col[4]=qty
-  const TODAY = new Date();
-  const usageMap = {};
-  if (serviceData) {
-    for (const row of serviceData) {
-      const id  = (row[0] || '').trim();
-      const qty = parseFloat(row[4]) || 0;
-      if (id && qty > 0) usageMap[id] = (usageMap[id] || 0) + qty;
-    }
-  }
+ // 2. Build usage map from ServiceUsage (already loaded, covers the dataset period) 
+ // ServiceUsage: col[0]=invid (= invoiceitemid), col[4]=qty
+ const TODAY = new Date();
+ const usageMap = {};
+ if (serviceData) {
+ for (const row of serviceData) {
+ const id = (row[0] || '').trim();
+ const qty = parseFloat(row[4]) || 0;
+ if (id && qty > 0) usageMap[id] = (usageMap[id] || 0) + qty;
+ }
+ }
 
-  // ── 2b. Build active item set from catalog (col[4]=invoiceitemid, col[14]=status) ──
-  const activeIds = new Set();
-  if (catalogData) {
-    for (const row of catalogData) {
-      if ((row[14] || '').trim() === '1') activeIds.add((row[4] || '').trim());
-    }
-  }
+ // 2b. Build active item set from catalog (col[4]=invoiceitemid, col[14]=status) 
+ const activeIds = new Set();
+ if (catalogData) {
+ for (const row of catalogData) {
+ if ((row[14] || '').trim() === '1') activeIds.add((row[4] || '').trim());
+ }
+ }
 
-  // ── 3. Build report ──
-  const ONE_YR_AGO = new Date(TODAY); ONE_YR_AGO.setFullYear(TODAY.getFullYear() - 1);
-  const items = [];
+ // 3. Build report 
+ const ONE_YR_AGO = new Date(TODAY); ONE_YR_AGO.setFullYear(TODAY.getFullYear() - 1);
+ const items = [];
 
-  for (const [id, info] of Object.entries(priceMap)) {
-    // Active items only
-    if (activeIds.size > 0 && !activeIds.has(id)) continue;
-    // Stale = not changed in over 1 year
-    if (info.lastMod >= ONE_YR_AGO) continue;
-    // Skip zero usage — if it's not being used there's nothing to recover
-    if (!usageMap[id] || usageMap[id] <= 0) continue;
+ for (const [id, info] of Object.entries(priceMap)) {
+ // Active items only
+ if (activeIds.size > 0 && !activeIds.has(id)) continue;
+ // Stale = not changed in over 1 year
+ if (info.lastMod >= ONE_YR_AGO) continue;
+ // Skip zero usage — if it's not being used there's nothing to recover
+ if (!usageMap[id] || usageMap[id] <= 0) continue;
 
-    const fromYear   = info.lastMod.getFullYear();
-    const factor     = compoundInflation(fromYear, 2025);  // actual CPI only, no forecast
-    const suggested  = parseFloat((info.price * factor).toFixed(2));
-    const delta      = parseFloat((suggested - info.price).toFixed(2));
-    if (delta <= 0.005) continue;
+ const fromYear = info.lastMod.getFullYear();
+ const factor = compoundInflation(fromYear, 2025); // actual CPI only, no forecast
+ const suggested = parseFloat((info.price * factor).toFixed(2));
+ const delta = parseFloat((suggested - info.price).toFixed(2));
+ if (delta <= 0.005) continue;
 
-    const inflPct  = ((factor - 1) * 100).toFixed(1);
-    const daysSince = Math.round((TODAY - info.lastMod) / 86400000);
-    const usage    = usageMap[id] || 0;
-    const uplift   = parseFloat((delta * usage).toFixed(2));
-    const gapPct   = info.price > 0 ? delta / info.price : 0;
-    const status_flag = gapPct > 0.15 ? 'urgent' : gapPct > 0.04 ? 'behind' : 'low';
+ const inflPct = ((factor - 1) * 100).toFixed(1);
+ const daysSince = Math.round((TODAY - info.lastMod) / 86400000);
+ const usage = usageMap[id] || 0;
+ const uplift = parseFloat((delta * usage).toFixed(2));
+ const gapPct = info.price > 0 ? delta / info.price : 0;
+ const status_flag = gapPct > 0.15 ? 'urgent' : gapPct > 0.04 ? 'behind' : 'low';
 
-    items.push({
-      id, name: info.name, lastMod: info.lastMod,
-      lastModStr: info.lastMod.toLocaleDateString('en-CA'),
-      daysSince, inflPct, price: info.price,
-      suggested, delta, gapPct, usage, uplift, status_flag
-    });
-  }
+ items.push({
+ id, name: info.name, lastMod: info.lastMod,
+ lastModStr: info.lastMod.toLocaleDateString('en-CA'),
+ daysSince, inflPct, price: info.price,
+ suggested, delta, gapPct, usage, uplift, status_flag
+ });
+ }
 
-  // Sort: uplift desc, then delta desc for zero-usage items
-  items.sort((a, b) => b.uplift - a.uplift || b.delta - a.delta);
-  c1AllItems = items;
+ // Sort: uplift desc, then delta desc for zero-usage items
+ items.sort((a, b) => b.uplift - a.uplift || b.delta - a.delta);
+ c1AllItems = items;
 
-  const withUsage   = items.filter(i => i.usage > 0);
-  const urgent      = items.filter(i => i.status_flag === 'urgent');
-  const totalUplift = items.reduce((s, i) => s + i.uplift, 0);
-  const usageUplift = withUsage.reduce((s, i) => s + i.uplift, 0);
+ const withUsage = items.filter(i => i.usage > 0);
+ const urgent = items.filter(i => i.status_flag === 'urgent');
+ const totalUplift = items.reduce((s, i) => s + i.uplift, 0);
+ const usageUplift = withUsage.reduce((s, i) => s + i.uplift, 0);
 
-  document.getElementById('c1Badge').textContent =
-    `${items.length} items behind inflation · ${fmt$(usageUplift)} confirmed annual uplift`;
+ document.getElementById('c1Badge').textContent =
+ `${items.length} items behind inflation · ${fmt$(usageUplift)} confirmed annual uplift`;
 
-  document.getElementById('c1Summary').innerHTML = `
-    <div class="stat-bar-item">
-      <div class="stat-bar-label">Confirmed Annual Uplift</div>
-      <div class="stat-bar-value" style="color:var(--green)">${fmt$(usageUplift)}</div>
-      <div class="stat-bar-sub">items with real usage × delta</div>
-    </div>
-    <div class="stat-bar-item">
-      <div class="stat-bar-label">Items Behind Inflation</div>
-      <div class="stat-bar-value">${items.length}</div>
-      <div class="stat-bar-sub">${withUsage.length} with recent usage</div>
-    </div>
-    <div class="stat-bar-item">
-      <div class="stat-bar-label">Urgent (&gt;15% gap)</div>
-      <div class="stat-bar-value" style="color:var(--red)">${urgent.length}</div>
-      <div class="stat-bar-sub">immediate review needed</div>
-    </div>
-    <div class="stat-bar-item">
-      <div class="stat-bar-label">Oldest Stale Price</div>
-      <div class="stat-bar-value" style="color:var(--orange)">${items.length ? Math.round(items.reduce((m,i)=>Math.max(m,i.daysSince),0)/365.25) : 0} yrs</div>
-      <div class="stat-bar-sub">since last price change</div>
-    </div>
-    <div class="stat-bar-item">
-      <div class="stat-bar-label">Avg Days Stale</div>
-      <div class="stat-bar-value" style="color:var(--purple)">${items.length ? fmtN(Math.round(items.reduce((s,i)=>s+i.daysSince,0)/items.length)) : 0}</div>
-      <div class="stat-bar-sub">avg since last price change</div>
-    </div>
-  `;
+ document.getElementById('c1Summary').innerHTML = `
+ <div class="stat-bar-item"><div class="stat-bar-label">Confirmed Annual Uplift</div><div class="stat-bar-value" style="color:var(--green)">${fmt$(usageUplift)}</div><div class="stat-bar-sub">items with real usage × delta</div></div><div class="stat-bar-item"><div class="stat-bar-label">Items Behind Inflation</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">${withUsage.length} with recent usage</div></div><div class="stat-bar-item"><div class="stat-bar-label">Urgent (&gt;15% gap)</div><div class="stat-bar-value" style="color:var(--red)">${urgent.length}</div><div class="stat-bar-sub">immediate review needed</div></div><div class="stat-bar-item"><div class="stat-bar-label">Oldest Stale Price</div><div class="stat-bar-value" style="color:var(--orange)">${items.length ? Math.round(items.reduce((m,i)=>Math.max(m,i.daysSince),0)/365.25) : 0} yrs</div><div class="stat-bar-sub">since last price change</div></div><div class="stat-bar-item"><div class="stat-bar-label">Avg Days Stale</div><div class="stat-bar-value" style="color:var(--purple)">${items.length ? fmtN(Math.round(items.reduce((s,i)=>s+i.daysSince,0)/items.length)) : 0}</div><div class="stat-bar-sub">avg since last price change</div></div>
+ `;
 
-  c1Render('all');
+ c1Render('all');
 }
 
 function c1Filter(btn, filter) {
-  document.querySelectorAll('.c1-filter').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  c1CurrentFilter = filter;
-  c1Render(filter);
+ document.querySelectorAll('.c1-filter').forEach(b => b.classList.remove('active'));
+ btn.classList.add('active');
+ c1CurrentFilter = filter;
+ c1Render(filter);
 }
 
 function c1Render(filter) {
-  let items = c1AllItems;
-  if (filter === 'used')   items = items.filter(i => i.usage > 0);
-  if (filter === 'urgent') items = items.filter(i => i.status_flag === 'urgent');
+ let items = c1AllItems;
+ if (filter === 'used') items = items.filter(i => i.usage > 0);
+ if (filter === 'urgent') items = items.filter(i => i.status_flag === 'urgent');
 
-  if (!items.length) {
-    document.getElementById('c1Table').innerHTML =
-      `<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted)">No items match this filter</td></tr>`;
-    return;
-  }
+ if (!items.length) {
+ document.getElementById('c1Table').innerHTML =
+ `<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted)">No items match this filter</td></tr>`;
+ return;
+ }
 
-  document.getElementById('c1Table').innerHTML = items.slice(0, 300).map(it => {
-    const gapColor  = it.gapPct > 0.15 ? '#ef4444' : it.gapPct > 0.07 ? '#ea580c' : '#64748b';
-    const upliftStr = it.uplift > 0.01
-      ? `<strong style="color:#16a34a">+${fmt$(it.uplift)}</strong>`
-      : '<span style="color:var(--muted)">—</span>';
-    const usageStr  = it.usage > 0
-      ? fmtN(Math.round(it.usage))
-      : '<span style="color:var(--muted)">—</span>';
-    const daysColor = it.daysSince > 730 ? '#ef4444' : it.daysSince > 365 ? '#ea580c' : '#64748b';
-    return `<tr>
-      <td>${escHtml(it.name || it.id)}</td>
-      <td class="num" style="color:${daysColor};font-weight:600">${it.lastModStr}</td>
-      <td class="num" style="color:${daysColor};font-weight:700">${fmtN(it.daysSince)}</td>
-      <td class="num" style="color:var(--orange);font-weight:700">+${it.inflPct}%</td>
-      <td class="num">${fmt$(it.price)}</td>
-      <td class="num" style="color:var(--primary);font-weight:700">${fmt$(it.suggested)}</td>
-      <td class="num" style="color:${gapColor};font-weight:700">+${fmt$(it.delta)}</td>
-      <td class="num">${usageStr}</td>
-      <td class="num">${upliftStr}</td>
-    </tr>`;
-  }).join('');
+ document.getElementById('c1Table').innerHTML = items.slice(0, 300).map(it => {
+ const gapColor = it.gapPct > 0.15 ? '#ef4444' : it.gapPct > 0.07 ? '#ea580c' : '#64748b';
+ const upliftStr = it.uplift > 0.01
+ ? `<strong style="color:#16a34a">+${fmt$(it.uplift)}</strong>`
+ : '<span style="color:var(--muted)">—</span>';
+ const usageStr = it.usage > 0
+ ? fmtN(Math.round(it.usage))
+ : '<span style="color:var(--muted)">—</span>';
+ const daysColor = it.daysSince > 730 ? '#ef4444' : it.daysSince > 365 ? '#ea580c' : '#64748b';
+ return `<tr><td>${escHtml(it.name || it.id)}</td><td class="num" style="color:${daysColor};font-weight:600">${it.lastModStr}</td><td class="num" style="color:${daysColor};font-weight:700">${fmtN(it.daysSince)}</td><td class="num" style="color:var(--orange);font-weight:700">+${it.inflPct}%</td><td class="num">${fmt$(it.price)}</td><td class="num" style="color:var(--primary);font-weight:700">${fmt$(it.suggested)}</td><td class="num" style="color:${gapColor};font-weight:700">+${fmt$(it.delta)}</td><td class="num">${usageStr}</td><td class="num">${upliftStr}</td></tr>`;
+ }).join('');
 }
 
 function buildC2() {
-  // ── True .99 recovery: based on ACTUAL transaction data ──
-  // For every transaction row: what is the avg price per unit?
-  // If it's NOT already at .99, what would the next .99 price be?
-  // How much more would we have made?
+ // True .99 recovery: based on ACTUAL transaction data 
+ // For every transaction row: what is the avg price per unit?
+ // If it's NOT already at .99, what would the next .99 price be?
+ // How much more would we have made?
 
-  // Build per-service stats from ServiceUsage (actual avg price per unit)
-  const svcTxns = {}; // name → { totalRev, totalQty, cat, months: Set }
-  for (const row of serviceData) {
-    const name = (row[8] || '').trim() || (row[2] || '').trim();
-    const cat  = (row[1] || '').trim();
-    const qty  = parseFloat(row[4]) || 0;
-    const tot  = parseFloat(row[5]) || 0;
-    if (!name || qty <= 0 || tot <= 0) continue;
-    if (!svcTxns[name]) svcTxns[name] = { totalRev: 0, totalQty: 0, cat, txnCount: 0 };
-    svcTxns[name].totalRev  += tot;
-    svcTxns[name].totalQty  += qty;
-    svcTxns[name].txnCount  += 1;
-  }
+ // Build per-service stats from ServiceUsage (actual avg price per unit)
+ const svcTxns = {}; // name → { totalRev, totalQty, cat, months: Set }
+ for (const row of serviceData) {
+ const name = (row[8] || '').trim() || (row[2] || '').trim();
+ const cat = (row[1] || '').trim();
+ const qty = parseFloat(row[4]) || 0;
+ const tot = parseFloat(row[5]) || 0;
+ if (!name || qty <= 0 || tot <= 0) continue;
+ if (!svcTxns[name]) svcTxns[name] = { totalRev: 0, totalQty: 0, cat, txnCount: 0 };
+ svcTxns[name].totalRev += tot;
+ svcTxns[name].totalQty += qty;
+ svcTxns[name].txnCount += 1;
+ }
 
-  // For each service, compute avg unit price from actuals
-  // Then find the next .99 price above it (round up to X.99)
-  const items = [];
-  let grandUplift = 0;
-  let grandVolume = 0;
+ // For each service, compute avg unit price from actuals
+ // Then find the next .99 price above it (round up to X.99)
+ const items = [];
+ let grandUplift = 0;
+ let grandVolume = 0;
 
-  for (const [name, s] of Object.entries(svcTxns)) {
-    const avgPrice = s.totalQty > 0 ? s.totalRev / s.totalQty : 0;
-    if (avgPrice <= 1) continue;
+ for (const [name, s] of Object.entries(svcTxns)) {
+ const avgPrice = s.totalQty > 0 ? s.totalRev / s.totalQty : 0;
+ if (avgPrice <= 1) continue;
 
-    // Next .99 above current avg price
-    const floor99 = Math.floor(avgPrice); // e.g. 45.30 → 45
-    // .99 price options: floor-1 + .99, floor + .99
-    let next99;
-    if (Math.abs(avgPrice % 1 - 0.99) < 0.005) {
-      // already at .99 — skip
-      continue;
-    }
-    // Next .99 above: if avgPrice is e.g. 45.30, next99 = 45.99; if 45.99+ already, 46.99
-    next99 = floor99 + 0.99;
-    if (next99 < avgPrice) next99 = floor99 + 1 + 0.99;
+ // Next .99 above current avg price
+ const floor99 = Math.floor(avgPrice); // e.g. 45.30 → 45
+ // .99 price options: floor-1 + .99, floor + .99
+ let next99;
+ if (Math.abs(avgPrice % 1 - 0.99) < 0.005) {
+ // already at .99 — skip
+ continue;
+ }
+ // Next .99 above: if avgPrice is e.g. 45.30, next99 = 45.99; if 45.99+ already, 46.99
+ next99 = floor99 + 0.99;
+ if (next99 < avgPrice) next99 = floor99 + 1 + 0.99;
 
-    const gainPerUnit = next99 - avgPrice;
-    // Only include if gain is meaningful (> $0.01 and < $5 — avoid huge jumps)
-    if (gainPerUnit < 0.01 || gainPerUnit > 5.0) continue;
+ const gainPerUnit = next99 - avgPrice;
+ // Only include if gain is meaningful (> $0.01 and < $5 — avoid huge jumps)
+ if (gainPerUnit < 0.01 || gainPerUnit > 5.0) continue;
 
-    const annualUplift = gainPerUnit * s.totalQty;
-    grandUplift += annualUplift;
-    grandVolume += s.totalQty;
+ const annualUplift = gainPerUnit * s.totalQty;
+ grandUplift += annualUplift;
+ grandVolume += s.totalQty;
 
-    items.push({
-      name, cat: s.cat, avgPrice, next99,
-      gainPerUnit, annualQty: s.totalQty,
-      annualUplift, txnCount: s.txnCount
-    });
-  }
+ items.push({
+ name, cat: s.cat, avgPrice, next99,
+ gainPerUnit, annualQty: s.totalQty,
+ annualUplift, txnCount: s.txnCount
+ });
+ }
 
-  items.sort((a, b) => b.annualUplift - a.annualUplift);
+ items.sort((a, b) => b.annualUplift - a.annualUplift);
 
-  const alreadyAt99 = Object.values(svcTxns).filter(s => {
-    const avg = s.totalQty > 0 ? s.totalRev / s.totalQty : 0;
-    return Math.abs(avg % 1 - 0.99) < 0.05;
-  }).length;
+ const alreadyAt99 = Object.values(svcTxns).filter(s => {
+ const avg = s.totalQty > 0 ? s.totalRev / s.totalQty : 0;
+ return Math.abs(avg % 1 - 0.99) < 0.05;
+ }).length;
 
-  document.getElementById('c2Badge').textContent = `${fmt$(grandUplift)} missed last year`;
-  document.getElementById('c2Summary').innerHTML = `
-    <div class="stat-bar-item"><div class="stat-bar-label">Missed Revenue</div><div class="stat-bar-value" style="color:var(--purple)">${fmt$(grandUplift)}</div><div class="stat-bar-sub">if all adjusted to .99</div></div>
-    <div class="stat-bar-item"><div class="stat-bar-label">Affected Services</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">not at .99 pricing</div></div>
-    <div class="stat-bar-item"><div class="stat-bar-label">Total Transactions</div><div class="stat-bar-value">${fmtN(Math.round(grandVolume))}</div><div class="stat-bar-sub">units across affected items</div></div>
-    <div class="stat-bar-item"><div class="stat-bar-label">Already at .99</div><div class="stat-bar-value">${alreadyAt99}</div><div class="stat-bar-sub">services already optimized</div></div>
-    <div class="stat-bar-item"><div class="stat-bar-label">Avg Gain / Unit</div><div class="stat-bar-value">${grandVolume > 0 ? fmt$(grandUplift / grandVolume) : '—'}</div><div class="stat-bar-sub">across all affected items</div></div>
-  `;
+ document.getElementById('c2Badge').textContent = `${fmt$(grandUplift)} missed last year`;
+ document.getElementById('c2Summary').innerHTML = `
+ <div class="stat-bar-item"><div class="stat-bar-label">Missed Revenue</div><div class="stat-bar-value" style="color:var(--purple)">${fmt$(grandUplift)}</div><div class="stat-bar-sub">if all adjusted to .99</div></div><div class="stat-bar-item"><div class="stat-bar-label">Affected Services</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">not at .99 pricing</div></div><div class="stat-bar-item"><div class="stat-bar-label">Total Transactions</div><div class="stat-bar-value">${fmtN(Math.round(grandVolume))}</div><div class="stat-bar-sub">units across affected items</div></div><div class="stat-bar-item"><div class="stat-bar-label">Already at .99</div><div class="stat-bar-value">${alreadyAt99}</div><div class="stat-bar-sub">services already optimized</div></div><div class="stat-bar-item"><div class="stat-bar-label">Avg Gain / Unit</div><div class="stat-bar-value">${grandVolume > 0 ? fmt$(grandUplift / grandVolume) : '—'}</div><div class="stat-bar-sub">across all affected items</div></div>
+ `;
 
-  document.getElementById('c2Table').innerHTML = items.slice(0, 100).map(it => `<tr>
-    <td>${escHtml(it.name)}</td>
-    <td class="muted">${escHtml(it.cat)}</td>
-    <td class="num">${fmt$(it.avgPrice)}</td>
-    <td class="num blue">${fmt$(it.next99)}</td>
-    <td class="num" style="color:var(--purple);font-weight:700">+${fmt$(it.gainPerUnit)}</td>
-    <td class="num">${fmtN(Math.round(it.annualQty))}</td>
-    <td class="num green" style="font-weight:700">+${fmt$(it.annualUplift)}</td>
-  </tr>`).join('');
+ document.getElementById('c2Table').innerHTML = items.slice(0, 100).map(it => `<tr><td>${escHtml(it.name)}</td><td class="muted">${escHtml(it.cat)}</td><td class="num">${fmt$(it.avgPrice)}</td><td class="num blue">${fmt$(it.next99)}</td><td class="num" style="color:var(--purple);font-weight:700">+${fmt$(it.gainPerUnit)}</td><td class="num">${fmtN(Math.round(it.annualQty))}</td><td class="num green" style="font-weight:700">+${fmt$(it.annualUplift)}</td></tr>`).join('');
 }
 
 function buildC3() {
-  const svcStats = {};
-  for (const row of serviceData) {
-    const desc = (row[8] || '').trim();
-    const qty  = parseFloat(row[4]) || 0;
-    const tot  = parseFloat(row[5]) || 0;
-    if (!desc) continue;
-    if (!svcStats[desc]) svcStats[desc] = { qty: 0, rev: 0 };
-    svcStats[desc].qty += qty;
-    svcStats[desc].rev += tot;
-  }
-  const catalogPrice = {};
-  for (const row of catalogData) {
-    if ((row[14] || '').trim() !== '1') continue;
-    const price = parseFloat(row[10]) || 0;
-    if (price <= 0) continue;
-    const name = (row[5] || '').trim() || (row[6] || '').trim();
-    if (name) catalogPrice[name] = price;
-  }
-  const items = [];
-  for (const [name, stats] of Object.entries(svcStats)) {
-    if (stats.qty <= 50) continue;
-    const price = catalogPrice[name] ?? (stats.qty > 0 ? stats.rev / stats.qty : 0);
-    if (price <= 0 || price >= 100) continue;
-    items.push({ name, annualQty: stats.qty, price });
-  }
-  items.sort((a,b) => b.annualQty - a.annualQty);
-  document.getElementById('c3Badge').textContent = `${items.length} high-volume services`;
-  document.getElementById('c3Table').innerHTML = items.slice(0,50).map(it => `<tr>
-    <td>${escHtml(it.name)}</td>
-    <td class="num">${fmtN(Math.round(it.annualQty))}</td>
-    <td class="num">${fmt$(it.price)}</td>
-    <td class="num green">+${fmt$(it.annualQty * 5)}</td>
-    <td class="num blue">+${fmt$(it.annualQty * 10)}</td>
-  </tr>`).join('');
+ const svcStats = {};
+ for (const row of serviceData) {
+ const desc = (row[8] || '').trim();
+ const qty = parseFloat(row[4]) || 0;
+ const tot = parseFloat(row[5]) || 0;
+ if (!desc) continue;
+ if (!svcStats[desc]) svcStats[desc] = { qty: 0, rev: 0 };
+ svcStats[desc].qty += qty;
+ svcStats[desc].rev += tot;
+ }
+ const catalogPrice = {};
+ for (const row of catalogData) {
+ if ((row[14] || '').trim() !== '1') continue;
+ const price = parseFloat(row[10]) || 0;
+ if (price <= 0) continue;
+ const name = (row[5] || '').trim() || (row[6] || '').trim();
+ if (name) catalogPrice[name] = price;
+ }
+ const items = [];
+ for (const [name, stats] of Object.entries(svcStats)) {
+ if (stats.qty <= 50) continue;
+ const price = catalogPrice[name] ?? (stats.qty > 0 ? stats.rev / stats.qty : 0);
+ if (price <= 0 || price >= 100) continue;
+ items.push({ name, annualQty: stats.qty, price });
+ }
+ items.sort((a,b) => b.annualQty - a.annualQty);
+ document.getElementById('c3Badge').textContent = `${items.length} high-volume services`;
+ document.getElementById('c3Table').innerHTML = items.slice(0,50).map(it => `<tr><td>${escHtml(it.name)}</td><td class="num">${fmtN(Math.round(it.annualQty))}</td><td class="num">${fmt$(it.price)}</td><td class="num green">+${fmt$(it.annualQty * 5)}</td><td class="num blue">+${fmt$(it.annualQty * 10)}</td></tr>`).join('');
 }
 
 function buildC4() {
-  const monthCats = {};
-  for (const row of serviceData) {
-    const classid = (row[1] || '').trim();
-    const txn     = parseTxnDate(row[12]);
-    if (!classid || !txn) continue;
-    if (!monthCats[txn.key]) monthCats[txn.key] = new Set();
-    monthCats[txn.key].add(classid);
-  }
-  const pairCounts = {};
-  const totalMonths = Object.keys(monthCats).length;
-  for (const cats of Object.values(monthCats)) {
-    const arr = Array.from(cats).sort();
-    for (let i = 0; i < arr.length; i++) {
-      for (let j = i+1; j < arr.length; j++) {
-        const key = arr[i] + '|||' + arr[j];
-        pairCounts[key] = (pairCounts[key] || 0) + 1;
-      }
-    }
-  }
-  const sorted = Object.entries(pairCounts).sort((a,b) => b[1]-a[1]).slice(0,10);
-  document.getElementById('c4Badge').textContent = `Top 10 of ${Object.keys(pairCounts).length} pairings`;
-  document.getElementById('c4Grid').innerHTML = sorted.map(([key, count]) => {
-    const [a, b] = key.split('|||');
-    const pct = Math.round((count / totalMonths) * 100);
-    return `<div class="pairing-item">
-      <div class="pairing-cats">${escHtml(a)}<span class="plus">+</span>${escHtml(b)}</div>
-      <div class="pairing-count">Together ${count} of ${totalMonths} months</div>
-      <div class="pairing-pct">${pct}%</div>
-      <div class="pairing-bar"><div class="pairing-bar-fill" style="width:${pct}%"></div></div>
-    </div>`;
-  }).join('');
+ const monthCats = {};
+ for (const row of serviceData) {
+ const classid = (row[1] || '').trim();
+ const txn = parseTxnDate(row[12]);
+ if (!classid || !txn) continue;
+ if (!monthCats[txn.key]) monthCats[txn.key] = new Set();
+ monthCats[txn.key].add(classid);
+ }
+ const pairCounts = {};
+ const totalMonths = Object.keys(monthCats).length;
+ for (const cats of Object.values(monthCats)) {
+ const arr = Array.from(cats).sort();
+ for (let i = 0; i < arr.length; i++) {
+ for (let j = i+1; j < arr.length; j++) {
+ const key = arr[i] + '|||' + arr[j];
+ pairCounts[key] = (pairCounts[key] || 0) + 1;
+ }
+ }
+ }
+ const sorted = Object.entries(pairCounts).sort((a,b) => b[1]-a[1]).slice(0,10);
+ document.getElementById('c4Badge').textContent = `Top 10 of ${Object.keys(pairCounts).length} pairings`;
+ document.getElementById('c4Grid').innerHTML = sorted.map(([key, count]) => {
+ const [a, b] = key.split('|||');
+ const pct = Math.round((count / totalMonths) * 100);
+ return `<div class="pairing-item"><div class="pairing-cats">${escHtml(a)}<span class="plus">+</span>${escHtml(b)}</div><div class="pairing-count">Together ${count} of ${totalMonths} months</div><div class="pairing-pct">${pct}%</div><div class="pairing-bar"><div class="pairing-bar-fill" style="width:${pct}%"></div></div></div>`;
+ }).join('');
 }
 
-// ════════════════════════════════════════════════
+// 
 // SECTION 3: AI Assistant
-// ════════════════════════════════════════════════
+// 
 
 let aiTyping = false;
 
 function sendQuickAction(text) {
-  document.getElementById('aiInput').value = text;
-  sendAIMessage();
+ document.getElementById('aiInput').value = text;
+ sendAIMessage();
 }
 
 function sendAIMessage() {
-  if (aiTyping) return;
-  const input = document.getElementById('aiInput');
-  const query = input.value.trim();
-  if (!query) return;
-  input.value = '';
+ if (aiTyping) return;
+ const input = document.getElementById('aiInput');
+ const query = input.value.trim();
+ if (!query) return;
+ input.value = '';
 
-  appendMessage('user', escHtml(query));
+ appendMessage('user', escHtml(query));
 
-  // Typing indicator
-  const typingId = appendTyping();
-  aiTyping = true;
-  document.getElementById('aiSendBtn').disabled = true;
+ // Typing indicator
+ const typingId = appendTyping();
+ aiTyping = true;
+ document.getElementById('aiSendBtn').disabled = true;
 
-  setTimeout(() => {
-    removeTyping(typingId);
-    const response = processAIQuery(query);
-    appendMessage('ai', response);
-    aiTyping = false;
-    document.getElementById('aiSendBtn').disabled = false;
-  }, 700 + Math.random() * 500);
+ setTimeout(() => {
+ removeTyping(typingId);
+ const response = processAIQuery(query);
+ appendMessage('ai', response);
+ aiTyping = false;
+ document.getElementById('aiSendBtn').disabled = false;
+ }, 700 + Math.random() * 500);
 }
 
 function appendMessage(role, html) {
-  const msgs = document.getElementById('aiMessages');
-  const row  = document.createElement('div');
-  row.className = 'msg-row ' + role;
-  const avatar = role === 'ai' ? '<div class="msg-avatar ai">IQ</div>' : '<div class="msg-avatar user">👤</div>';
-  row.innerHTML = avatar + `<div class="msg-bubble ${role}">${html}</div>`;
-  msgs.appendChild(row);
-  msgs.scrollTop = msgs.scrollHeight;
-  return row;
+ const msgs = document.getElementById('aiMessages');
+ const row = document.createElement('div');
+ row.className = 'msg-row ' + role;
+ const avatar = role === 'ai' ? '<div class="msg-avatar ai">IQ</div>' : '<div class="msg-avatar user"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>';
+ row.innerHTML = avatar + `<div class="msg-bubble ${role}">${html}</div>`;
+ msgs.appendChild(row);
+ msgs.scrollTop = msgs.scrollHeight;
+ return row;
 }
 
 function appendTyping() {
-  const msgs = document.getElementById('aiMessages');
-  const row  = document.createElement('div');
-  row.className = 'msg-row';
-  row.id = 'typingRow';
-  row.innerHTML = `<div class="msg-avatar ai">IQ</div><div class="msg-bubble ai"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
-  msgs.appendChild(row);
-  msgs.scrollTop = msgs.scrollHeight;
-  return 'typingRow';
+ const msgs = document.getElementById('aiMessages');
+ const row = document.createElement('div');
+ row.className = 'msg-row';
+ row.id = 'typingRow';
+ row.innerHTML = `<div class="msg-avatar ai">IQ</div><div class="msg-bubble ai"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+ msgs.appendChild(row);
+ msgs.scrollTop = msgs.scrollHeight;
+ return 'typingRow';
 }
 
 function removeTyping(id) {
-  const el = document.getElementById(id);
-  if (el) el.remove();
+ const el = document.getElementById(id);
+ if (el) el.remove();
 }
 
-// ── Conversation context (last 6 turns for follow-up awareness) ──
+// Conversation context (last 6 turns for follow-up awareness) 
 const aiConversation = [];
 
 function processAIQuery(query) {
-  const q   = query.toLowerCase().trim();
-  const raw = query.trim();
-
-  // Store turn
-  aiConversation.push({ role: 'user', text: q });
-  if (aiConversation.length > 12) aiConversation.splice(0, 2);
-
-  const lastAI = aiConversation.filter(t => t.role === 'ai').slice(-1)[0]?.text || '';
-
-  if (!serviceData && !catalogData) {
-    return "⏳ Data is still loading — give it a moment then try again.";
-  }
-
-  // ── Helper: extract a number from the query ──
-  function extractNumber(str, fallback) {
-    const m = str.match(/\b(\d+)\b/);
-    return m ? parseInt(m[1]) : fallback;
-  }
-
-  // ── Helper: find month by name in query ──
-  function findMonthInQuery(str) {
-    const names = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
-    const full  = ['january','february','march','april','may','june','july','august','september','october','november','december'];
-    for (let i = 0; i < 12; i++) {
-      if (str.includes(names[i]) || str.includes(full[i])) return i + 1;
-    }
-    return null;
-  }
-
-  // ── Helper: get services for a specific month key ──
-  function getMonthServices(key) {
-    const byS = {};
-    for (const row of serviceData) {
-      const txn = parseTxnDate(row[12]);
-      if (!txn || txn.key !== key) continue;
-      const desc = (row[8]||'').trim() || (row[2]||'').trim() || 'Unknown';
-      const tot  = parseFloat(row[5]) || 0;
-      const qty  = parseFloat(row[4]) || 0;
-      const cat  = (row[1]||'').trim();
-      if (!byS[desc]) byS[desc] = { rev: 0, qty: 0, cat };
-      byS[desc].rev += tot;
-      byS[desc].qty += qty;
-    }
-    return byS;
-  }
-
-  // ── Helper: get service trend (last N months) ──
-  function getServiceTrend(serviceName) {
-    const trend = {};
-    for (const row of serviceData) {
-      const desc = (row[8]||'').trim() || (row[2]||'').trim() || '';
-      if (desc.toLowerCase() !== serviceName.toLowerCase()) continue;
-      const txn = parseTxnDate(row[12]);
-      if (!txn) continue;
-      if (!trend[txn.key]) trend[txn.key] = { rev: 0, qty: 0 };
-      trend[txn.key].rev += parseFloat(row[5]) || 0;
-      trend[txn.key].qty += parseFloat(row[4]) || 0;
-    }
-    return trend;
-  }
-
-  // ── Helper: get category trend ──
-  function getCategoryData(catKeyword) {
-    const byMonth = {};
-    const services = {};
-    for (const row of serviceData) {
-      const cat  = (row[1]||'').trim().toLowerCase();
-      const desc = (row[2]||'').trim().toLowerCase();
-      if (!cat.includes(catKeyword) && !desc.includes(catKeyword)) continue;
-      const txn = parseTxnDate(row[12]);
-      if (!txn) continue;
-      const svcName = (row[8]||'').trim() || (row[2]||'').trim() || 'Unknown';
-      const tot = parseFloat(row[5]) || 0;
-      const qty = parseFloat(row[4]) || 0;
-      if (!byMonth[txn.key]) byMonth[txn.key] = { rev: 0, qty: 0 };
-      byMonth[txn.key].rev += tot;
-      byMonth[txn.key].qty += qty;
-      if (!services[svcName]) services[svcName] = { rev: 0, qty: 0 };
-      services[svcName].rev += tot;
-      services[svcName].qty += qty;
-    }
-    return { byMonth, services };
-  }
-
-  // ── Helper: build mini table HTML ──
-  function tbl(headers, rows, colAligns) {
-    let h = '<table><thead><tr>' + headers.map((h,i) => `<th${colAligns&&colAligns[i]==='right'?' style="text-align:right"':''}>${h}</th>`).join('') + '</tr></thead><tbody>';
-    rows.forEach(row => {
-      h += '<tr>' + row.map((c,i) => `<td${colAligns&&colAligns[i]==='right'?' style="text-align:right"':''}>${c}</td>`).join('') + '</tr>';
-    });
-    return h + '</tbody></table>';
-  }
-
-  // ── Helper: colored value ──
-  function cv(val, color) { return `<span style="color:${color};font-weight:700">${val}</span>`; }
-  function greenVal(v)  { return cv(v, '#16a34a'); }
-  function blueVal(v)   { return cv(v, '#2563eb'); }
-  function redVal(v)    { return cv(v, '#ef4444'); }
-  function orangeVal(v) { return cv(v, '#ea580c'); }
-
-  // ── Helper: change badge ──
-  function changeBadge(pct) {
-    if (pct > 0)  return `<span style="background:rgba(22,163,74,.1);color:#16a34a;font-weight:700;padding:2px 7px;border-radius:4px;font-size:0.8rem">↑ +${pct.toFixed(1)}%</span>`;
-    if (pct < 0)  return `<span style="background:rgba(239,68,68,.1);color:#ef4444;font-weight:700;padding:2px 7px;border-radius:4px;font-size:0.8rem">↓ ${pct.toFixed(1)}%</span>`;
-    return `<span style="color:#64748b;font-size:0.8rem">→ flat</span>`;
-  }
-
-  // ═══════════════════════════════════════════════════
-  // INTENT MATCHING
-  // ═══════════════════════════════════════════════════
-
-  // ── MONTHLY SUMMARY / PERFORMANCE ──
-  if (q.match(/\b(this month|last month|how did|how are we|performance|summary|summarize|overview|how.+doing)\b/) ||
-      (q.includes('month') && q.includes('perform'))) {
-
-    if (!AI_monthKeys.length) return "Monthly data isn't ready yet.";
-
-    // Which month?
-    const namedMonth = findMonthInQuery(q);
-    let targetKey, label;
-    if (namedMonth) {
-      // Try to find this named month in data
-      targetKey = AI_monthKeys.find(k => parseInt(k.split('-')[1]) === namedMonth);
-      label     = targetKey ? monthLabel(targetKey) : null;
-    }
-    if (!targetKey) {
-      targetKey = q.includes('last month') ? AI_monthKeys[AI_monthKeys.length-2] : AI_monthKeys[AI_monthKeys.length-1];
-    }
-    label = label || monthLabel(targetKey);
-    const prevKey = AI_monthKeys[AI_monthKeys.indexOf(targetKey) - 1];
-
-    const cur  = AI_byMonth[targetKey] || { rev: 0, qty: 0 };
-    const prev = prevKey ? (AI_byMonth[prevKey] || { rev: 0, qty: 0 }) : null;
-    const diff = prev ? cur.rev - prev.rev : 0;
-    const pct  = prev && prev.rev > 0 ? (diff / prev.rev * 100) : 0;
-
-    const monthSvcs = getMonthServices(targetKey);
-    const top5 = Object.entries(monthSvcs).sort((a,b)=>b[1].rev-a[1].rev).slice(0,5);
-
-    // Category breakdown for this month
-    const catThis = {};
-    for (const row of serviceData) {
-      const txn = parseTxnDate(row[12]);
-      if (!txn || txn.key !== targetKey) continue;
-      const cat = (row[1]||'').trim() || 'Other';
-      const tot = parseFloat(row[5]) || 0;
-      if (!catThis[cat]) catThis[cat] = 0;
-      catThis[cat] += tot;
-    }
-    const topCats = Object.entries(catThis).sort((a,b)=>b[1]-a[1]).slice(0,4);
-
-    let html = `<strong>📅 ${label} Performance</strong><br><br>`;
-    html += tbl(
-      ['Metric', 'Value'],
-      [
-        ['Total Revenue', blueVal(fmt$(cur.rev))],
-        prev ? [`vs ${monthLabel(prevKey)}`, changeBadge(pct) + ` &nbsp;(${diff >= 0 ? '+' : ''}${fmt$(Math.abs(diff))})`] : [],
-        ['Transaction Volume', fmtN(Math.round(cur.qty))],
-        ['Avg per Transaction', cur.qty > 0 ? fmt$(cur.rev / cur.qty) : '—'],
-      ].filter(r => r.length),
-      ['left','right']
-    );
-    if (top5.length) {
-      html += `<br><strong>Top Services</strong><br>` + tbl(
-        ['Service', 'Revenue', 'Qty'],
-        top5.map(([n,v]) => [escHtml(n), blueVal(fmt$(v.rev)), fmtN(Math.round(v.qty))]),
-        ['left','right','right']
-      );
-    }
-    if (topCats.length) {
-      html += `<br><strong>By Category</strong><br>` + tbl(
-        ['Category', 'Revenue', '%'],
-        topCats.map(([c,r]) => [escHtml(c), fmt$(r), (r/cur.rev*100).toFixed(1)+'%']),
-        ['left','right','right']
-      );
-    }
-    aiConversation.push({ role: 'ai', text: `monthly summary ${targetKey}` });
-    return html;
-  }
-
-  // ── YEAR OVERVIEW / ANNUAL ──
-  if (q.match(/\b(year|annual|ytd|year to date|all time|overall|this year)\b/) && !q.includes('month')) {
-    if (!AI_monthKeys.length) return "Data isn't ready yet.";
-
-    const totalRevenue = AI_totalRevenue;
-    const avgMonthly   = totalRevenue / AI_monthKeys.length;
-    const bestKey      = AI_monthKeys.reduce((a, b) => (AI_byMonth[a]?.rev||0) > (AI_byMonth[b]?.rev||0) ? a : b);
-    const worstKey     = AI_monthKeys.reduce((a, b) => (AI_byMonth[a]?.rev||0) < (AI_byMonth[b]?.rev||0) ? a : b);
-
-    // Last 3 months trend
-    const last3 = AI_monthKeys.slice(-3);
-    const trendRevs = last3.map(k => AI_byMonth[k]?.rev || 0);
-    const trendDir  = trendRevs[2] > trendRevs[0] ? '📈 upward' : trendRevs[2] < trendRevs[0] ? '📉 downward' : '→ flat';
-
-    let html = `<strong>📊 Annual Overview — ${AI_monthKeys.length} Months of Data</strong><br><br>`;
-    html += tbl(
-      ['Metric', 'Value'],
-      [
-        ['Total Revenue', blueVal(fmt$(totalRevenue))],
-        ['Avg Monthly Revenue', fmt$(avgMonthly)],
-        ['Best Month', `${monthLabel(bestKey)} — ${blueVal(fmt$(AI_byMonth[bestKey].rev))}`],
-        ['Slowest Month', `${monthLabel(worstKey)} — ${fmt$(AI_byMonth[worstKey].rev)}`],
-        ['3-Month Trend', trendDir],
-        ['Data Range', `${monthLabel(AI_monthKeys[0])} → ${monthLabel(AI_monthKeys[AI_monthKeys.length-1])}`],
-      ],
-      ['left','right']
-    );
-
-    // Top categories
-    const catSorted = Object.entries(AI_byCat).sort((a,b)=>b[1].rev-a[1].rev).slice(0,5);
-    html += `<br><strong>Revenue by Category</strong><br>` + tbl(
-      ['Category', 'Revenue', 'Share'],
-      catSorted.map(([c,v]) => [escHtml(c), blueVal(fmt$(v.rev)), (v.rev/totalRevenue*100).toFixed(1)+'%']),
-      ['left','right','right']
-    );
-    aiConversation.push({ role: 'ai', text: 'annual overview' });
-    return html;
-  }
-
-  // ── BEST / WORST MONTH ──
-  if (q.match(/\b(best month|highest month|peak month|worst month|lowest month|slowest month)\b/)) {
-    if (!AI_monthKeys.length) return "Data isn't ready yet.";
-    const sorted = [...AI_monthKeys].sort((a,b) => (AI_byMonth[b]?.rev||0) - (AI_byMonth[a]?.rev||0));
-    const isBest = q.includes('best') || q.includes('highest') || q.includes('peak');
-    const show = isBest ? sorted : [...sorted].reverse();
-
-    let html = `<strong>${isBest ? '🏆 Best' : '📉 Slowest'} Months by Revenue</strong><br><br>`;
-    html += tbl(
-      ['Month', 'Revenue', 'vs Average'],
-      show.slice(0,6).map((k, i) => {
-        const rev = AI_byMonth[k].rev;
-        const avg = AI_totalRevenue / AI_monthKeys.length;
-        const diff = ((rev - avg) / avg * 100).toFixed(1);
-        return [monthLabel(k), blueVal(fmt$(rev)), changeBadge(parseFloat(diff))];
-      }),
-      ['left','right','right']
-    );
-    return html;
-  }
-
-  // ── REVENUE FORECAST ──
-  if (q.match(/\b(forecast|predict|next month|projection|project|estimate)\b/)) {
-    if (AI_monthKeys.length < 3) return "Need at least 3 months of data to forecast.";
-
-    // Simple weighted average (recent months weighted more)
-    const last6 = AI_monthKeys.slice(-6);
-    const revs  = last6.map(k => AI_byMonth[k].rev);
-    const weights = [1, 1.2, 1.4, 1.6, 1.8, 2.0].slice(-revs.length);
-    const wSum    = weights.reduce((a,b) => a+b, 0);
-    const forecast = revs.reduce((s, r, i) => s + r * weights[i], 0) / wSum;
-
-    // Seasonal nudge — look at same month last year if available
-    const lastKey = AI_monthKeys[AI_monthKeys.length-1];
-    const nextMonthNum = (parseInt(lastKey.split('-')[1]) % 12) + 1;
-    const sameMonthLastYear = AI_monthKeys.find(k => {
-      const [y,m] = k.split('-');
-      return parseInt(m) === nextMonthNum && parseInt(y) < parseInt(lastKey.split('-')[0]);
-    });
-
-    const nextLabel = MONTH_NAMES[nextMonthNum - 1] + ' ' + (nextMonthNum === 1 ? String(parseInt(lastKey.split('-')[0])+1).slice(2) : lastKey.split('-')[0].slice(2));
-
-    let html = `<strong>🔮 Revenue Forecast — ${nextLabel}</strong><br><br>`;
-    html += tbl(
-      ['Basis', 'Value'],
-      [
-        ['Weighted avg (last 6 months)', fmt$(forecast)],
-        sameMonthLastYear ? [`Same month last year`, fmt$(AI_byMonth[sameMonthLastYear].rev)] : null,
-        ['Conservative estimate (−5%)', orangeVal(fmt$(forecast * 0.95))],
-        ['Base estimate', blueVal(fmt$(forecast))],
-        ['Optimistic (+5%)', greenVal(fmt$(forecast * 1.05))],
-      ].filter(Boolean),
-      ['left','right']
-    );
-    html += `<br><span style="color:#64748b;font-size:0.8rem">⚠️ Forecast based on weighted recent average. Seasonal factors and one-time events not fully accounted for.</span>`;
-    return html;
-  }
-
-  // ── GROWING / DECLINING SERVICES ──
-  if (q.match(/\b(growing|growth|trending up|increasing|gaining)\b/) && !q.includes('slow')) {
-    if (AI_monthKeys.length < 3) return "Need more months of data to analyze trends.";
-
-    const firstHalfKeys = AI_monthKeys.slice(0, Math.floor(AI_monthKeys.length/2));
-    const secondHalfKeys = AI_monthKeys.slice(Math.floor(AI_monthKeys.length/2));
-
-    const firstHalf = {}, secondHalf = {};
-    for (const row of serviceData) {
-      const txn = parseTxnDate(row[12]);
-      if (!txn) continue;
-      const desc = (row[8]||'').trim() || (row[2]||'').trim() || 'Unknown';
-      const tot  = parseFloat(row[5]) || 0;
-      if (firstHalfKeys.includes(txn.key)) {
-        firstHalf[desc] = (firstHalf[desc]||0) + tot;
-      }
-      if (secondHalfKeys.includes(txn.key)) {
-        secondHalf[desc] = (secondHalf[desc]||0) + tot;
-      }
-    }
-
-    const growthItems = Object.keys(secondHalf)
-      .filter(k => firstHalf[k] > 0 && secondHalf[k] > 0)
-      .map(k => ({ name: k, first: firstHalf[k], second: secondHalf[k], growth: (secondHalf[k]-firstHalf[k])/firstHalf[k]*100 }))
-      .filter(i => i.growth > 5 && i.second > 500) // meaningful growth, not tiny items
-      .sort((a,b) => b.growth - a.growth)
-      .slice(0, 10);
-
-    if (!growthItems.length) return "No significantly growing services found in the current data range.";
-
-    let html = `<strong>📈 Fastest Growing Services</strong><br><span style="color:#64748b;font-size:0.8rem">Comparing first half vs second half of the dataset</span><br><br>`;
-    html += tbl(
-      ['Service', 'Recent Rev', 'Growth'],
-      growthItems.map(i => [escHtml(i.name), blueVal(fmt$(i.second)), greenVal('+'+i.growth.toFixed(1)+'%')]),
-      ['left','right','right']
-    );
-    return html;
-  }
-
-  if (q.match(/\b(declining|falling|shrinking|down|losing|slowest|worst service)\b/)) {
-    if (AI_monthKeys.length < 3) return "Need more months of data to analyze trends.";
-
-    const firstHalfKeys = AI_monthKeys.slice(0, Math.floor(AI_monthKeys.length/2));
-    const secondHalfKeys = AI_monthKeys.slice(Math.floor(AI_monthKeys.length/2));
-    const firstHalf = {}, secondHalf = {};
-    for (const row of serviceData) {
-      const txn = parseTxnDate(row[12]);
-      if (!txn) continue;
-      const desc = (row[8]||'').trim() || (row[2]||'').trim() || 'Unknown';
-      const tot  = parseFloat(row[5]) || 0;
-      if (firstHalfKeys.includes(txn.key)) firstHalf[desc] = (firstHalf[desc]||0) + tot;
-      if (secondHalfKeys.includes(txn.key)) secondHalf[desc] = (secondHalf[desc]||0) + tot;
-    }
-
-    const declineItems = Object.keys(firstHalf)
-      .filter(k => firstHalf[k] > 500 && (secondHalf[k]||0) < firstHalf[k])
-      .map(k => ({ name: k, first: firstHalf[k], second: secondHalf[k]||0, change: ((secondHalf[k]||0)-firstHalf[k])/firstHalf[k]*100 }))
-      .sort((a,b) => a.change - b.change)
-      .slice(0, 10);
-
-    let html = `<strong>📉 Declining Services</strong><br><span style="color:#64748b;font-size:0.8rem">Comparing first half vs second half of dataset period</span><br><br>`;
-    html += tbl(
-      ['Service', 'Earlier Rev', 'Recent Rev', 'Change'],
-      declineItems.map(i => [escHtml(i.name), fmt$(i.first), fmt$(i.second), redVal(i.change.toFixed(1)+'%')]),
-      ['left','right','right','right']
-    );
-    return html;
-  }
-
-  // ── CATEGORY DRILL-DOWN ──
-  const categoryKeywords = {
-    'dental': 'dental', 'dent': 'dental',
-    'lab': 'lab', 'laboratory': 'lab',
-    'drug': 'drug', 'medication': 'drug', 'rx': 'drug', 'pharma': 'drug',
-    'exam': 'exam', 'examination': 'exam',
-    'surgery': 'surg', 'surgical': 'surg',
-    'vaccination': 'vacc', 'vaccine': 'vacc', 'vacc': 'vacc',
-    'wellness': 'wellness', 'preventive': 'wellness',
-    'radiology': 'rad', 'xray': 'rad', 'x-ray': 'rad',
-    'anesthesia': 'anes',
-    'grooming': 'groom',
-    'boarding': 'board',
-    'nutrition': 'nutri', 'food': 'nutri',
-    'accessories': 'accessor', 'paw': 'paw',
-    'dispensable': 'dispensable',
-  };
-  let matchedCatKw = null;
-  for (const [kw, canonical] of Object.entries(categoryKeywords)) {
-    if (q.includes(kw)) { matchedCatKw = canonical; break; }
-  }
-  if (matchedCatKw) {
-    const { byMonth: catMonths, services: catSvcs } = getCategoryData(matchedCatKw);
-    const catMonthKeys = sortMonthKeys(Object.keys(catMonths));
-    if (!catMonthKeys.length) {
-      return `I didn't find any "${matchedCatKw}" category data. Try asking about a different department.`;
-    }
-    const totalCat = Object.values(catSvcs).reduce((s,v) => s+v.rev, 0);
-    const topSvcs  = Object.entries(catSvcs).sort((a,b)=>b[1].rev-a[1].rev).slice(0,8);
-    const lastM    = catMonths[catMonthKeys[catMonthKeys.length-1]];
-    const prevM    = catMonths[catMonthKeys[catMonthKeys.length-2]];
-    const mom      = prevM && prevM.rev > 0 ? (lastM.rev - prevM.rev)/prevM.rev*100 : null;
-
-    let html = `<strong>🦷 ${matchedCatKw.charAt(0).toUpperCase()+matchedCatKw.slice(1)} Department</strong><br><br>`;
-    html += tbl(
-      ['Metric', 'Value'],
-      [
-        ['Total Revenue (all time)', blueVal(fmt$(totalCat))],
-        ['% of Clinic Revenue', (totalCat/AI_totalRevenue*100).toFixed(1) + '%'],
-        [`Latest Month (${monthLabel(catMonthKeys[catMonthKeys.length-1])})`, fmt$(lastM.rev)],
-        mom !== null ? ['MoM Change', changeBadge(mom)] : null,
-      ].filter(Boolean),
-      ['left','right']
-    );
-    html += `<br><strong>Services in this Department</strong><br>` + tbl(
-      ['Service', 'Total Revenue', 'Qty'],
-      topSvcs.map(([n,v]) => [escHtml(n), blueVal(fmt$(v.rev)), fmtN(Math.round(v.qty))]),
-      ['left','right','right']
-    );
-    // Monthly trend mini-table
-    if (catMonthKeys.length > 1) {
-      html += `<br><strong>Monthly Trend</strong><br>` + tbl(
-        ['Month', 'Revenue'],
-        catMonthKeys.slice(-6).map(k => [monthLabel(k), fmt$(catMonths[k].rev)]),
-        ['left','right']
-      );
-    }
-    aiConversation.push({ role: 'ai', text: `category ${matchedCatKw}` });
-    return html;
-  }
-
-  // ── SPECIFIC SERVICE LOOKUP ──
-  // Check if query contains a service name from the data
-  const allServiceNames = Object.keys(AI_byService);
-  const mentionedService = allServiceNames.find(n =>
-    q.includes(n.toLowerCase()) || n.toLowerCase().split(' ').filter(w=>w.length>4).every(w=>q.includes(w))
-  );
-  if (mentionedService && !q.match(/\b(top|best|list|all|every|category)\b/)) {
-    const svc   = AI_byService[mentionedService];
-    const trend = getServiceTrend(mentionedService);
-    const tkeys = sortMonthKeys(Object.keys(trend));
-    const last2 = tkeys.slice(-2);
-    const mom   = last2.length===2 && trend[last2[0]].rev>0 ? (trend[last2[1]].rev - trend[last2[0]].rev)/trend[last2[0]].rev*100 : null;
-
-    // Catalog info
-    let catPrice = null, catCost = null;
-    if (catalogData) {
-      for (const row of catalogData) {
-        const n = (row[5]||'').trim()||(row[6]||'').trim();
-        if (n.toLowerCase() === mentionedService.toLowerCase()) {
-          catPrice = parseFloat(row[10]) || null;
-          catCost  = parseFloat(row[12]) || null;
-          break;
-        }
-      }
-    }
-
-    let html = `<strong>${escHtml(mentionedService)}</strong><br><br>`;
-    html += tbl(
-      ['Metric','Value'],
-      [
-        ['Total Revenue', blueVal(fmt$(svc.rev))],
-        ['Total Qty Sold', fmtN(Math.round(svc.qty))],
-        ['Avg Revenue/Unit', fmt$(svc.qty>0 ? svc.rev/svc.qty : 0)],
-        catPrice ? ['Catalog Price', fmt$(catPrice)] : null,
-        catCost  ? ['Catalog Cost', fmt$(catCost)] : null,
-        catPrice && catCost ? ['Margin', fmtPct((catPrice-catCost)/catPrice)] : null,
-        mom !== null ? ['MoM Trend', changeBadge(mom)] : null,
-        ['Category', escHtml(svc.classid||'—')],
-      ].filter(Boolean),
-      ['left','right']
-    );
-    if (tkeys.length > 1) {
-      html += `<br><strong>Monthly History</strong><br>` + tbl(
-        ['Month','Revenue','Qty'],
-        tkeys.map(k => [monthLabel(k), fmt$(trend[k].rev), fmtN(Math.round(trend[k].qty))]),
-        ['left','right','right']
-      );
-    }
-    aiConversation.push({ role: 'ai', text: `service lookup ${mentionedService}` });
-    return html;
-  }
-
-  // ── TOP SERVICES ──
-  if (q.match(/\b(top|best|highest|leading)\b.*\b(service|item|procedure)\b/) ||
-      (q.includes('top') && q.includes('revenue'))) {
-    const limit = extractNumber(q, 10);
-    const safeLimit = Math.min(Math.max(limit, 3), 25);
-
-    const top = Object.entries(AI_byService).sort((a,b)=>b[1].rev-a[1].rev).slice(0,safeLimit);
-    const total = AI_totalRevenue;
-    let html = `<strong>Top ${safeLimit} Services by Revenue</strong><br><br>`;
-    html += tbl(
-      ['#','Service','Category','Revenue','Share'],
-      top.map(([n,v],i) => [i+1, escHtml(n), escHtml(v.classid||'—'), blueVal(fmt$(v.rev)), (v.rev/total*100).toFixed(1)+'%']),
-      ['left','left','left','right','right']
-    );
-    aiConversation.push({ role: 'ai', text: `top services` });
-    return html;
-  }
-
-  // ── CATEGORIES ──
-  if (q.match(/\b(categor|department|breakdown|by type)\b/)) {
-    const sorted = Object.entries(AI_byCat).sort((a,b)=>b[1].rev-a[1].rev);
-    const total  = AI_totalRevenue;
-    let html = `<strong>Revenue by Category</strong><br><br>`;
-    html += tbl(
-      ['#','Category','Revenue','% of Total'],
-      sorted.map(([c,v],i) => [i+1, escHtml(c), blueVal(fmt$(v.rev)), (v.rev/total*100).toFixed(1)+'%']),
-      ['left','left','right','right']
-    );
-    html += `<br>🏆 <strong>${escHtml(sorted[0][0])}</strong> leads with ${(sorted[0][1].rev/total*100).toFixed(1)}% of total revenue.`;
-    return html;
-  }
-
-  // ── TOTAL REVENUE ──
-  if (q.match(/\b(total revenue|how much|revenue overall|make|earn|gross)\b/)) {
-    if (!AI_totalRevenue) return "Revenue data isn't loaded yet.";
-    const avg = AI_totalRevenue / AI_monthKeys.length;
-    return `Tudor Glen generated <strong style="color:#2563eb;font-size:1.1rem">${fmt$(AI_totalRevenue)}</strong> total revenue across <strong>${AI_monthKeys.length} months</strong> of data.<br><br>Average monthly revenue: <strong>${fmt$(avg)}</strong>`;
-  }
-
-  // ── MARGIN / PRICING ANALYSIS ──
-  if (q.match(/\b(margin|profit|cost|underpriced|overpriced|pricing)\b/)) {
-    if (!catalogData) return "Catalog data isn't loaded yet.";
-    const threshold = q.includes('25') ? 0.25 : q.includes('50') ? 0.5 : 0.4;
-    const items = [];
-    for (const row of catalogData) {
-      const status = (row[14]||'').trim();
-      const price  = parseFloat(row[10]) || 0;
-      const cost   = parseFloat(row[12]) || 0;
-      if (status !== '1' || price <= 0 || cost <= 0) continue;
-      const margin = (price - cost) / price;
-      if (margin < threshold) {
-        const name     = (row[5]||'').trim() || (row[6]||'').trim();
-        const catLabel = (row[1]||'').trim() || (row[0]||'').trim();
-        items.push({ name, catLabel, price, cost, margin });
-      }
-    }
-    items.sort((a,b) => a.margin - b.margin);
-    let html = `<strong>Low-Margin Items</strong><br><span style="color:#64748b;font-size:0.8rem">${items.length} items below ${(threshold*100).toFixed(0)}% margin</span><br><br>`;
-    html += tbl(
-      ['Item','Category','Price','Cost','Margin'],
-      items.slice(0,12).map(i => {
-        const mColor = i.margin < 0.1 ? '#ef4444' : i.margin < 0.25 ? '#ea580c' : '#64748b';
-        return [escHtml(i.name), escHtml(i.catLabel), fmt$(i.price), fmt$(i.cost), cv(fmtPct(i.margin), mColor)];
-      }),
-      ['left','left','right','right','right']
-    );
-    return html;
-  }
-
-  // ── INFLATION / PRICE ADJUSTMENT ──
-  if (q.match(/\b(inflation|price increase|raise price|increase price|opportunity|opportunities|campaign 1|cpi|behind inflation|adjust|underpriced)\b/)) {
-    if (!c1AllItems || !c1AllItems.length) return "Inflation analysis isn't ready yet — check the Campaigns tab.";
-    const behind  = c1AllItems.filter(i => i.gap > 0);
-    const urgent  = c1AllItems.filter(i => i.status_flag === 'urgent');
-    const totalUp = behind.reduce((s,i) => s + i.uplift, 0);
-    const topItems = [...behind].sort((a,b) => b.uplift - a.uplift).slice(0,8);
-
-    let html = `<strong>📊 Inflation-Adjusted Pricing Summary</strong><br><br>`;
-    html += tbl(
-      ['Metric','Value'],
-      [
-        ['Items behind inflation', `${behind.length} of ${c1AllItems.length}`],
-        ['Urgent (>15% gap)',   redVal(urgent.length + ' items')],
-        ['Total annual uplift if adjusted', greenVal(fmt$(totalUp))],
-        ['2026 forecast rate',  `${(FORECAST_RATE_2026*100).toFixed(1)}% (BoC estimate)`],
-      ],
-      ['left','right']
-    );
-    html += `<br><strong>Top Opportunities by Annual Uplift</strong><br>`;
-    html += tbl(
-      ['Item','Current','Inflation-Adj.','Gap','Annual Uplift'],
-      topItems.map(i => [
-        escHtml(i.name), fmt$(i.price), blueVal(fmt$(i.adjustedTarget)),
-        `<span style="color:#ea580c;font-weight:700">+${fmt$(i.gap)}</span>`,
-        greenVal('+'+fmt$(i.uplift))
-      ]),
-      ['left','right','right','right','right']
-    );
-    html += `<br><span style="color:#64748b;font-size:0.8rem">Full analysis in Campaigns tab → 📊 Inflation-Adjusted Pricing</span>`;
-    return html;
-  }
-
-  // ── .99 PRICING ──
-  if (q.match(/\b(99|ninety.?nine|rounding|round up|campaign 2|missed revenue|.99 pricing)\b/)) {
-    // Re-compute from service data for AI response
-    const svcTxns = {};
-    for (const row of serviceData) {
-      const name = (row[8]||'').trim()||(row[2]||'').trim();
-      const qty  = parseFloat(row[4]) || 0;
-      const tot  = parseFloat(row[5]) || 0;
-      if (!name || qty <= 0 || tot <= 0) continue;
-      if (!svcTxns[name]) svcTxns[name] = { totalRev:0, totalQty:0, cat:(row[1]||'').trim() };
-      svcTxns[name].totalRev += tot;
-      svcTxns[name].totalQty += qty;
-    }
-    const items = [];
-    for (const [name, s] of Object.entries(svcTxns)) {
-      const avg = s.totalQty > 0 ? s.totalRev/s.totalQty : 0;
-      if (avg <= 1 || Math.abs(avg % 1 - 0.99) < 0.005) continue;
-      const floor99 = Math.floor(avg);
-      let next99 = floor99 + 0.99;
-      if (next99 < avg) next99 = floor99 + 1 + 0.99;
-      const gain = next99 - avg;
-      if (gain < 0.01 || gain > 5) continue;
-      items.push({ name, avg, next99, gain, qty: s.totalQty, uplift: gain * s.totalQty });
-    }
-    items.sort((a,b) => b.uplift - a.uplift);
-    const total = items.reduce((s,i)=>s+i.uplift,0);
-    const top8  = items.slice(0,8);
-
-    let html = `<strong>🎯 .99 Pricing — Missed Revenue Analysis</strong><br><br>`;
-    html += tbl(
-      ['Metric','Value'],
-      [
-        ['Total missed last year', `<span style="color:var(--purple);font-weight:900">${fmt$(total)}</span>`],
-        ['Services affected', `${items.length}`],
-        ['Avg gain per unit', fmt$(total / items.reduce((s,i)=>s+i.qty,0))],
-      ],
-      ['left','right']
-    );
-    html += `<br><strong>Biggest Opportunities</strong><br>`;
-    html += tbl(
-      ['Service','Avg Price','.99 Price','+/Unit','Volume','Annual Uplift'],
-      top8.map(i => [
-        escHtml(i.name), fmt$(i.avg), blueVal(fmt$(i.next99)),
-        `<span style="color:var(--purple);font-weight:700">+${fmt$(i.gain)}</span>`,
-        fmtN(Math.round(i.qty)), greenVal('+'+fmt$(i.uplift))
-      ]),
-      ['left','right','right','right','right','right']
-    );
-    html += `<br><span style="color:#64748b;font-size:0.8rem">Full breakdown in Campaigns tab → 🎯 .99 Pricing Revenue Recovery</span>`;
-    return html;
-  }
-
-  // ── HIGH VOLUME LOW PRICE ──
-  if (q.match(/\b(high.?volume|volume|high.?frequency|busy|frequent|popular)\b/) &&
-      !q.includes('category') && !q.includes('best')) {
-    const svcStats = {};
-    for (const row of serviceData) {
-      const desc = (row[8]||'').trim();
-      const qty  = parseFloat(row[4]) || 0;
-      const tot  = parseFloat(row[5]) || 0;
-      if (!desc) continue;
-      if (!svcStats[desc]) svcStats[desc] = { qty: 0, rev: 0 };
-      svcStats[desc].qty += qty;
-      svcStats[desc].rev += tot;
-    }
-    const catPrice = {};
-    if (catalogData) {
-      for (const row of catalogData) {
-        if ((row[14]||'').trim() !== '1') continue;
-        const price = parseFloat(row[10]) || 0;
-        const name  = (row[5]||'').trim() || (row[6]||'').trim();
-        if (name && price > 0) catPrice[name] = price;
-      }
-    }
-    const items = Object.entries(svcStats)
-      .filter(([n,s]) => s.qty > 30)
-      .map(([n,s]) => {
-        const price = catPrice[n] ?? (s.qty > 0 ? s.rev/s.qty : 0);
-        return { name: n, qty: s.qty, price, revPerQty: s.rev/s.qty };
-      })
-      .filter(i => i.price > 0)
-      .sort((a,b) => b.qty - a.qty)
-      .slice(0, 12);
-
-    let html = `<strong>🔍 Highest-Volume Services</strong><br><br>`;
-    html += tbl(
-      ['Service','Annual Volume','Avg Price','Total Rev'],
-      items.map(i => [escHtml(i.name), fmtN(Math.round(i.qty)), fmt$(i.price), blueVal(fmt$(i.qty*i.revPerQty))]),
-      ['left','right','right','right']
-    );
-    return html;
-  }
-
-  // ── INVOICE BUILDER ──
-  if (q.match(/\b(invoice|bill|estimate|quote|create.*invoice|build.*invoice|sample invoice)\b/)) {
-    // Extract a service type from the query, or default to wellness
-    const serviceHint = q.includes('dental') ? 'dental' :
-                        q.includes('vaccine') || q.includes('vaccination') ? 'vaccine' :
-                        q.includes('exam') ? 'exam' :
-                        q.includes('surgery') ? 'surgery' :
-                        q.includes('wellness') ? 'wellness' : 'wellness';
-
-    // Pull relevant catalog items
-    const catalogItems = [];
-    if (catalogData) {
-      for (const row of catalogData) {
-        if ((row[14]||'').trim() !== '1') continue;
-        const price = parseFloat(row[10]) || 0;
-        if (price <= 0) continue;
-        const name    = (row[5]||'').trim() || (row[6]||'').trim();
-        const catId   = (row[0]||'').trim().toLowerCase();
-        const catDesc = (row[1]||'').trim().toLowerCase();
-        const nameL   = name.toLowerCase();
-        const match   =
-          (serviceHint === 'dental'   && (catId.includes('dental') || catDesc.includes('dental') || nameL.includes('dental'))) ||
-          (serviceHint === 'vaccine'  && (nameL.includes('vacc') || catDesc.includes('vacc'))) ||
-          (serviceHint === 'exam'     && (nameL.includes('exam') || nameL.includes('physical'))) ||
-          (serviceHint === 'surgery'  && (nameL.includes('surg') || catDesc.includes('surg'))) ||
-          (serviceHint === 'wellness' && (nameL.includes('exam') || nameL.includes('wellness') || nameL.includes('physical') || nameL.includes('vacc')));
-        if (match) catalogItems.push({ name, price, catDesc });
-      }
-    }
-
-    // Pick 3–5 relevant items
-    const selected = catalogItems.slice(0, 5);
-    if (!selected.length) {
-      return `I couldn't find items matching "${serviceHint}" in the catalog. Try: "Create an invoice for a dental cleaning" or "Build a wellness exam invoice".`;
-    }
-
-    const subtotal = selected.reduce((s,i) => s + i.price, 0);
-    const tax      = subtotal * 0.05; // GST
-    const total    = subtotal + tax;
-
-    let html = `<strong>🧾 Sample Invoice — ${serviceHint.charAt(0).toUpperCase()+serviceHint.slice(1)} Visit</strong><br><span style="color:#64748b;font-size:0.8rem">Tudor Glen Veterinary Hospital · Generated from catalog pricing</span><br><br>`;
-    html += tbl(
-      ['Service / Item', 'Qty', 'Unit Price', 'Total'],
-      selected.map(i => [escHtml(i.name), '1', fmt$(i.price), blueVal(fmt$(i.price))]),
-      ['left','right','right','right']
-    );
-    html += `<br><table><tbody>
-      <tr><td style="text-align:right;padding:4px 8px">Subtotal</td><td style="text-align:right;padding:4px 8px">${fmt$(subtotal)}</td></tr>
-      <tr><td style="text-align:right;padding:4px 8px;color:#64748b">GST (5%)</td><td style="text-align:right;padding:4px 8px;color:#64748b">${fmt$(tax)}</td></tr>
-      <tr style="border-top:2px solid #dbeafe"><td style="text-align:right;padding:6px 8px;font-weight:800">Total</td><td style="text-align:right;padding:6px 8px;font-weight:800;color:#2563eb">${fmt$(total)}</td></tr>
-    </tbody></table>`;
-    html += `<br><span style="color:#64748b;font-size:0.8rem">📌 This is a sample based on your catalog. Actual invoice items vary per patient. Ask me to adjust items or add specific services.</span>`;
-    aiConversation.push({ role: 'ai', text: `invoice ${serviceHint}` });
-    return html;
-  }
-
-  // ── COMPARISON BETWEEN TWO MONTHS ──
-  const monthNums = [];
-  const monthNames2 = ['january','february','march','april','may','june','july','august','september','october','november','december'];
-  const shortNames  = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
-  for (let i = 0; i < 12; i++) {
-    if (q.includes(monthNames2[i]) || q.includes(shortNames[i])) monthNums.push(i+1);
-  }
-  if (monthNums.length === 2 && q.match(/\b(compare|vs|versus|against|difference|between)\b/)) {
-    const k1 = AI_monthKeys.find(k => parseInt(k.split('-')[1]) === monthNums[0]);
-    const k2 = AI_monthKeys.find(k => parseInt(k.split('-')[1]) === monthNums[1]);
-    if (k1 && k2) {
-      const m1 = AI_byMonth[k1], m2 = AI_byMonth[k2];
-      const diff = m2.rev - m1.rev;
-      const pct  = m1.rev > 0 ? (diff/m1.rev*100) : 0;
-      let html = `<strong>Comparing ${monthLabel(k1)} vs ${monthLabel(k2)}</strong><br><br>`;
-      html += tbl(
-        ['Metric', monthLabel(k1), monthLabel(k2), 'Difference'],
-        [
-          ['Revenue', fmt$(m1.rev), fmt$(m2.rev), changeBadge(pct)+` (${diff>=0?'+':''}${fmt$(Math.abs(diff))})`],
-          ['Volume', fmtN(Math.round(m1.qty)), fmtN(Math.round(m2.qty)), ''],
-        ],
-        ['left','right','right','right']
-      );
-      return html;
-    }
-  }
-
-  // ── HELP / WHAT CAN YOU DO ──
-  if (q.match(/\b(help|what can|what do|capabilities|how to use|guide|commands)\b/)) {
-    return `<strong>Here's what you can ask me:</strong><br><br>
-<ul>
-  <li><strong>Monthly performance:</strong> "How did we do in December?" · "Summarize last month" · "Compare Jan vs Feb"</li>
-  <li><strong>Annual overview:</strong> "Show me year-to-date" · "What was our best month?"</li>
-  <li><strong>Services:</strong> "Top 10 services" · "Tell me about Oral Surgery" · "Which services are growing?"</li>
-  <li><strong>Departments:</strong> "Dental department performance" · "How's our lab revenue?"</li>
-  <li><strong>Pricing:</strong> "Which items have low margins?" · "Price increase opportunities"</li>
-  <li><strong>Forecasting:</strong> "Forecast next month revenue"</li>
-  <li><strong>Invoices:</strong> "Create a wellness exam invoice" · "Build a dental invoice"</li>
-</ul>`;
-  }
-
-  // ── CATCH-ALL: try to find a keyword match in services ──
-  // Search for partial service name matches
-  const words = q.split(/\s+/).filter(w => w.length > 3);
-  const partialMatch = allServiceNames.find(n =>
-    words.some(w => n.toLowerCase().includes(w))
-  );
-  if (partialMatch && !q.match(/\b(top|best|list|all|every|categor)\b/)) {
-    const svc = AI_byService[partialMatch];
-    let html = `I found <strong>${escHtml(partialMatch)}</strong> in your data:<br><br>`;
-    html += tbl(
-      ['Metric','Value'],
-      [
-        ['Total Revenue', blueVal(fmt$(svc.rev))],
-        ['Total Qty', fmtN(Math.round(svc.qty))],
-        ['Avg per Unit', fmt$(svc.qty>0?svc.rev/svc.qty:0)],
-        ['Category', escHtml(svc.classid||'—')],
-      ],
-      ['left','right']
-    );
-    html += `<br><span style="color:#64748b;font-size:0.8rem">Ask me to "show the trend for ${escHtml(partialMatch)}" for monthly history.</span>`;
-    return html;
-  }
-
-  // ── FINAL FALLBACK ──
-  return `I'm not sure what you're asking, but here's what I can do:<br><br>
-<ul>
-  <li><strong>"How did we do last month?"</strong> — monthly revenue summary</li>
-  <li><strong>"Show top 10 services"</strong> — revenue leaders</li>
-  <li><strong>"Dental department"</strong> — drill into any category</li>
-  <li><strong>"Which services are growing?"</strong> — trend analysis</li>
-  <li><strong>"Forecast next month"</strong> — revenue projection</li>
-  <li><strong>"Create a dental invoice"</strong> — sample invoice from your catalog</li>
-</ul>
+ const q = query.toLowerCase().trim();
+ const raw = query.trim();
+
+ // Store turn
+ aiConversation.push({ role: 'user', text: q });
+ if (aiConversation.length > 12) aiConversation.splice(0, 2);
+
+ const lastAI = aiConversation.filter(t => t.role === 'ai').slice(-1)[0]?.text || '';
+
+ if (!serviceData && !catalogData) {
+ return " Data is still loading — give it a moment then try again.";
+ }
+
+ // Helper: extract a number from the query 
+ function extractNumber(str, fallback) {
+ const m = str.match(/\b(\d+)\b/);
+ return m ? parseInt(m[1]) : fallback;
+ }
+
+ // Helper: find month by name in query 
+ function findMonthInQuery(str) {
+ const names = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+ const full = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+ for (let i = 0; i < 12; i++) {
+ if (str.includes(names[i]) || str.includes(full[i])) return i + 1;
+ }
+ return null;
+ }
+
+ // Helper: get services for a specific month key 
+ function getMonthServices(key) {
+ const byS = {};
+ for (const row of serviceData) {
+ const txn = parseTxnDate(row[12]);
+ if (!txn || txn.key !== key) continue;
+ const desc = (row[8]||'').trim() || (row[2]||'').trim() || 'Unknown';
+ const tot = parseFloat(row[5]) || 0;
+ const qty = parseFloat(row[4]) || 0;
+ const cat = (row[1]||'').trim();
+ if (!byS[desc]) byS[desc] = { rev: 0, qty: 0, cat };
+ byS[desc].rev += tot;
+ byS[desc].qty += qty;
+ }
+ return byS;
+ }
+
+ // Helper: get service trend (last N months) 
+ function getServiceTrend(serviceName) {
+ const trend = {};
+ for (const row of serviceData) {
+ const desc = (row[8]||'').trim() || (row[2]||'').trim() || '';
+ if (desc.toLowerCase() !== serviceName.toLowerCase()) continue;
+ const txn = parseTxnDate(row[12]);
+ if (!txn) continue;
+ if (!trend[txn.key]) trend[txn.key] = { rev: 0, qty: 0 };
+ trend[txn.key].rev += parseFloat(row[5]) || 0;
+ trend[txn.key].qty += parseFloat(row[4]) || 0;
+ }
+ return trend;
+ }
+
+ // Helper: get category trend 
+ function getCategoryData(catKeyword) {
+ const byMonth = {};
+ const services = {};
+ for (const row of serviceData) {
+ const cat = (row[1]||'').trim().toLowerCase();
+ const desc = (row[2]||'').trim().toLowerCase();
+ if (!cat.includes(catKeyword) && !desc.includes(catKeyword)) continue;
+ const txn = parseTxnDate(row[12]);
+ if (!txn) continue;
+ const svcName = (row[8]||'').trim() || (row[2]||'').trim() || 'Unknown';
+ const tot = parseFloat(row[5]) || 0;
+ const qty = parseFloat(row[4]) || 0;
+ if (!byMonth[txn.key]) byMonth[txn.key] = { rev: 0, qty: 0 };
+ byMonth[txn.key].rev += tot;
+ byMonth[txn.key].qty += qty;
+ if (!services[svcName]) services[svcName] = { rev: 0, qty: 0 };
+ services[svcName].rev += tot;
+ services[svcName].qty += qty;
+ }
+ return { byMonth, services };
+ }
+
+ // Helper: build mini table HTML 
+ function tbl(headers, rows, colAligns) {
+ let h = '<table><thead><tr>' + headers.map((h,i) => `<th${colAligns&&colAligns[i]==='right'?' style="text-align:right"':''}>${h}</th>`).join('') + '</tr></thead><tbody>';
+ rows.forEach(row => {
+ h += '<tr>' + row.map((c,i) => `<td${colAligns&&colAligns[i]==='right'?' style="text-align:right"':''}>${c}</td>`).join('') + '</tr>';
+ });
+ return h + '</tbody></table>';
+ }
+
+ // Helper: colored value 
+ function cv(val, color) { return `<span style="color:${color};font-weight:700">${val}</span>`; }
+ function greenVal(v) { return cv(v, '#16a34a'); }
+ function blueVal(v) { return cv(v, '#2563eb'); }
+ function redVal(v) { return cv(v, '#ef4444'); }
+ function orangeVal(v) { return cv(v, '#ea580c'); }
+
+ // Helper: change badge 
+ function changeBadge(pct) {
+ if (pct > 0) return `<span style="background:rgba(22,163,74,.1);color:#16a34a;font-weight:700;padding:2px 7px;border-radius:4px;font-size:0.8rem">↑ +${pct.toFixed(1)}%</span>`;
+ if (pct < 0) return `<span style="background:rgba(239,68,68,.1);color:#ef4444;font-weight:700;padding:2px 7px;border-radius:4px;font-size:0.8rem">↓ ${pct.toFixed(1)}%</span>`;
+ return `<span style="color:#64748b;font-size:0.8rem">→ flat</span>`;
+ }
+
+ // 
+ // INTENT MATCHING
+ // 
+
+ // MONTHLY SUMMARY / PERFORMANCE 
+ if (q.match(/\b(this month|last month|how did|how are we|performance|summary|summarize|overview|how.+doing)\b/) ||
+ (q.includes('month') && q.includes('perform'))) {
+
+ if (!AI_monthKeys.length) return "Monthly data isn't ready yet.";
+
+ // Which month?
+ const namedMonth = findMonthInQuery(q);
+ let targetKey, label;
+ if (namedMonth) {
+ // Try to find this named month in data
+ targetKey = AI_monthKeys.find(k => parseInt(k.split('-')[1]) === namedMonth);
+ label = targetKey ? monthLabel(targetKey) : null;
+ }
+ if (!targetKey) {
+ targetKey = q.includes('last month') ? AI_monthKeys[AI_monthKeys.length-2] : AI_monthKeys[AI_monthKeys.length-1];
+ }
+ label = label || monthLabel(targetKey);
+ const prevKey = AI_monthKeys[AI_monthKeys.indexOf(targetKey) - 1];
+
+ const cur = AI_byMonth[targetKey] || { rev: 0, qty: 0 };
+ const prev = prevKey ? (AI_byMonth[prevKey] || { rev: 0, qty: 0 }) : null;
+ const diff = prev ? cur.rev - prev.rev : 0;
+ const pct = prev && prev.rev > 0 ? (diff / prev.rev * 100) : 0;
+
+ const monthSvcs = getMonthServices(targetKey);
+ const top5 = Object.entries(monthSvcs).sort((a,b)=>b[1].rev-a[1].rev).slice(0,5);
+
+ // Category breakdown for this month
+ const catThis = {};
+ for (const row of serviceData) {
+ const txn = parseTxnDate(row[12]);
+ if (!txn || txn.key !== targetKey) continue;
+ const cat = (row[1]||'').trim() || 'Other';
+ const tot = parseFloat(row[5]) || 0;
+ if (!catThis[cat]) catThis[cat] = 0;
+ catThis[cat] += tot;
+ }
+ const topCats = Object.entries(catThis).sort((a,b)=>b[1]-a[1]).slice(0,4);
+
+ let html = `<strong> ${label} Performance</strong><br><br>`;
+ html += tbl(
+ ['Metric', 'Value'],
+ [
+ ['Total Revenue', blueVal(fmt$(cur.rev))],
+ prev ? [`vs ${monthLabel(prevKey)}`, changeBadge(pct) + ` &nbsp;(${diff >= 0 ? '+' : ''}${fmt$(Math.abs(diff))})`] : [],
+ ['Transaction Volume', fmtN(Math.round(cur.qty))],
+ ['Avg per Transaction', cur.qty > 0 ? fmt$(cur.rev / cur.qty) : '—'],
+ ].filter(r => r.length),
+ ['left','right']
+ );
+ if (top5.length) {
+ html += `<br><strong>Top Services</strong><br>` + tbl(
+ ['Service', 'Revenue', 'Qty'],
+ top5.map(([n,v]) => [escHtml(n), blueVal(fmt$(v.rev)), fmtN(Math.round(v.qty))]),
+ ['left','right','right']
+ );
+ }
+ if (topCats.length) {
+ html += `<br><strong>By Category</strong><br>` + tbl(
+ ['Category', 'Revenue', '%'],
+ topCats.map(([c,r]) => [escHtml(c), fmt$(r), (r/cur.rev*100).toFixed(1)+'%']),
+ ['left','right','right']
+ );
+ }
+ aiConversation.push({ role: 'ai', text: `monthly summary ${targetKey}` });
+ return html;
+ }
+
+ // YEAR OVERVIEW / ANNUAL 
+ if (q.match(/\b(year|annual|ytd|year to date|all time|overall|this year)\b/) && !q.includes('month')) {
+ if (!AI_monthKeys.length) return "Data isn't ready yet.";
+
+ const totalRevenue = AI_totalRevenue;
+ const avgMonthly = totalRevenue / AI_monthKeys.length;
+ const bestKey = AI_monthKeys.reduce((a, b) => (AI_byMonth[a]?.rev||0) > (AI_byMonth[b]?.rev||0) ? a : b);
+ const worstKey = AI_monthKeys.reduce((a, b) => (AI_byMonth[a]?.rev||0) < (AI_byMonth[b]?.rev||0) ? a : b);
+
+ // Last 3 months trend
+ const last3 = AI_monthKeys.slice(-3);
+ const trendRevs = last3.map(k => AI_byMonth[k]?.rev || 0);
+ const trendDir = trendRevs[2] > trendRevs[0] ? ' upward' : trendRevs[2] < trendRevs[0] ? ' downward' : '→ flat';
+
+ let html = `<strong> Annual Overview — ${AI_monthKeys.length} Months of Data</strong><br><br>`;
+ html += tbl(
+ ['Metric', 'Value'],
+ [
+ ['Total Revenue', blueVal(fmt$(totalRevenue))],
+ ['Avg Monthly Revenue', fmt$(avgMonthly)],
+ ['Best Month', `${monthLabel(bestKey)} — ${blueVal(fmt$(AI_byMonth[bestKey].rev))}`],
+ ['Slowest Month', `${monthLabel(worstKey)} — ${fmt$(AI_byMonth[worstKey].rev)}`],
+ ['3-Month Trend', trendDir],
+ ['Data Range', `${monthLabel(AI_monthKeys[0])} → ${monthLabel(AI_monthKeys[AI_monthKeys.length-1])}`],
+ ],
+ ['left','right']
+ );
+
+ // Top categories
+ const catSorted = Object.entries(AI_byCat).sort((a,b)=>b[1].rev-a[1].rev).slice(0,5);
+ html += `<br><strong>Revenue by Category</strong><br>` + tbl(
+ ['Category', 'Revenue', 'Share'],
+ catSorted.map(([c,v]) => [escHtml(c), blueVal(fmt$(v.rev)), (v.rev/totalRevenue*100).toFixed(1)+'%']),
+ ['left','right','right']
+ );
+ aiConversation.push({ role: 'ai', text: 'annual overview' });
+ return html;
+ }
+
+ // BEST / WORST MONTH 
+ if (q.match(/\b(best month|highest month|peak month|worst month|lowest month|slowest month)\b/)) {
+ if (!AI_monthKeys.length) return "Data isn't ready yet.";
+ const sorted = [...AI_monthKeys].sort((a,b) => (AI_byMonth[b]?.rev||0) - (AI_byMonth[a]?.rev||0));
+ const isBest = q.includes('best') || q.includes('highest') || q.includes('peak');
+ const show = isBest ? sorted : [...sorted].reverse();
+
+ let html = `<strong>${isBest ? ' Best' : ' Slowest'} Months by Revenue</strong><br><br>`;
+ html += tbl(
+ ['Month', 'Revenue', 'vs Average'],
+ show.slice(0,6).map((k, i) => {
+ const rev = AI_byMonth[k].rev;
+ const avg = AI_totalRevenue / AI_monthKeys.length;
+ const diff = ((rev - avg) / avg * 100).toFixed(1);
+ return [monthLabel(k), blueVal(fmt$(rev)), changeBadge(parseFloat(diff))];
+ }),
+ ['left','right','right']
+ );
+ return html;
+ }
+
+ // REVENUE FORECAST 
+ if (q.match(/\b(forecast|predict|next month|projection|project|estimate)\b/)) {
+ if (AI_monthKeys.length < 3) return "Need at least 3 months of data to forecast.";
+
+ // Simple weighted average (recent months weighted more)
+ const last6 = AI_monthKeys.slice(-6);
+ const revs = last6.map(k => AI_byMonth[k].rev);
+ const weights = [1, 1.2, 1.4, 1.6, 1.8, 2.0].slice(-revs.length);
+ const wSum = weights.reduce((a,b) => a+b, 0);
+ const forecast = revs.reduce((s, r, i) => s + r * weights[i], 0) / wSum;
+
+ // Seasonal nudge — look at same month last year if available
+ const lastKey = AI_monthKeys[AI_monthKeys.length-1];
+ const nextMonthNum = (parseInt(lastKey.split('-')[1]) % 12) + 1;
+ const sameMonthLastYear = AI_monthKeys.find(k => {
+ const [y,m] = k.split('-');
+ return parseInt(m) === nextMonthNum && parseInt(y) < parseInt(lastKey.split('-')[0]);
+ });
+
+ const nextLabel = MONTH_NAMES[nextMonthNum - 1] + ' ' + (nextMonthNum === 1 ? String(parseInt(lastKey.split('-')[0])+1).slice(2) : lastKey.split('-')[0].slice(2));
+
+ let html = `<strong> Revenue Forecast — ${nextLabel}</strong><br><br>`;
+ html += tbl(
+ ['Basis', 'Value'],
+ [
+ ['Weighted avg (last 6 months)', fmt$(forecast)],
+ sameMonthLastYear ? [`Same month last year`, fmt$(AI_byMonth[sameMonthLastYear].rev)] : null,
+ ['Conservative estimate (−5%)', orangeVal(fmt$(forecast * 0.95))],
+ ['Base estimate', blueVal(fmt$(forecast))],
+ ['Optimistic (+5%)', greenVal(fmt$(forecast * 1.05))],
+ ].filter(Boolean),
+ ['left','right']
+ );
+ html += `<br><span style="color:#64748b;font-size:0.8rem"> Forecast based on weighted recent average. Seasonal factors and one-time events not fully accounted for.</span>`;
+ return html;
+ }
+
+ // GROWING / DECLINING SERVICES 
+ if (q.match(/\b(growing|growth|trending up|increasing|gaining)\b/) && !q.includes('slow')) {
+ if (AI_monthKeys.length < 3) return "Need more months of data to analyze trends.";
+
+ const firstHalfKeys = AI_monthKeys.slice(0, Math.floor(AI_monthKeys.length/2));
+ const secondHalfKeys = AI_monthKeys.slice(Math.floor(AI_monthKeys.length/2));
+
+ const firstHalf = {}, secondHalf = {};
+ for (const row of serviceData) {
+ const txn = parseTxnDate(row[12]);
+ if (!txn) continue;
+ const desc = (row[8]||'').trim() || (row[2]||'').trim() || 'Unknown';
+ const tot = parseFloat(row[5]) || 0;
+ if (firstHalfKeys.includes(txn.key)) {
+ firstHalf[desc] = (firstHalf[desc]||0) + tot;
+ }
+ if (secondHalfKeys.includes(txn.key)) {
+ secondHalf[desc] = (secondHalf[desc]||0) + tot;
+ }
+ }
+
+ const growthItems = Object.keys(secondHalf)
+ .filter(k => firstHalf[k] > 0 && secondHalf[k] > 0)
+ .map(k => ({ name: k, first: firstHalf[k], second: secondHalf[k], growth: (secondHalf[k]-firstHalf[k])/firstHalf[k]*100 }))
+ .filter(i => i.growth > 5 && i.second > 500) // meaningful growth, not tiny items
+ .sort((a,b) => b.growth - a.growth)
+ .slice(0, 10);
+
+ if (!growthItems.length) return "No significantly growing services found in the current data range.";
+
+ let html = `<strong> Fastest Growing Services</strong><br><span style="color:#64748b;font-size:0.8rem">Comparing first half vs second half of the dataset</span><br><br>`;
+ html += tbl(
+ ['Service', 'Recent Rev', 'Growth'],
+ growthItems.map(i => [escHtml(i.name), blueVal(fmt$(i.second)), greenVal('+'+i.growth.toFixed(1)+'%')]),
+ ['left','right','right']
+ );
+ return html;
+ }
+
+ if (q.match(/\b(declining|falling|shrinking|down|losing|slowest|worst service)\b/)) {
+ if (AI_monthKeys.length < 3) return "Need more months of data to analyze trends.";
+
+ const firstHalfKeys = AI_monthKeys.slice(0, Math.floor(AI_monthKeys.length/2));
+ const secondHalfKeys = AI_monthKeys.slice(Math.floor(AI_monthKeys.length/2));
+ const firstHalf = {}, secondHalf = {};
+ for (const row of serviceData) {
+ const txn = parseTxnDate(row[12]);
+ if (!txn) continue;
+ const desc = (row[8]||'').trim() || (row[2]||'').trim() || 'Unknown';
+ const tot = parseFloat(row[5]) || 0;
+ if (firstHalfKeys.includes(txn.key)) firstHalf[desc] = (firstHalf[desc]||0) + tot;
+ if (secondHalfKeys.includes(txn.key)) secondHalf[desc] = (secondHalf[desc]||0) + tot;
+ }
+
+ const declineItems = Object.keys(firstHalf)
+ .filter(k => firstHalf[k] > 500 && (secondHalf[k]||0) < firstHalf[k])
+ .map(k => ({ name: k, first: firstHalf[k], second: secondHalf[k]||0, change: ((secondHalf[k]||0)-firstHalf[k])/firstHalf[k]*100 }))
+ .sort((a,b) => a.change - b.change)
+ .slice(0, 10);
+
+ let html = `<strong> Declining Services</strong><br><span style="color:#64748b;font-size:0.8rem">Comparing first half vs second half of dataset period</span><br><br>`;
+ html += tbl(
+ ['Service', 'Earlier Rev', 'Recent Rev', 'Change'],
+ declineItems.map(i => [escHtml(i.name), fmt$(i.first), fmt$(i.second), redVal(i.change.toFixed(1)+'%')]),
+ ['left','right','right','right']
+ );
+ return html;
+ }
+
+ // CATEGORY DRILL-DOWN 
+ const categoryKeywords = {
+ 'dental': 'dental', 'dent': 'dental',
+ 'lab': 'lab', 'laboratory': 'lab',
+ 'drug': 'drug', 'medication': 'drug', 'rx': 'drug', 'pharma': 'drug',
+ 'exam': 'exam', 'examination': 'exam',
+ 'surgery': 'surg', 'surgical': 'surg',
+ 'vaccination': 'vacc', 'vaccine': 'vacc', 'vacc': 'vacc',
+ 'wellness': 'wellness', 'preventive': 'wellness',
+ 'radiology': 'rad', 'xray': 'rad', 'x-ray': 'rad',
+ 'anesthesia': 'anes',
+ 'grooming': 'groom',
+ 'boarding': 'board',
+ 'nutrition': 'nutri', 'food': 'nutri',
+ 'accessories': 'accessor', 'paw': 'paw',
+ 'dispensable': 'dispensable',
+ };
+ let matchedCatKw = null;
+ for (const [kw, canonical] of Object.entries(categoryKeywords)) {
+ if (q.includes(kw)) { matchedCatKw = canonical; break; }
+ }
+ if (matchedCatKw) {
+ const { byMonth: catMonths, services: catSvcs } = getCategoryData(matchedCatKw);
+ const catMonthKeys = sortMonthKeys(Object.keys(catMonths));
+ if (!catMonthKeys.length) {
+ return `I didn't find any "${matchedCatKw}" category data. Try asking about a different department.`;
+ }
+ const totalCat = Object.values(catSvcs).reduce((s,v) => s+v.rev, 0);
+ const topSvcs = Object.entries(catSvcs).sort((a,b)=>b[1].rev-a[1].rev).slice(0,8);
+ const lastM = catMonths[catMonthKeys[catMonthKeys.length-1]];
+ const prevM = catMonths[catMonthKeys[catMonthKeys.length-2]];
+ const mom = prevM && prevM.rev > 0 ? (lastM.rev - prevM.rev)/prevM.rev*100 : null;
+
+ let html = `<strong> ${matchedCatKw.charAt(0).toUpperCase()+matchedCatKw.slice(1)} Department</strong><br><br>`;
+ html += tbl(
+ ['Metric', 'Value'],
+ [
+ ['Total Revenue (all time)', blueVal(fmt$(totalCat))],
+ ['% of Clinic Revenue', (totalCat/AI_totalRevenue*100).toFixed(1) + '%'],
+ [`Latest Month (${monthLabel(catMonthKeys[catMonthKeys.length-1])})`, fmt$(lastM.rev)],
+ mom !== null ? ['MoM Change', changeBadge(mom)] : null,
+ ].filter(Boolean),
+ ['left','right']
+ );
+ html += `<br><strong>Services in this Department</strong><br>` + tbl(
+ ['Service', 'Total Revenue', 'Qty'],
+ topSvcs.map(([n,v]) => [escHtml(n), blueVal(fmt$(v.rev)), fmtN(Math.round(v.qty))]),
+ ['left','right','right']
+ );
+ // Monthly trend mini-table
+ if (catMonthKeys.length > 1) {
+ html += `<br><strong>Monthly Trend</strong><br>` + tbl(
+ ['Month', 'Revenue'],
+ catMonthKeys.slice(-6).map(k => [monthLabel(k), fmt$(catMonths[k].rev)]),
+ ['left','right']
+ );
+ }
+ aiConversation.push({ role: 'ai', text: `category ${matchedCatKw}` });
+ return html;
+ }
+
+ // SPECIFIC SERVICE LOOKUP 
+ // Check if query contains a service name from the data
+ const allServiceNames = Object.keys(AI_byService);
+ const mentionedService = allServiceNames.find(n =>
+ q.includes(n.toLowerCase()) || n.toLowerCase().split(' ').filter(w=>w.length>4).every(w=>q.includes(w))
+ );
+ if (mentionedService && !q.match(/\b(top|best|list|all|every|category)\b/)) {
+ const svc = AI_byService[mentionedService];
+ const trend = getServiceTrend(mentionedService);
+ const tkeys = sortMonthKeys(Object.keys(trend));
+ const last2 = tkeys.slice(-2);
+ const mom = last2.length===2 && trend[last2[0]].rev>0 ? (trend[last2[1]].rev - trend[last2[0]].rev)/trend[last2[0]].rev*100 : null;
+
+ // Catalog info
+ let catPrice = null, catCost = null;
+ if (catalogData) {
+ for (const row of catalogData) {
+ const n = (row[5]||'').trim()||(row[6]||'').trim();
+ if (n.toLowerCase() === mentionedService.toLowerCase()) {
+ catPrice = parseFloat(row[10]) || null;
+ catCost = parseFloat(row[12]) || null;
+ break;
+ }
+ }
+ }
+
+ let html = `<strong>${escHtml(mentionedService)}</strong><br><br>`;
+ html += tbl(
+ ['Metric','Value'],
+ [
+ ['Total Revenue', blueVal(fmt$(svc.rev))],
+ ['Total Qty Sold', fmtN(Math.round(svc.qty))],
+ ['Avg Revenue/Unit', fmt$(svc.qty>0 ? svc.rev/svc.qty : 0)],
+ catPrice ? ['Catalog Price', fmt$(catPrice)] : null,
+ catCost ? ['Catalog Cost', fmt$(catCost)] : null,
+ catPrice && catCost ? ['Margin', fmtPct((catPrice-catCost)/catPrice)] : null,
+ mom !== null ? ['MoM Trend', changeBadge(mom)] : null,
+ ['Category', escHtml(svc.classid||'—')],
+ ].filter(Boolean),
+ ['left','right']
+ );
+ if (tkeys.length > 1) {
+ html += `<br><strong>Monthly History</strong><br>` + tbl(
+ ['Month','Revenue','Qty'],
+ tkeys.map(k => [monthLabel(k), fmt$(trend[k].rev), fmtN(Math.round(trend[k].qty))]),
+ ['left','right','right']
+ );
+ }
+ aiConversation.push({ role: 'ai', text: `service lookup ${mentionedService}` });
+ return html;
+ }
+
+ // TOP SERVICES 
+ if (q.match(/\b(top|best|highest|leading)\b.*\b(service|item|procedure)\b/) ||
+ (q.includes('top') && q.includes('revenue'))) {
+ const limit = extractNumber(q, 10);
+ const safeLimit = Math.min(Math.max(limit, 3), 25);
+
+ const top = Object.entries(AI_byService).sort((a,b)=>b[1].rev-a[1].rev).slice(0,safeLimit);
+ const total = AI_totalRevenue;
+ let html = `<strong>Top ${safeLimit} Services by Revenue</strong><br><br>`;
+ html += tbl(
+ ['#','Service','Category','Revenue','Share'],
+ top.map(([n,v],i) => [i+1, escHtml(n), escHtml(v.classid||'—'), blueVal(fmt$(v.rev)), (v.rev/total*100).toFixed(1)+'%']),
+ ['left','left','left','right','right']
+ );
+ aiConversation.push({ role: 'ai', text: `top services` });
+ return html;
+ }
+
+ // CATEGORIES 
+ if (q.match(/\b(categor|department|breakdown|by type)\b/)) {
+ const sorted = Object.entries(AI_byCat).sort((a,b)=>b[1].rev-a[1].rev);
+ const total = AI_totalRevenue;
+ let html = `<strong>Revenue by Category</strong><br><br>`;
+ html += tbl(
+ ['#','Category','Revenue','% of Total'],
+ sorted.map(([c,v],i) => [i+1, escHtml(c), blueVal(fmt$(v.rev)), (v.rev/total*100).toFixed(1)+'%']),
+ ['left','left','right','right']
+ );
+ html += `<br><strong>${escHtml(sorted[0][0])}</strong> leads with ${(sorted[0][1].rev/total*100).toFixed(1)}% of total revenue.`;
+ return html;
+ }
+
+ // TOTAL REVENUE 
+ if (q.match(/\b(total revenue|how much|revenue overall|make|earn|gross)\b/)) {
+ if (!AI_totalRevenue) return "Revenue data isn't loaded yet.";
+ const avg = AI_totalRevenue / AI_monthKeys.length;
+ return `Tudor Glen generated <strong style="color:#2563eb;font-size:1.1rem">${fmt$(AI_totalRevenue)}</strong> total revenue across <strong>${AI_monthKeys.length} months</strong> of data.<br><br>Average monthly revenue: <strong>${fmt$(avg)}</strong>`;
+ }
+
+ // MARGIN / PRICING ANALYSIS 
+ if (q.match(/\b(margin|profit|cost|underpriced|overpriced|pricing)\b/)) {
+ if (!catalogData) return "Catalog data isn't loaded yet.";
+ const threshold = q.includes('25') ? 0.25 : q.includes('50') ? 0.5 : 0.4;
+ const items = [];
+ for (const row of catalogData) {
+ const status = (row[14]||'').trim();
+ const price = parseFloat(row[10]) || 0;
+ const cost = parseFloat(row[12]) || 0;
+ if (status !== '1' || price <= 0 || cost <= 0) continue;
+ const margin = (price - cost) / price;
+ if (margin < threshold) {
+ const name = (row[5]||'').trim() || (row[6]||'').trim();
+ const catLabel = (row[1]||'').trim() || (row[0]||'').trim();
+ items.push({ name, catLabel, price, cost, margin });
+ }
+ }
+ items.sort((a,b) => a.margin - b.margin);
+ let html = `<strong>Low-Margin Items</strong><br><span style="color:#64748b;font-size:0.8rem">${items.length} items below ${(threshold*100).toFixed(0)}% margin</span><br><br>`;
+ html += tbl(
+ ['Item','Category','Price','Cost','Margin'],
+ items.slice(0,12).map(i => {
+ const mColor = i.margin < 0.1 ? '#ef4444' : i.margin < 0.25 ? '#ea580c' : '#64748b';
+ return [escHtml(i.name), escHtml(i.catLabel), fmt$(i.price), fmt$(i.cost), cv(fmtPct(i.margin), mColor)];
+ }),
+ ['left','left','right','right','right']
+ );
+ return html;
+ }
+
+ // INFLATION / PRICE ADJUSTMENT 
+ if (q.match(/\b(inflation|price increase|raise price|increase price|opportunity|opportunities|campaign 1|cpi|behind inflation|adjust|underpriced)\b/)) {
+ if (!c1AllItems || !c1AllItems.length) return "Inflation analysis isn't ready yet — check the Campaigns tab.";
+ const behind = c1AllItems.filter(i => i.gap > 0);
+ const urgent = c1AllItems.filter(i => i.status_flag === 'urgent');
+ const totalUp = behind.reduce((s,i) => s + i.uplift, 0);
+ const topItems = [...behind].sort((a,b) => b.uplift - a.uplift).slice(0,8);
+
+ let html = `<strong> Inflation-Adjusted Pricing Summary</strong><br><br>`;
+ html += tbl(
+ ['Metric','Value'],
+ [
+ ['Items behind inflation', `${behind.length} of ${c1AllItems.length}`],
+ ['Urgent (>15% gap)', redVal(urgent.length + ' items')],
+ ['Total annual uplift if adjusted', greenVal(fmt$(totalUp))],
+ ['2026 forecast rate', `${(FORECAST_RATE_2026*100).toFixed(1)}% (BoC estimate)`],
+ ],
+ ['left','right']
+ );
+ html += `<br><strong>Top Opportunities by Annual Uplift</strong><br>`;
+ html += tbl(
+ ['Item','Current','Inflation-Adj.','Gap','Annual Uplift'],
+ topItems.map(i => [
+ escHtml(i.name), fmt$(i.price), blueVal(fmt$(i.adjustedTarget)),
+ `<span style="color:#ea580c;font-weight:700">+${fmt$(i.gap)}</span>`,
+ greenVal('+'+fmt$(i.uplift))
+ ]),
+ ['left','right','right','right','right']
+ );
+ html += `<br><span style="color:#64748b;font-size:0.8rem">Full analysis in Campaigns tab → Inflation-Adjusted Pricing</span>`;
+ return html;
+ }
+
+ // .99 PRICING 
+ if (q.match(/\b(99|ninety.?nine|rounding|round up|campaign 2|missed revenue|.99 pricing)\b/)) {
+ // Re-compute from service data for AI response
+ const svcTxns = {};
+ for (const row of serviceData) {
+ const name = (row[8]||'').trim()||(row[2]||'').trim();
+ const qty = parseFloat(row[4]) || 0;
+ const tot = parseFloat(row[5]) || 0;
+ if (!name || qty <= 0 || tot <= 0) continue;
+ if (!svcTxns[name]) svcTxns[name] = { totalRev:0, totalQty:0, cat:(row[1]||'').trim() };
+ svcTxns[name].totalRev += tot;
+ svcTxns[name].totalQty += qty;
+ }
+ const items = [];
+ for (const [name, s] of Object.entries(svcTxns)) {
+ const avg = s.totalQty > 0 ? s.totalRev/s.totalQty : 0;
+ if (avg <= 1 || Math.abs(avg % 1 - 0.99) < 0.005) continue;
+ const floor99 = Math.floor(avg);
+ let next99 = floor99 + 0.99;
+ if (next99 < avg) next99 = floor99 + 1 + 0.99;
+ const gain = next99 - avg;
+ if (gain < 0.01 || gain > 5) continue;
+ items.push({ name, avg, next99, gain, qty: s.totalQty, uplift: gain * s.totalQty });
+ }
+ items.sort((a,b) => b.uplift - a.uplift);
+ const total = items.reduce((s,i)=>s+i.uplift,0);
+ const top8 = items.slice(0,8);
+
+ let html = `<strong> .99 Pricing — Missed Revenue Analysis</strong><br><br>`;
+ html += tbl(
+ ['Metric','Value'],
+ [
+ ['Total missed last year', `<span style="color:var(--purple);font-weight:900">${fmt$(total)}</span>`],
+ ['Services affected', `${items.length}`],
+ ['Avg gain per unit', fmt$(total / items.reduce((s,i)=>s+i.qty,0))],
+ ],
+ ['left','right']
+ );
+ html += `<br><strong>Biggest Opportunities</strong><br>`;
+ html += tbl(
+ ['Service','Avg Price','.99 Price','+/Unit','Volume','Annual Uplift'],
+ top8.map(i => [
+ escHtml(i.name), fmt$(i.avg), blueVal(fmt$(i.next99)),
+ `<span style="color:var(--purple);font-weight:700">+${fmt$(i.gain)}</span>`,
+ fmtN(Math.round(i.qty)), greenVal('+'+fmt$(i.uplift))
+ ]),
+ ['left','right','right','right','right','right']
+ );
+ html += `<br><span style="color:#64748b;font-size:0.8rem">Full breakdown in Campaigns tab → .99 Pricing Revenue Recovery</span>`;
+ return html;
+ }
+
+ // HIGH VOLUME LOW PRICE 
+ if (q.match(/\b(high.?volume|volume|high.?frequency|busy|frequent|popular)\b/) &&
+ !q.includes('category') && !q.includes('best')) {
+ const svcStats = {};
+ for (const row of serviceData) {
+ const desc = (row[8]||'').trim();
+ const qty = parseFloat(row[4]) || 0;
+ const tot = parseFloat(row[5]) || 0;
+ if (!desc) continue;
+ if (!svcStats[desc]) svcStats[desc] = { qty: 0, rev: 0 };
+ svcStats[desc].qty += qty;
+ svcStats[desc].rev += tot;
+ }
+ const catPrice = {};
+ if (catalogData) {
+ for (const row of catalogData) {
+ if ((row[14]||'').trim() !== '1') continue;
+ const price = parseFloat(row[10]) || 0;
+ const name = (row[5]||'').trim() || (row[6]||'').trim();
+ if (name && price > 0) catPrice[name] = price;
+ }
+ }
+ const items = Object.entries(svcStats)
+ .filter(([n,s]) => s.qty > 30)
+ .map(([n,s]) => {
+ const price = catPrice[n] ?? (s.qty > 0 ? s.rev/s.qty : 0);
+ return { name: n, qty: s.qty, price, revPerQty: s.rev/s.qty };
+ })
+ .filter(i => i.price > 0)
+ .sort((a,b) => b.qty - a.qty)
+ .slice(0, 12);
+
+ let html = `<strong> Highest-Volume Services</strong><br><br>`;
+ html += tbl(
+ ['Service','Annual Volume','Avg Price','Total Rev'],
+ items.map(i => [escHtml(i.name), fmtN(Math.round(i.qty)), fmt$(i.price), blueVal(fmt$(i.qty*i.revPerQty))]),
+ ['left','right','right','right']
+ );
+ return html;
+ }
+
+ // INVOICE BUILDER 
+ if (q.match(/\b(invoice|bill|estimate|quote|create.*invoice|build.*invoice|sample invoice)\b/)) {
+ // Extract a service type from the query, or default to wellness
+ const serviceHint = q.includes('dental') ? 'dental' :
+ q.includes('vaccine') || q.includes('vaccination') ? 'vaccine' :
+ q.includes('exam') ? 'exam' :
+ q.includes('surgery') ? 'surgery' :
+ q.includes('wellness') ? 'wellness' : 'wellness';
+
+ // Pull relevant catalog items
+ const catalogItems = [];
+ if (catalogData) {
+ for (const row of catalogData) {
+ if ((row[14]||'').trim() !== '1') continue;
+ const price = parseFloat(row[10]) || 0;
+ if (price <= 0) continue;
+ const name = (row[5]||'').trim() || (row[6]||'').trim();
+ const catId = (row[0]||'').trim().toLowerCase();
+ const catDesc = (row[1]||'').trim().toLowerCase();
+ const nameL = name.toLowerCase();
+ const match =
+ (serviceHint === 'dental' && (catId.includes('dental') || catDesc.includes('dental') || nameL.includes('dental'))) ||
+ (serviceHint === 'vaccine' && (nameL.includes('vacc') || catDesc.includes('vacc'))) ||
+ (serviceHint === 'exam' && (nameL.includes('exam') || nameL.includes('physical'))) ||
+ (serviceHint === 'surgery' && (nameL.includes('surg') || catDesc.includes('surg'))) ||
+ (serviceHint === 'wellness' && (nameL.includes('exam') || nameL.includes('wellness') || nameL.includes('physical') || nameL.includes('vacc')));
+ if (match) catalogItems.push({ name, price, catDesc });
+ }
+ }
+
+ // Pick 3–5 relevant items
+ const selected = catalogItems.slice(0, 5);
+ if (!selected.length) {
+ return `I couldn't find items matching "${serviceHint}" in the catalog. Try: "Create an invoice for a dental cleaning" or "Build a wellness exam invoice".`;
+ }
+
+ const subtotal = selected.reduce((s,i) => s + i.price, 0);
+ const tax = subtotal * 0.05; // GST
+ const total = subtotal + tax;
+
+ let html = `<strong> Sample Invoice — ${serviceHint.charAt(0).toUpperCase()+serviceHint.slice(1)} Visit</strong><br><span style="color:#64748b;font-size:0.8rem">Tudor Glen Veterinary Hospital · Generated from catalog pricing</span><br><br>`;
+ html += tbl(
+ ['Service / Item', 'Qty', 'Unit Price', 'Total'],
+ selected.map(i => [escHtml(i.name), '1', fmt$(i.price), blueVal(fmt$(i.price))]),
+ ['left','right','right','right']
+ );
+ html += `<br><table><tbody><tr><td style="text-align:right;padding:4px 8px">Subtotal</td><td style="text-align:right;padding:4px 8px">${fmt$(subtotal)}</td></tr><tr><td style="text-align:right;padding:4px 8px;color:#64748b">GST (5%)</td><td style="text-align:right;padding:4px 8px;color:#64748b">${fmt$(tax)}</td></tr><tr style="border-top:2px solid #dbeafe"><td style="text-align:right;padding:6px 8px;font-weight:800">Total</td><td style="text-align:right;padding:6px 8px;font-weight:800;color:#2563eb">${fmt$(total)}</td></tr></tbody></table>`;
+ html += `<br><span style="color:#64748b;font-size:0.8rem"> This is a sample based on your catalog. Actual invoice items vary per patient. Ask me to adjust items or add specific services.</span>`;
+ aiConversation.push({ role: 'ai', text: `invoice ${serviceHint}` });
+ return html;
+ }
+
+ // COMPARISON BETWEEN TWO MONTHS 
+ const monthNums = [];
+ const monthNames2 = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+ const shortNames = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+ for (let i = 0; i < 12; i++) {
+ if (q.includes(monthNames2[i]) || q.includes(shortNames[i])) monthNums.push(i+1);
+ }
+ if (monthNums.length === 2 && q.match(/\b(compare|vs|versus|against|difference|between)\b/)) {
+ const k1 = AI_monthKeys.find(k => parseInt(k.split('-')[1]) === monthNums[0]);
+ const k2 = AI_monthKeys.find(k => parseInt(k.split('-')[1]) === monthNums[1]);
+ if (k1 && k2) {
+ const m1 = AI_byMonth[k1], m2 = AI_byMonth[k2];
+ const diff = m2.rev - m1.rev;
+ const pct = m1.rev > 0 ? (diff/m1.rev*100) : 0;
+ let html = `<strong>Comparing ${monthLabel(k1)} vs ${monthLabel(k2)}</strong><br><br>`;
+ html += tbl(
+ ['Metric', monthLabel(k1), monthLabel(k2), 'Difference'],
+ [
+ ['Revenue', fmt$(m1.rev), fmt$(m2.rev), changeBadge(pct)+` (${diff>=0?'+':''}${fmt$(Math.abs(diff))})`],
+ ['Volume', fmtN(Math.round(m1.qty)), fmtN(Math.round(m2.qty)), ''],
+ ],
+ ['left','right','right','right']
+ );
+ return html;
+ }
+ }
+
+ // HELP / WHAT CAN YOU DO 
+ if (q.match(/\b(help|what can|what do|capabilities|how to use|guide|commands)\b/)) {
+ return `<strong>Here's what you can ask me:</strong><br><br><ul><li><strong>Monthly performance:</strong> "How did we do in December?" · "Summarize last month" · "Compare Jan vs Feb"</li><li><strong>Annual overview:</strong> "Show me year-to-date" · "What was our best month?"</li><li><strong>Services:</strong> "Top 10 services" · "Tell me about Oral Surgery" · "Which services are growing?"</li><li><strong>Departments:</strong> "Dental department performance" · "How's our lab revenue?"</li><li><strong>Pricing:</strong> "Which items have low margins?" · "Price increase opportunities"</li><li><strong>Forecasting:</strong> "Forecast next month revenue"</li><li><strong>Invoices:</strong> "Create a wellness exam invoice" · "Build a dental invoice"</li></ul>`;
+ }
+
+ // CATCH-ALL: try to find a keyword match in services 
+ // Search for partial service name matches
+ const words = q.split(/\s+/).filter(w => w.length > 3);
+ const partialMatch = allServiceNames.find(n =>
+ words.some(w => n.toLowerCase().includes(w))
+ );
+ if (partialMatch && !q.match(/\b(top|best|list|all|every|categor)\b/)) {
+ const svc = AI_byService[partialMatch];
+ let html = `I found <strong>${escHtml(partialMatch)}</strong> in your data:<br><br>`;
+ html += tbl(
+ ['Metric','Value'],
+ [
+ ['Total Revenue', blueVal(fmt$(svc.rev))],
+ ['Total Qty', fmtN(Math.round(svc.qty))],
+ ['Avg per Unit', fmt$(svc.qty>0?svc.rev/svc.qty:0)],
+ ['Category', escHtml(svc.classid||'—')],
+ ],
+ ['left','right']
+ );
+ html += `<br><span style="color:#64748b;font-size:0.8rem">Ask me to "show the trend for ${escHtml(partialMatch)}" for monthly history.</span>`;
+ return html;
+ }
+
+ // FINAL FALLBACK 
+ return `I'm not sure what you're asking, but here's what I can do:<br><br><ul><li><strong>"How did we do last month?"</strong> — monthly revenue summary</li><li><strong>"Show top 10 services"</strong> — revenue leaders</li><li><strong>"Dental department"</strong> — drill into any category</li><li><strong>"Which services are growing?"</strong> — trend analysis</li><li><strong>"Forecast next month"</strong> — revenue projection</li><li><strong>"Create a dental invoice"</strong> — sample invoice from your catalog</li></ul>
 Or just describe what you want to know — I'll figure it out.`;
 }
-</script>
-</body>
-</html>
+</script></body></html>
