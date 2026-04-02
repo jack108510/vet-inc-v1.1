@@ -866,6 +866,7 @@ async function sbFetch(table, params) {
 let serviceData = null;
 let pricesData = null;
 let treatmentsData = null;
+ let accountsData = null;
 let analyticsReady = false;
 let campaignsReady = false;
 
@@ -878,14 +879,16 @@ let AI_totalRevenue = 0; let AI_totalQty = 0;
 
 async function loadDataAndBuild() {
  try {
-   const [svcRows, priceRows, treatRows] = await Promise.all([
+   const [svcRows, priceRows, treatRows, acctRows] = await Promise.all([
      sbFetch('services', 'select=code,description,amount,quantity,service_type,created_at&order=created_at.asc'),
      sbFetch('prices', 'select=treatment_code,price,updated_at&order=updated_at.asc'),
-     sbFetch('treatments', 'select=code,name')
+     sbFetch('treatments', 'select=code,name'),
+     sbFetch('accounts', 'select=txn_date,amount_raw,type_flag&order=txn_date.asc')
    ]);
    serviceData = svcRows;
    pricesData = priceRows;
    treatmentsData = treatRows;
+   accountsData = acctRows;
    document.getElementById('dotService').classList.add('loaded');
    document.getElementById('dotCatalog').classList.add('loaded');
    document.getElementById('dotPriceHistory').classList.add('loaded');
@@ -910,21 +913,26 @@ function buildAnalytics() {
  let totalRevenue = 0, totalQty = 0;
  const byMonth = {}, byCat = {}, byService = {};
 
+ // Use accounts table for monthly revenue (has real txn_date)
+ for (const row of (accountsData || [])) {
+ const tot = (row.amount_raw || 0) / 100;
+ const txn = parseTxnDateISO(row.txn_date);
+ totalRevenue += tot;
+ totalQty += 1;
+ if (txn) {
+ if (!byMonth[txn.key]) byMonth[txn.key] = { rev: 0, qty: 0 };
+ byMonth[txn.key].rev += tot;
+ byMonth[txn.key].qty += 1;
+ }
+ }
+
+ // Use services for category and per-service breakdowns (no date needed)
  for (const row of serviceData) {
  const classid = (row.service_type || '').trim();
  const qty = parseFloat(row.quantity) || 0;
  const tot = parseFloat(row.amount) || 0;
  const desc = (row.description || '').trim() || 'Unknown';
- const txn = parseTxnDateISO(row.created_at);
 
- totalRevenue += tot;
- totalQty += qty;
-
- if (txn) {
- if (!byMonth[txn.key]) byMonth[txn.key] = { rev: 0, qty: 0 };
- byMonth[txn.key].rev += tot;
- byMonth[txn.key].qty += qty;
- }
  if (classid) {
  if (!byCat[classid]) byCat[classid] = { rev: 0 };
  byCat[classid].rev += tot;
@@ -1166,13 +1174,82 @@ async function campaignFetch(campaign) {
   if (campaignCache[campaign] && now - campaignCache[campaign].ts < CAMPAIGN_TTL) {
     return campaignCache[campaign].data;
   }
-  const res = await fetch(CAMPAIGN_WEBHOOK, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ campaign })
-  });
-  if (!res.ok) throw new Error('n8n ' + res.status);
-  const data = await res.json();
+  // Compute locally from already-loaded Supabase data
+  let data = { items: [] };
+  const treatMap = {};
+  (treatmentsData||[]).forEach(t => { treatMap[t.code] = t.name; });
+  const usageMap = {};
+  (serviceData||[]).forEach(r => { if(r.code) usageMap[r.code] = (usageMap[r.code]||0) + (parseFloat(r.quantity)||1); });
+  const currentYear = new Date().getFullYear();
+
+  if (campaign === 'inflation') {
+    const items = [];
+    for (const p of (pricesData||[])) {
+      if (!p.price || p.price <= 0) continue;
+      const code = p.treatment_code;
+      const name = treatMap[code] || code;
+      // Assume 3 years stale since updated_at is ETL insert date
+      const assumedYear = currentYear - 3;
+      const factor = compoundInflation(assumedYear, currentYear);
+      const suggested = Math.round(p.price * factor * 100) / 100;
+      const delta = Math.max(0, suggested - p.price);
+      if (delta < 0.01) continue;
+      const daysSince = Math.round((currentYear - assumedYear) * 365.25);
+      const usage = usageMap[code] || 0;
+      const monthlyUsage = usage / 60; // ~60 months of data
+      const annualUplift = delta * monthlyUsage * 12;
+      items.push({
+        id: code, name, currentPrice: p.price, suggested,
+        delta, daysSince, lastModStr: 'Unknown',
+        inflPct: ((factor - 1) * 100).toFixed(1),
+        usage: monthlyUsage * 12, uplift: annualUplift
+      });
+    }
+    items.sort((a,b) => b.uplift - a.uplift);
+    data = { items };
+  } else if (campaign === '99-pricing') {
+    const items = [];
+    for (const p of (pricesData||[])) {
+      if (!p.price || p.price <= 0 || p.price < 2) continue;
+      const cents = Math.round(p.price * 100) % 100;
+      if (cents === 99 || cents === 95) continue;
+      const code = p.treatment_code;
+      const name = treatMap[code] || code;
+      const whole = Math.floor(p.price);
+      const price99 = whole + 0.99;
+      const gain = price99 > p.price ? price99 - p.price : (whole + 1) + 0.99 - p.price;
+      if (gain <= 0 || gain > 1.5) continue;
+      const usage = usageMap[code] || 0;
+      const monthlyVol = usage / 60;
+      const annualUplift = gain * monthlyVol * 12;
+      items.push({
+        service: name, category: '', currentPrice: p.price,
+        '99Price': price99 > p.price ? price99 : whole + 1.99,
+        gainPerTxn: gain, volume: monthlyVol * 12, uplift: annualUplift
+      });
+    }
+    items.sort((a,b) => b.uplift - a.uplift);
+    data = { items };
+  } else if (campaign === 'micro-margin') {
+    const items = [];
+    for (const p of (pricesData||[])) {
+      if (!p.price || p.price <= 0) continue;
+      const code = p.treatment_code;
+      const name = treatMap[code] || code;
+      const usage = usageMap[code] || 0;
+      const annualQty = usage / 60 * 12;
+      if (annualQty < 5) continue;
+      const bump = p.price * 0.05;
+      const priceWithBump = Math.round((p.price + bump) * 100) / 100;
+      items.push({
+        name, oldCost: p.price, newCost: p.price,
+        costIncrease: 0, priceWithBump,
+        annualQty, annualUplift: bump * annualQty
+      });
+    }
+    items.sort((a,b) => b.annualUplift - a.annualUplift);
+    data = { items: items.slice(0, 100) };
+  }
   campaignCache[campaign] = { data, ts: now };
   return data;
 }
@@ -2158,25 +2235,31 @@ const WidgetBoard = (() => {
 
     switch(widget) {
       case 'today-revenue':
-        data = await sbQ('services', `select=amount&created_at=gte.${params.date}T00:00:00&created_at=lt.${params.date}T23:59:59`);
+        data = await sbQ('accounts', `select=amount_raw,txn_date&txn_date=gte.${params.date}T00:00:00&txn_date=lt.${params.date}T23:59:59`);
+        data = data.map(r => ({amount: (r.amount_raw||0)/100, created_at: r.txn_date}));
         break;
       case 'week-revenue':
       case 'week-vs-last':
-        data = await sbQ('services', `select=amount,created_at&created_at=gte.${params.from}&created_at=lt.${params.to}&order=created_at.asc`);
+        data = await sbQ('accounts', `select=amount_raw,txn_date&txn_date=gte.${params.from}&txn_date=lt.${params.to}&order=txn_date.asc`);
+        data = data.map(r => ({amount: (r.amount_raw||0)/100, created_at: r.txn_date}));
         break;
       case 'month-revenue':
+        data = await sbQ('accounts', `select=amount_raw,txn_date&txn_date=gte.${params.month_start}&txn_date=lt.${params.month_end}&order=txn_date.asc`);
+        data = data.map(r => ({amount: (r.amount_raw||0)/100, created_at: r.txn_date}));
+        break;
       case 'top-services':
       case 'revenue-by-category':
-        data = await sbQ('services', `select=code,description,amount,quantity,service_type,created_at&created_at=gte.${params.month_start}&created_at=lt.${params.month_end}&order=created_at.asc`);
+        data = await sbQ('services', `select=code,description,amount,quantity,service_type,created_at&order=amount.desc&limit=5000`);
         break;
       case 'monthly-trend':
-        data = await sbQ('services', `select=amount,created_at&created_at=gte.${params.from}&order=created_at.asc`);
+        data = await sbQ('accounts', `select=amount_raw,txn_date&txn_date=gte.${params.from}&order=txn_date.asc`);
+        data = data.map(r => ({amount: (r.amount_raw||0)/100, created_at: r.txn_date}));
         break;
       case 'avg-visit-value':
       case 'services-per-visit': {
-        const svcs = await sbQ('services', `select=amount,created_at&created_at=gte.${params.month_start}&created_at=lt.${params.month_end}`);
+        const accts = await sbQ('accounts', `select=amount_raw,txn_date&txn_date=gte.${params.month_start}&txn_date=lt.${params.month_end}`);
         const visits = await sbQ('visits', `select=visit_date,doctor&visit_date=gte.${params.month_start}&visit_date=lt.${params.month_end}`);
-        data = { services: svcs, visits };
+        data = { services: accts.map(a => ({amount: (a.amount_raw||0)/100})), visits };
         break;
       }
       case 'visits-today':
@@ -2190,8 +2273,8 @@ const WidgetBoard = (() => {
         break;
       case 'doctor-revenue': {
         const visits = await sbQ('visits', `select=visit_date,doctor&visit_date=gte.${params.month_start}&visit_date=lt.${params.month_end}`);
-        const services = await sbQ('services', `select=amount&created_at=gte.${params.month_start}&created_at=lt.${params.month_end}`);
-        data = { visits, services };
+        const accts = await sbQ('accounts', `select=amount_raw,txn_date&txn_date=gte.${params.month_start}&txn_date=lt.${params.month_end}`);
+        data = { visits, services: accts.map(a => ({amount: (a.amount_raw||0)/100})) };
         break;
       }
       case 'new-clients':
@@ -2215,6 +2298,12 @@ const WidgetBoard = (() => {
       case 'inventory-projection':
         data = await sbQ('purchase_orders', `select=po_date,cost,quantity&order=po_date.desc&limit=500`);
         break;
+      case 'ytd-revenue': {
+        const yr = new Date().getFullYear();
+        const rows = await sbQ('accounts', `select=amount_raw&txn_date=gte.${yr}-01-01&txn_date=lt.${yr+1}-01-01`);
+        data = rows.map(r => ({amount: (r.amount_raw||0)/100}));
+        break;
+      }
       default:
         throw new Error('Unknown widget: ' + widget);
     }
@@ -2271,6 +2360,7 @@ const WidgetBoard = (() => {
     { id:'upcoming-appointments', title:"Upcoming Appointments (7 Days)", size:'medium', icon:'A' },
     { id:'price-staleness', title:"Price Staleness Report", size:'large', icon:'P' },
     { id:'inventory-projection', title:"Projected Inventory Spend", size:'medium', icon:'I' },
+    { id:'ytd-revenue', title:"Year-to-Date Revenue", size:'small', icon:'$' },
   ];
 
   const SIZES = { small: 1, medium: 2, large: 4 };
@@ -2304,6 +2394,7 @@ const WidgetBoard = (() => {
         case 'upcoming-appointments': await renderUpcomingAppts(id, bodyEl); break;
         case 'price-staleness': await renderPriceStaleness(id, bodyEl); break;
         case 'inventory-projection': await renderInventoryProjection(id, bodyEl); break;
+        case 'ytd-revenue': await renderYTDRevenue(id, bodyEl); break;
       }
     } catch(e) {
       bodyEl.innerHTML = `<div class="widget-error"><span>Unable to load data</span><button class="widget-error-retry" onclick="WidgetBoard.retryWidget('${id}')">Retry</button></div>`;
@@ -2809,6 +2900,22 @@ const WidgetBoard = (() => {
       projection = AI_byMonth[k] ? AI_byMonth[k].rev * 0.28 : 0;
     }
     bodyEl.innerHTML = `<div class="w-value">${fmt$(projection)}</div><div class="w-sub">projected inventory spend next month</div><div class="w-sub" style="margin-top:6px;font-size:0.68rem">40% last 3mo avg · 30% last 6mo · 20% same month · 10% 12mo avg</div>`;
+  }
+
+  async function renderYTDRevenue(id, bodyEl) {
+    let total = 0;
+    try {
+      const rows = await wbGet('ytd-revenue', {});
+      total = sumAmount(rows);
+    } catch(e) {
+      // Fallback: sum all months in current year from AI data
+      const yr = String(new Date().getFullYear());
+      for (const [k, v] of Object.entries(AI_byMonth)) {
+        if (k.startsWith(yr)) total += v.rev;
+      }
+    }
+    const yr = new Date().getFullYear();
+    bodyEl.innerHTML = `<div class="w-value">${fmt$(total)}</div><div class="w-sub">${yr} Year-to-Date</div>`;
   }
 
   // ── Skeleton loading ────────────────────────────────────────
