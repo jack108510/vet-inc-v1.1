@@ -286,89 +286,86 @@
  .pairing-bar-fill { height: 100%; background: linear-gradient(90deg, var(--orange), #fbbf24); border-radius: 3px; }
  .pairing-pct { font-size: 0.7rem; font-weight: 800; color: var(--orange); float: right; margin-top: -1.3rem; }
 
- /* AI ASSISTANT */
+ /* AI ASSISTANT — CHAT UI */
  #tab-ai {
  height: calc(100vh - 112px);
- display: none; flex-direction: row;
- background: var(--bg);
+ display: none;
+ flex-direction: column;
+ background: #f8faff;
  }
  #tab-ai.active { display: flex; }
 
- .ai-sidebar {
- width: 280px; flex-shrink: 0;
- background: var(--surface); border-right: 1px solid var(--border);
- display: flex; flex-direction: column;
- padding: 1.5rem 1.25rem;
- overflow-y: auto;
+ .ai-chat-header {
+ background: var(--surface);
+ border-bottom: 1px solid var(--border);
+ padding: 0.75rem 1.5rem;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ flex-shrink: 0;
  }
- .ai-sidebar-title {
- font-size: 0.68rem; font-weight: 700; color: var(--muted);
- text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;
+ .ai-chat-header-left { display: flex; align-items: center; gap: 10px; }
+ .ai-chat-avatar {
+ width: 36px; height: 36px; border-radius: 50%;
+ background: linear-gradient(135deg, var(--primary), var(--primary-light));
+ display: flex; align-items: center; justify-content: center;
+ color: white; font-weight: 800; font-size: 0.9rem; flex-shrink: 0;
  }
- .quick-action {
- display: flex; align-items: center; gap: 10px;
- background: var(--surface2); border: 1px solid var(--border);
- border-radius: 10px; padding: 0.7rem 0.9rem;
- cursor: pointer; transition: all 0.15s;
- font-size: 0.82rem; color: var(--text); font-weight: 500;
- margin-bottom: 0.5rem; text-align: left; width: 100%;
- }
- .quick-action:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
- .quick-action:hover .qa-icon { color: #fff; }
- .qa-icon { font-size: 1rem; flex-shrink: 0; color: var(--primary); }
- .ai-sidebar-sep { height: 1px; background: var(--border); margin: 1rem 0; }
- .ai-data-status { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
- .ai-data-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; background: var(--border); vertical-align: middle; }
+ .ai-chat-name { font-weight: 700; font-size: 0.95rem; color: var(--text); }
+ .ai-chat-status { font-size: 0.75rem; color: var(--muted); }
+ .ai-chat-indicators { display: flex; gap: 1rem; align-items: center; }
+ .ai-status-item { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--muted); }
+ .ai-data-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 2px; background: var(--border); vertical-align: middle; }
  .ai-data-dot.loaded { background: var(--green); }
 
- .ai-main {
- flex: 1; display: flex; flex-direction: column;
- min-width: 0;
- }
  .ai-messages {
- flex: 1; overflow-y: auto; padding: 1.5rem;
- display: flex; flex-direction: column; gap: 1rem;
+ flex: 1; overflow-y: auto;
+ padding: 1.5rem; max-width: 860px; width: 100%; margin: 0 auto;
+ display: flex; flex-direction: column; gap: 1.25rem;
+ box-sizing: border-box;
  }
- .msg-row {
- display: flex; gap: 10px; align-items: flex-end;
- animation: fadeIn 0.2s ease;
- }
+
+ .msg-row { display: flex; gap: 10px; align-items: flex-end; animation: fadeIn 0.2s ease; }
  .msg-row.user { flex-direction: row-reverse; }
- .msg-avatar {
- width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
- display: flex; align-items: center; justify-content: center;
- font-size: 0.9rem; font-weight: 700;
- }
- .msg-avatar.ai { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; }
- .msg-avatar.user { background: var(--surface2); border: 1px solid var(--border); }
+ .msg-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+ .msg-row.user .msg-meta { align-items: flex-end; }
+ .msg-time { font-size: 0.65rem; color: var(--muted); padding: 0 4px; }
+
+ .msg-avatar { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
+ .msg-avatar.ai { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; }
+ .msg-avatar.user { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); }
+
  .msg-bubble {
- max-width: 72%; padding: 0.85rem 1.1rem;
- border-radius: 14px; font-size: 0.86rem; line-height: 1.65;
+ max-width: 680px; padding: 0.875rem 1.1rem;
+ border-radius: 14px; font-size: 0.87rem; line-height: 1.7;
  }
  .msg-bubble.ai {
  background: var(--surface); border: 1px solid var(--border);
- color: var(--text); border-bottom-left-radius: 4px;
- box-shadow: 0 2px 10px rgba(37,99,235,.05);
+ color: var(--text); border-top-left-radius: 4px;
+ box-shadow: 0 2px 12px rgba(37,99,235,.05);
  }
  .msg-bubble.user {
- background: var(--primary); color: #fff;
- border-bottom-right-radius: 4px;
+ background: var(--primary); color: white;
+ border-top-right-radius: 4px;
  }
- .msg-bubble table { font-size: 0.78rem; margin: 0.5rem 0; width: 100%; border-collapse: collapse; }
- .msg-bubble table th { background: var(--surface2); color: var(--muted); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 5px 8px; text-align: left; border-bottom: 1px solid var(--border); }
+ .msg-bubble table { font-size: 0.78rem; margin: 0.6rem 0; width: 100%; border-collapse: collapse; }
+ .msg-bubble table th { background: #f8faff; color: var(--muted); font-size: 0.67rem; font-weight: 700; text-transform: uppercase; padding: 5px 8px; text-align: left; border-bottom: 1px solid var(--border); }
  .msg-bubble table td { padding: 5px 8px; border-bottom: 1px solid rgba(219,234,254,0.5); }
  .msg-bubble table tr:last-child td { border-bottom: none; }
- .msg-bubble ul { padding-left: 1.2rem; margin: 0.4rem 0; }
- .msg-bubble li { margin-bottom: 0.3rem; }
+ .msg-bubble ul, .msg-bubble ol { padding-left: 1.2rem; margin: 0.4rem 0; }
+ .msg-bubble li { margin-bottom: 0.25rem; }
+ .msg-bubble p { margin-bottom: 0.5rem; }
+ .msg-bubble p:last-child { margin-bottom: 0; }
  .msg-bubble strong { font-weight: 700; }
- .msg-bubble .ai-tag { display: inline-block; background: var(--surface2); border: 1px solid var(--border); color: var(--primary); font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; margin-right: 4px; }
+ .followup-row { margin-top: 0.875rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+ .followup-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 0.4rem; }
+ .followup-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+ .followup-chip { background: var(--surface2); border: 1px solid var(--border); color: var(--primary); font-size: 0.74rem; padding: 3px 10px; border-radius: 5px; cursor: pointer; font-family: inherit; transition: all 0.12s; }
+ .followup-chip:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
  /* Typing indicator */
- .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
- .typing-dot {
- width: 7px; height: 7px; border-radius: 50%;
- background: var(--muted); animation: typingBounce 1.2s infinite;
- }
+ .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 2px 0; }
+ .typing-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: typingBounce 1.2s infinite; }
  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
  @keyframes typingBounce {
@@ -376,10 +373,25 @@
  30% { transform: translateY(-5px); opacity: 1; }
  }
 
- .ai-input-bar {
+ .ai-suggestions {
  background: var(--surface); border-top: 1px solid var(--border);
- padding: 1rem 1.5rem; display: flex; gap: 0.75rem; align-items: center;
+ padding: 0.625rem 1.25rem; display: flex; gap: 0.4rem;
+ overflow-x: auto; flex-shrink: 0;
  }
+ .ai-suggestions::-webkit-scrollbar { display: none; }
+ .suggestion-chip {
+ background: var(--surface2); border: 1px solid var(--border);
+ color: var(--muted); font-size: 0.76rem; padding: 5px 13px;
+ border-radius: 16px; cursor: pointer; white-space: nowrap;
+ transition: all 0.15s; font-family: inherit; font-weight: 500;
+ }
+ .suggestion-chip:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+ .ai-input-wrapper {
+ background: var(--surface); border-top: 1px solid var(--border);
+ padding: 0.875rem 1.25rem; display: flex; justify-content: center; flex-shrink: 0;
+ }
+ .ai-input-inner { display: flex; gap: 0.625rem; width: 100%; max-width: 860px; }
  .ai-input {
  flex: 1; background: var(--surface2); border: 1px solid var(--border);
  color: var(--text); border-radius: 10px; padding: 0.65rem 1rem;
@@ -402,7 +414,6 @@
  @media (max-width: 900px) {
  .chart-grid { grid-template-columns: 1fr; }
  .section { padding: 1rem; }
- .ai-sidebar { display: none; }
  #tab-ai { height: calc(100vh - 112px); }
  }
  @media (max-width: 600px) {
@@ -423,21 +434,7 @@
  --><section id="tab-campaigns" class="section"><div id="campaignsLoading" class="loading"><div class="spinner"></div> Analyzing pricing opportunities…
  </div><div id="campaignsContent" style="display:none"><!-- Campaign 1: Inflation Adjuster --><div class="campaign-card c-blue"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div class="campaign-meta"><div class="campaign-title">Inflation Price Adjustment Report</div><div class="campaign-desc">Uses real price history (exact last-modified date per item) and actual transaction volume over the last 365 days. Canadian CPI is compounded from the last price change to today — showing exactly what each item should cost now and the annual revenue left on the table.</div><div class="campaign-badge" id="c1Badge">Loading price history…</div></div></div><div id="c1Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▾</span></button><div class="campaign-body"><div style="padding:0.6rem 1.75rem;border-bottom:1px solid var(--border);display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap"><span style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-right:0.5rem">Show:</span><button class="c1-filter active" onclick="c1Filter(this,'all')">All Behind</button><button class="c1-filter" onclick="c1Filter(this,'used')">With Usage Only</button><button class="c1-filter" onclick="c1Filter(this,'urgent')">Urgent (&gt;15%)</button></div><div class="table-scroll"><table><thead><tr><th>Item Name</th><th class="num">Last Changed</th><th class="num">Days Stale</th><th class="num">Infl. %</th><th class="num">Current Price</th><th class="num">Suggested Price</th><th class="num">Delta</th><th class="num">Usage / yr</th><th class="num">Est. Uplift / yr</th></tr></thead><tbody id="c1Table"></tbody></table></div></div></div><!-- Campaign 2: .99 Pricing Opportunity --><div class="campaign-card c-purple"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8"/><path d="M12 6v2m0 8v2"/></svg></div><div class="campaign-meta"><div class="campaign-title">.99 Pricing Revenue Recovery</div><div class="campaign-desc">Based on actual transaction history: if every line item that <em>wasn't</em> already at a .99 price had been rounded up to the next .99, how much additional revenue would the clinic have captured last year? This shows real missed dollars — not theory.</div><div class="campaign-badge" id="c2Badge">Calculating…</div></div></div><!-- Summary stat bar --><div id="c2Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▾</span></button><div class="campaign-body"><div class="table-scroll"><table><thead><tr><th>Service / Item</th><th>Category</th><th class="num">Current Price</th><th class="num">.99 Price</th><th class="num">Gain / Txn</th><th class="num">Annual Volume</th><th class="num">Annual Uplift</th></tr></thead><tbody id="c2Table"></tbody></table></div></div></div><!-- Campaign 3: Shoppable Services --><div class="campaign-card c-emerald"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div><div class="campaign-meta"><div class="campaign-title">Shoppable Services</div><div class="campaign-desc">High-frequency services priced under $100. At scale, even a small price adjustment creates outsized annual revenue impact. These are your highest-leverage opportunities.</div><div class="campaign-badge" id="c3Badge">0 services</div></div></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▾</span></button><div class="campaign-body"><div class="table-scroll"><table><thead><tr><th>Service Name</th><th class="num">Annual Volume</th><th class="num">Current Price</th><th class="num">+$5 / Year</th><th class="num">+$10 / Year</th></tr></thead><tbody id="c3Table"></tbody></table></div></div></div><!-- Campaign 4: Common Pairings --><div class="campaign-card c-orange"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></div><div class="campaign-meta"><div class="campaign-title">Common Service Pairings</div><div class="campaign-desc">Service categories that appear together most often across months. These natural bundles are prime candidates for package deals, cross-sell reminders, or wellness plan inclusions.</div><div class="campaign-badge" id="c4Badge">Top 10 pairings</div></div></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▾</span></button><div class="campaign-body"><div class="pairing-grid" id="c4Grid"></div></div></div></div></section><!-- 
  SECTION 3: AI Assistant
- --><section id="tab-ai" class="section full-h"><!-- Sidebar --><aside class="ai-sidebar"><div class="ai-sidebar-title">Quick Actions</div><button class="quick-action" onclick="sendQuickAction('Summarize this month\'s performance')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> This month's summary
- </button><button class="quick-action" onclick="sendQuickAction('What are our top 10 services by revenue?')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Top 10 services
- </button><button class="quick-action" onclick="sendQuickAction('What is our best performing category?')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Best category breakdown
- </button><button class="quick-action" onclick="sendQuickAction('Which services are growing month over month?')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Growing services
- </button><button class="quick-action" onclick="sendQuickAction('Show me the inflation pricing analysis')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Inflation pricing gaps
- </button><button class="quick-action" onclick="sendQuickAction('How much revenue did we miss with .99 pricing last year?')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> .99 pricing missed revenue
- </button><button class="quick-action" onclick="sendQuickAction('What was our best month this year?')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Best month this year
- </button><button class="quick-action" onclick="sendQuickAction('Forecast next month revenue')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Revenue forecast
- </button><button class="quick-action" onclick="sendQuickAction('Create a sample invoice for a wellness exam')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Create sample invoice
- </button><button class="quick-action" onclick="sendQuickAction('Which services have declining revenue?')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Declining services
- </button><button class="quick-action" onclick="sendQuickAction('Show me dental department performance')"><span class="qa-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span> Dental performance
- </button><div class="ai-sidebar-sep"></div><div class="ai-sidebar-title">Data Status</div><div class="ai-data-status"><div><span class="ai-data-dot" id="dotService"></span> Service Usage CSV</div><div style="margin-top:6px"><span class="ai-data-dot" id="dotCatalog"></span> Item Catalog CSV</div></div></aside><!-- Chat --><div class="ai-main"><div class="ai-messages" id="aiMessages"><!-- Welcome message --><div class="msg-row"><div class="msg-avatar ai">IQ</div><div class="msg-bubble ai"><strong>Hi, I'm your Clinic IQ Assistant.</strong><br><br>
- I have full access to Rosslyn's service history, pricing catalog, revenue trends, and transaction data. Ask me anything — I'll give you real numbers from your actual data.<br><br><span style="color:#64748b;font-size:0.82rem">Try: <em>"How did we do last month?"</em> · <em>"What's driving dental revenue?"</em> · <em>"Which services are growing?"</em> · <em>"Build me an invoice for a wellness visit"</em></span></div></div></div><div class="ai-input-bar"><input class="ai-input" id="aiInput" type="text" placeholder="Ask about your clinic data…" onkeydown="if(event.key==='Enter') sendAIMessage()" /><button class="ai-send" id="aiSendBtn" onclick="sendAIMessage()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
- Send
- </button></div></div></section><script>
+ --><section id="tab-ai" class="section full-h"><!-- Chat Header --><div class="ai-chat-header"><div class="ai-chat-header-left"><div class="ai-chat-avatar">R</div><div><div class="ai-chat-name">Rosslyn Assistant</div><div class="ai-chat-status">Connected to your clinic data</div></div></div><div class="ai-chat-indicators"><div class="ai-status-item"><span class="ai-data-dot" id="dotService"></span> Service Usage</div><div class="ai-status-item"><span class="ai-data-dot" id="dotCatalog"></span> Price Catalog</div><div class="ai-status-item"><span class="ai-data-dot" id="dotPriceHistory"></span> Price History</div></div></div><!-- Messages --><div class="ai-messages" id="aiMessages"><div class="msg-row"><div class="msg-avatar ai">R</div><div class="msg-meta"><div class="msg-bubble ai"><p><strong>Good morning, I'm your Rosslyn clinic assistant.</strong></p><p>I have full access to your service history, pricing catalog, price change history, and transaction data. Ask me anything about the clinic — I'll answer with real numbers from your data.</p><p style="color:var(--muted);font-size:0.82rem">Try asking about revenue, pricing gaps, service trends, or building an estimate.</p></div><div class="msg-time">--:--</div></div></div></div><!-- Suggested Prompts --><div class="ai-suggestions"><button class="suggestion-chip" onclick="sendQuickAction('How are we performing this month?')">How are we performing this month?</button><button class="suggestion-chip" onclick="sendQuickAction('Which services need a price increase?')">Which services need a price increase?</button><button class="suggestion-chip" onclick="sendQuickAction('What are our top 10 revenue drivers?')">Top 10 revenue drivers</button><button class="suggestion-chip" onclick="sendQuickAction('Show me the dental department breakdown')">Dental department</button><button class="suggestion-chip" onclick="sendQuickAction('Which services are growing?')">Growing services</button><button class="suggestion-chip" onclick="sendQuickAction('How much revenue are we leaving on the table?')">Revenue opportunities</button><button class="suggestion-chip" onclick="sendQuickAction('Build a wellness exam invoice')">Build an invoice</button><button class="suggestion-chip" onclick="sendQuickAction('Compare our best and worst months')">Best vs worst months</button><button class="suggestion-chip" onclick="sendQuickAction('What is our average transaction value?')">Avg transaction value</button><button class="suggestion-chip" onclick="sendQuickAction('Which categories drive the most volume?')">Category volume breakdown</button></div><!-- Input --><div class="ai-input-wrapper"><div class="ai-input-inner"><input class="ai-input" id="aiInput" type="text" placeholder="Ask anything about Rosslyn's clinic data…" onkeydown="if(event.key==='Enter') sendAIMessage()" /><button class="ai-send" id="aiSendBtn" onclick="sendAIMessage()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send</button></div></div></section><script>
 // 
 // Utilities
 // 
@@ -720,7 +717,7 @@ let c1DataReady = false;
 function buildC1() {
  Papa.parse('pricehistory.csv', {
  download: true, header: false, skipEmptyLines: true,
- complete: r => { priceHistoryData = r.data.slice(1); computeC1(); }
+ complete: r => { priceHistoryData = r.data.slice(1); const dph = document.getElementById('dotPriceHistory'); if (dph) dph.classList.add('loaded'); computeC1(); }
  });
 }
 
@@ -991,6 +988,60 @@ function buildC4() {
 
 let aiTyping = false;
 
+// Conversation history with intent tracking
+const conversationHistory = [];
+
+function addToHistory(role, content, intent) {
+ conversationHistory.push({ role, content, intent: intent || null, time: new Date() });
+ if (conversationHistory.length > 12) conversationHistory.splice(0, 2);
+}
+
+function getLastUserIntent() {
+ return [...conversationHistory].reverse().find(m => m.role === 'user' && m.intent)?.intent || null;
+}
+
+// Intent definitions
+const INTENTS = [
+ { name: 'monthly_summary', patterns: ['how did we do', 'this month', 'last month', 'performance', 'how are we', "how's", 'summary', 'overview', 'did we make'], followUps: ['What were the top services this month?', 'How does this compare to last year?', 'Which category led revenue?'] },
+ { name: 'top_services', patterns: ['top', 'best', 'highest revenue', 'most revenue', 'leading service', 'biggest'], followUps: ['What are our least profitable services?', 'Which of these need a price increase?', 'Which services are growing?'] },
+ { name: 'categories', patterns: ['category', 'department', 'breakdown', 'by type', 'which category', 'categories'], followUps: ['Which category is growing fastest?', 'Show me dental performance', 'What drives lab revenue?'] },
+ { name: 'inflation_pricing', patterns: ['price increase', 'inflation', 'stale price', 'price update', 'behind inflation', 'need a raise', 'underpriced', 'pricing', 'uplift', 'revenue opportunity', 'leaving money', 'leaving on the table', 'missed revenue'], followUps: ['Show me the top 10 most urgent price increases', 'How much are we missing on .99 pricing?', 'Which category has the most stale prices?'] },
+ { name: 'ninety_nine', patterns: ['.99', '99 cent', 'rounding', 'price rounding', 'psychological pricing', 'round prices'], followUps: ['What is our total missed revenue?', 'Which items have the highest volume impact?'] },
+ { name: 'growing_services', patterns: ['growing', 'growth', 'trending up', 'increasing', 'gaining', 'fastest growing'], followUps: ['Which services are declining?', 'What drove this growth?', 'Show me the full trend'] },
+ { name: 'declining_services', patterns: ['declining', 'falling', 'shrinking', 'losing', 'slowest', 'worst performing'], followUps: ['What should we do about declining services?', 'Are prices too high on these?'] },
+ { name: 'category_drill', patterns: ['dental', 'lab', 'laboratory', 'vaccine', 'vaccination', 'exam', 'examination', 'surgery', 'radiology', 'wellness', 'anesthesia', 'pharmacy', 'drug', 'dispensable'], followUps: ['How has this changed over time?', 'Which items in this category need price updates?', 'What is the volume trend?'] },
+ { name: 'forecast', patterns: ['forecast', 'predict', 'next month', 'projection', 'estimate future', 'expect'], followUps: ['What factors could change this?', 'Show me the last 6 months trend'] },
+ { name: 'invoice', patterns: ['invoice', 'estimate', 'quote', 'bill', 'create invoice', 'build invoice', 'sample invoice'], followUps: ['What else is typically included?', 'Show me the wellness exam revenue trend'] },
+ { name: 'avg_transaction', patterns: ['average', 'avg', 'per visit', 'per transaction', 'per appointment', 'transaction value'], followUps: ['How can we increase this?', 'Which services bring the highest ticket?'] },
+ { name: 'annual_overview', patterns: ['year', 'annual', 'overall', 'all time', 'total', 'ytd', 'big picture'], followUps: ['What was our best month?', 'Which category grew the most?', 'What are our biggest opportunities?'] },
+ { name: 'best_worst_months', patterns: ['best month', 'worst month', 'highest month', 'lowest month', 'peak', 'slow month', 'compare month'], followUps: ['What can we do in slow months?', 'Which services drove the best month?'] },
+ { name: 'recommendations', patterns: ['what should i', 'recommend', 'advice', 'focus on', 'priority', 'opportunities', 'action items', 'what to do'], followUps: ["Tell me more about opportunity #1", "What's the easiest win?"] },
+ { name: 'help', patterns: ['help', 'what can you', 'capabilities', 'how to use', 'guide'], followUps: [] }
+];
+
+function matchIntent(query) {
+ const q = query.toLowerCase();
+ let best = { intent: null, score: 0 };
+ for (const intent of INTENTS) {
+   const score = intent.patterns.reduce((s, p) => {
+     if (q.includes(p)) return s + (p.length > 6 ? 2 : 1);
+     return s;
+   }, 0);
+   if (score > best.score) best = { intent, score };
+ }
+ return best.score > 0 ? best.intent : null;
+}
+
+function buildResponse(insight, dataHtml, followUps) {
+ followUps = followUps || [];
+ let html = `<p style="line-height:1.75;margin-bottom:${dataHtml ? '0.75rem' : '0'}">${insight}</p>`;
+ if (dataHtml) html += dataHtml;
+ if (followUps.length) {
+   html += `<div class="followup-row"><div class="followup-label">You might also ask</div><div class="followup-chips">${followUps.map(f => `<button class="followup-chip" onclick="sendQuickAction('${f.replace(/'/g, "\\'")}')">${f}</button>`).join('')}</div></div>`;
+ }
+ return html;
+}
+
 function sendQuickAction(text) {
  document.getElementById('aiInput').value = text;
  sendAIMessage();
@@ -1003,28 +1054,33 @@ function sendAIMessage() {
  if (!query) return;
  input.value = '';
 
+ const matchedIntent = matchIntent(query);
+ addToHistory('user', query, matchedIntent?.name);
  appendMessage('user', escHtml(query));
 
- // Typing indicator
  const typingId = appendTyping();
  aiTyping = true;
  document.getElementById('aiSendBtn').disabled = true;
 
  setTimeout(() => {
- removeTyping(typingId);
- const response = processAIQuery(query);
- appendMessage('ai', response);
- aiTyping = false;
- document.getElementById('aiSendBtn').disabled = false;
- }, 700 + Math.random() * 500);
+   removeTyping(typingId);
+   const response = processAIQuery(query, matchedIntent);
+   addToHistory('ai', response, null);
+   appendMessage('ai', response);
+   aiTyping = false;
+   document.getElementById('aiSendBtn').disabled = false;
+ }, 600 + Math.random() * 300);
 }
 
 function appendMessage(role, html) {
  const msgs = document.getElementById('aiMessages');
  const row = document.createElement('div');
  row.className = 'msg-row ' + role;
- const avatar = role === 'ai' ? '<div class="msg-avatar ai">IQ</div>' : '<div class="msg-avatar user"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>';
- row.innerHTML = avatar + `<div class="msg-bubble ${role}">${html}</div>`;
+ const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+ const avatarHtml = role === 'ai'
+   ? '<div class="msg-avatar ai">R</div>'
+   : '<div class="msg-avatar user"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>';
+ row.innerHTML = avatarHtml + `<div class="msg-meta"><div class="msg-bubble ${role}">${html}</div><div class="msg-time">${time}</div></div>`;
  msgs.appendChild(row);
  msgs.scrollTop = msgs.scrollHeight;
  return row;
@@ -1035,7 +1091,7 @@ function appendTyping() {
  const row = document.createElement('div');
  row.className = 'msg-row';
  row.id = 'typingRow';
- row.innerHTML = `<div class="msg-avatar ai">IQ</div><div class="msg-bubble ai"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+ row.innerHTML = `<div class="msg-avatar ai">R</div><div class="msg-meta"><div class="msg-bubble ai"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>`;
  msgs.appendChild(row);
  msgs.scrollTop = msgs.scrollHeight;
  return 'typingRow';
@@ -1046,21 +1102,25 @@ function removeTyping(id) {
  if (el) el.remove();
 }
 
-// Conversation context (last 6 turns for follow-up awareness) 
+// Legacy compat
 const aiConversation = [];
 
-function processAIQuery(query) {
+function processAIQuery(query, matchedIntent) {
  const q = query.toLowerCase().trim();
  const raw = query.trim();
 
- // Store turn
- aiConversation.push({ role: 'user', text: q });
- if (aiConversation.length > 12) aiConversation.splice(0, 2);
-
- const lastAI = aiConversation.filter(t => t.role === 'ai').slice(-1)[0]?.text || '';
-
  if (!serviceData && !catalogData) {
- return " Data is still loading — give it a moment then try again.";
+   return buildResponse("Data is still loading — give it a moment then try again.", null, []);
+ }
+
+ // Recommendations handler
+ if (matchedIntent && matchedIntent.name === 'recommendations') {
+   return handleRecommendations();
+ }
+
+ // Average transaction value handler
+ if (matchedIntent && matchedIntent.name === 'avg_transaction') {
+   return handleAvgTransaction();
  }
 
  // Helper: extract a number from the query 
@@ -1812,7 +1872,84 @@ function processAIQuery(query) {
  }
 
  // FINAL FALLBACK 
- return `I'm not sure what you're asking, but here's what I can do:<br><br><ul><li><strong>"How did we do last month?"</strong> — monthly revenue summary</li><li><strong>"Show top 10 services"</strong> — revenue leaders</li><li><strong>"Dental department"</strong> — drill into any category</li><li><strong>"Which services are growing?"</strong> — trend analysis</li><li><strong>"Forecast next month"</strong> — revenue projection</li><li><strong>"Create a dental invoice"</strong> — sample invoice from your catalog</li></ul>
-Or just describe what you want to know — I'll figure it out.`;
+ return buildResponse(
+   "I'm not sure what you're asking, but here's what I can help with:",
+   `<ul>
+     <li><strong>"How did we do last month?"</strong> — monthly revenue summary</li>
+     <li><strong>"Show top 10 services"</strong> — revenue leaders</li>
+     <li><strong>"Dental department"</strong> — drill into any category</li>
+     <li><strong>"Which services are growing?"</strong> — trend analysis</li>
+     <li><strong>"Forecast next month"</strong> — revenue projection</li>
+     <li><strong>"Create a dental invoice"</strong> — sample invoice from your catalog</li>
+   </ul>`,
+   ['How are we performing this month?', 'Top 10 revenue drivers', 'Which services need a price increase?']
+ );
 }
+
+function handleRecommendations() {
+ const items = [];
+ if (c1AllItems && c1AllItems.length) {
+   const totalUplift = c1AllItems.reduce((s, i) => s + i.uplift, 0);
+   const top10Uplift = c1AllItems.slice(0, 10).reduce((s, i) => s + i.uplift, 0);
+   items.push(`<strong>Price adjustments:</strong> ${c1AllItems.length} services are behind inflation. Adjusting the top 10 alone could recover approximately ${fmt$(top10Uplift)} annually.`);
+ }
+ if (serviceData) {
+   const firstHalfKeys = AI_monthKeys.slice(0, Math.floor(AI_monthKeys.length / 2));
+   const secondHalfKeys = AI_monthKeys.slice(Math.floor(AI_monthKeys.length / 2));
+   const firstHalf = {}, secondHalf = {};
+   for (const row of serviceData) {
+     const txn = parseTxnDate(row[12]); if (!txn) continue;
+     const desc = (row[8]||'').trim() || (row[2]||'').trim() || 'Unknown';
+     const tot = parseFloat(row[5]) || 0;
+     if (firstHalfKeys.includes(txn.key)) firstHalf[desc] = (firstHalf[desc]||0) + tot;
+     if (secondHalfKeys.includes(txn.key)) secondHalf[desc] = (secondHalf[desc]||0) + tot;
+   }
+   const growing = Object.keys(secondHalf).filter(k => firstHalf[k] > 0).map(k => ({ name: k, growth: (secondHalf[k]-firstHalf[k])/firstHalf[k]*100 })).filter(i => i.growth > 20 && secondHalf[i.name] > 500).sort((a,b) => b.growth - a.growth).slice(0,3);
+   if (growing.length) items.push(`<strong>Growing services to capitalize on:</strong> ${growing.map(i => escHtml(i.name)).join(', ')} are seeing strong growth. Consider featuring these in client communications.`);
+ }
+ if (!items.length) items.push('<strong>Load your data files</strong> to unlock personalized revenue recommendations.');
+ return buildResponse(
+   'Based on your clinic data, here are the top revenue opportunities right now:',
+   `<ul>${items.map(i => `<li style="margin-bottom:0.5rem">${i}</li>`).join('')}</ul>`,
+   ["Show me the full price increase list", "Which services are growing?", "What is our average transaction value?"]
+ );
+}
+
+function handleAvgTransaction() {
+ if (!serviceData) return buildResponse('Service data is not loaded yet.', null, []);
+ const totalRev = AI_totalRevenue;
+ let totalQty = 0;
+ for (const row of serviceData) { totalQty += parseFloat(row[4]) || 0; }
+ const avgTxn = totalQty > 0 ? totalRev / totalQty : 0;
+
+ // By category
+ const catStats = {};
+ for (const row of serviceData) {
+   const cat = (row[1]||'').trim() || 'Other';
+   const tot = parseFloat(row[5]) || 0;
+   const qty = parseFloat(row[4]) || 0;
+   if (!catStats[cat]) catStats[cat] = { rev: 0, qty: 0 };
+   catStats[cat].rev += tot;
+   catStats[cat].qty += qty;
+ }
+ const catRows = Object.entries(catStats).filter(([,v]) => v.qty > 0).sort((a,b) => (b[1].rev/b[1].qty) - (a[1].rev/a[1].qty)).slice(0, 8);
+
+ const tblHtml = catRows.length ? `<br><strong>Average Revenue per Unit by Category</strong><br><table><thead><tr><th>Category</th><th style="text-align:right">Avg / Unit</th><th style="text-align:right">Total Revenue</th></tr></thead><tbody>${catRows.map(([c,v]) => `<tr><td>${escHtml(c)}</td><td style="text-align:right"><span style="color:#2563eb;font-weight:700">${fmt$(v.rev/v.qty)}</span></td><td style="text-align:right">${fmt$(v.rev)}</td></tr>`).join('')}</tbody></table>` : '';
+
+ return buildResponse(
+   `Rosslyn's average revenue per transaction unit is <strong>${fmt$(avgTxn)}</strong> across all services in the dataset.`,
+   tblHtml,
+   ['How can we increase this?', 'Which services bring the highest ticket?', 'Top 10 revenue drivers']
+ );
+}
+
+// Set welcome message time on load
+document.addEventListener('DOMContentLoaded', function() {
+ const hr = new Date().getHours();
+ const greeting = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+ const greetEl = document.querySelector('#aiMessages .msg-bubble.ai strong');
+ if (greetEl) greetEl.textContent = `${greeting}, I'm your Rosslyn clinic assistant.`;
+ const timeEl = document.querySelector('#aiMessages .msg-time');
+ if (timeEl) timeEl.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+});
 </script></body></html>
