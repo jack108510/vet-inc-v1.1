@@ -923,9 +923,15 @@ async function loadDataAndBuild() {
 }
 
 loadDataAndBuild().then(() => {
+  console.log('✅ Data loaded:', (serviceData||[]).length, 'services');
   document.getElementById('lastUpdated').textContent = 'Loading ' + (serviceData||[]).length.toLocaleString() + ' services… campaigns next';
   return buildCampaigns();
-}).catch(e => console.warn('Campaign init error:', e));
+}).catch(e => {
+  console.error('❌ Campaign init error:', e);
+  document.getElementById('campaignsLoading').style.display = 'none';
+  document.getElementById('campaignsLoading').innerHTML = '<div style="color:var(--red);padding:2rem;font-size:0.9rem"><strong>Error:</strong> ' + e.message + '</div>';
+  document.getElementById('campaignsLoading').style.display = 'block';
+});
 
 //
 // SECTION 1: Analytics & KPIs
@@ -989,14 +995,21 @@ function buildAnalytics() {
 async function buildCampaigns() {
   if (campaignsReady) return;
   campaignsReady = true;
+  console.log('🔄 Building campaigns...');
   try {
-    await Promise.all([buildC1(), buildC2(), buildC3()]);
+    console.log('  C1...');
+    await buildC1();
+    console.log('  C2...');
+    await buildC2();
+    console.log('  C3...');
+    await buildC3();
+    console.log('✅ All campaigns done');
     document.getElementById('campaignsLoading').style.display = 'none';
     document.getElementById('campaignsContent').style.display = 'block';
   } catch(e) {
-    console.error('Campaign load error:', e);
+    console.error('❌ Campaign load error:', e);
     const el = document.getElementById('campaignsLoading');
-    if (el) el.innerHTML = '<div style="color:var(--red);padding:2rem">Error loading campaigns. Check console.</div>';
+    if (el) el.innerHTML = '<div style="color:var(--red);padding:2rem;font-size:0.9rem"><strong>Campaign Error:</strong> ' + e.message + '</div>';
   }
 }
 
