@@ -2781,15 +2781,58 @@ const WidgetBoard = (() => {
   }
 
   async function renderPriceStaleness(id, bodyEl) {
-    // Use c1AllItems computed by Campaign 1 (already available after buildC1)
-    const waitForC1 = () => new Promise(resolve => {
-      if (c1AllItems && c1AllItems.length > 0) { resolve(); return; }
-      const check = setInterval(() => { if (c1AllItems && c1AllItems.length > 0) { clearInterval(check); resolve(); } }, 500);
-      setTimeout(() => { clearInterval(check); resolve(); }, 10000);
-    });
-    await waitForC1();
+    let items = [];
+    try {
+      const [priceRows, treatRows, svcRows] = await Promise.all([
+        sbGet('prices', 'select=treatment_code,price,updated_at&order=updated_at.desc'),
+        sbGet('treatments', 'select=code,name'),
+        sbGet('services', 'select=code,quantity')
+      ]);
+      if (!priceRows || priceRows.length === 0) throw new Error('empty');
 
-    const items = (c1AllItems||[]).slice(0,10);
+      const treatNames = {};
+      for (const t of (treatRows||[])) { if (t.code) treatNames[t.code] = t.name || t.code; }
+
+      const usageMap = {};
+      for (const r of (svcRows||[])) {
+        const code = (r.code||'').trim();
+        const qty = parseFloat(r.quantity)||0;
+        if (code && qty > 0) usageMap[code] = (usageMap[code]||0)+qty;
+      }
+
+      const priceMap = {};
+      for (const row of priceRows) {
+        const code = (row.treatment_code||'').trim();
+        const price = parseFloat(row.price)||0;
+        const d = row.updated_at ? new Date(row.updated_at) : null;
+        if (!code || !d || price <= 0) continue;
+        if (!priceMap[code] || d > priceMap[code].lastMod) {
+          priceMap[code] = { lastMod: d, price, name: treatNames[code]||code };
+        }
+      }
+
+      const TODAY = new Date();
+      const ONE_YR_AGO = new Date(TODAY); ONE_YR_AGO.setFullYear(TODAY.getFullYear()-1);
+      for (const [code, info] of Object.entries(priceMap)) {
+        if (info.lastMod >= ONE_YR_AGO) continue;
+        if (!usageMap[code] || usageMap[code] <= 0) continue;
+        const fromYear = info.lastMod.getFullYear();
+        const factor = compoundInflation(fromYear, 2025);
+        const suggested = parseFloat((info.price * factor).toFixed(2));
+        const delta = parseFloat((suggested - info.price).toFixed(2));
+        if (delta <= 0.005) continue;
+        const inflPct = ((factor - 1) * 100).toFixed(1);
+        const usage = usageMap[code];
+        const uplift = parseFloat((delta * usage).toFixed(2));
+        const gapPct = info.price > 0 ? delta / info.price : 0;
+        items.push({ id: code, name: info.name, lastModStr: info.lastMod.toLocaleDateString('en-CA'), inflPct, gapPct, uplift });
+      }
+      items.sort((a,b) => b.uplift - a.uplift);
+    } catch(e) {
+      items = (c1AllItems||[]).slice(0,10);
+    }
+
+    items = items.slice(0,10);
     if (!items.length) {
       bodyEl.innerHTML = '<div class="w-sub">Price history data not loaded yet.</div>';
       return;
