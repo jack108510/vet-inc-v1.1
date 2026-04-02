@@ -901,12 +901,22 @@ let AI_totalRevenue = 0; let AI_totalQty = 0;
 
 async function loadDataAndBuild() {
  try {
-   const [svcRows, priceRows, treatRows, acctRows] = await Promise.all([
-     sbFetchAll('services', 'select=code,amount,quantity,service_type'),
-     sbFetch('prices', 'select=treatment_code,price,updated_at&order=updated_at.asc'),
-     sbFetch('treatments', 'select=code,name'),
-     sbFetch('accounts', 'select=txn_date,amount_raw,type_flag&order=txn_date.asc')
-   ]);
+   console.log('📥 Fetching services...');
+   const svcRows = await sbFetchAll('services', 'select=code,amount,quantity,service_type');
+   console.log('✅ Got', svcRows.length, 'services');
+   
+   console.log('📥 Fetching prices...');
+   const priceRows = await sbFetch('prices', 'select=treatment_code,price,updated_at&order=updated_at.asc');
+   console.log('✅ Got', priceRows.length, 'prices');
+   
+   console.log('📥 Fetching treatments...');
+   const treatRows = await sbFetch('treatments', 'select=code,name');
+   console.log('✅ Got', treatRows.length, 'treatments');
+   
+   console.log('📥 Fetching accounts...');
+   const acctRows = await sbFetch('accounts', 'select=txn_date,amount_raw,type_flag&order=txn_date.asc');
+   console.log('✅ Got', acctRows.length, 'accounts');
+   
    serviceData = svcRows;
    pricesData = priceRows;
    treatmentsData = treatRows;
@@ -914,11 +924,13 @@ async function loadDataAndBuild() {
    document.getElementById('dotService').classList.add('loaded');
    document.getElementById('dotCatalog').classList.add('loaded');
    document.getElementById('dotPriceHistory').classList.add('loaded');
+   console.log('🔄 Running buildAnalytics...');
    buildAnalytics();
+   console.log('✅ buildAnalytics done');
  } catch(e) {
-   console.error('Data load error:', e);
+   console.error('❌ Data load error:', e);
    const el = document.getElementById('campaignsLoading');
-   if (el) el.innerHTML = '<div style="color:var(--red);padding:2rem">Error loading data from Supabase. Check console.</div>';
+   if (el) el.innerHTML = '<div style="color:var(--red);padding:2rem;font-size:0.85rem"><strong>Data Load Error:</strong><br/>' + e.toString() + '</div>';
  }
 }
 
