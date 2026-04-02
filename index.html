@@ -1206,11 +1206,12 @@ async function campaignFetch(campaign) {
         const d = new Date(p.last_modified);
         lastModYear = d.getFullYear();
         daysSince = Math.round((today - d) / 86400000);
-        lastModStr = p.last_modified;
-        if (p.price_file_date) lastModStr += ' (price file)';
-        else if (p.service_last_change) lastModStr += ' (from billing)';
+        const src = p.date_source === 'price_file' ? 'fee schedule' :
+                    p.date_source === 'billing_change' ? 'billing history' :
+                    p.date_source === 'last_billed' ? 'last billed' : '';
+        lastModStr = p.last_modified + (src ? ' (' + src + ')' : '');
       } else {
-        // No data — skip from inflation campaign, don't assume
+        // No date data — skip, we don't guess
         continue;
       }
       if (lastModYear >= currentYear) continue;
