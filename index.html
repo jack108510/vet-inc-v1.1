@@ -890,7 +890,6 @@ async function loadDataAndBuild() {
    document.getElementById('dotCatalog').classList.add('loaded');
    document.getElementById('dotPriceHistory').classList.add('loaded');
    buildAnalytics();
-   buildCampaigns();
  } catch(e) {
    console.error('Data load error:', e);
    const el = document.getElementById('campaignsLoading');
@@ -899,6 +898,7 @@ async function loadDataAndBuild() {
 }
 
 loadDataAndBuild();
+buildCampaigns();
 
 //
 // SECTION 1: Analytics & KPIs
@@ -954,12 +954,18 @@ function buildAnalytics() {
 // 
 // SECTION 2: Campaigns
 // 
-function buildCampaigns() {
- if (!serviceData || !pricesData || campaignsReady) return;
- campaignsReady = true;
- buildC1(); buildC2(); buildC3();
- document.getElementById('campaignsLoading').style.display = 'none';
- document.getElementById('campaignsContent').style.display = 'block';
+async function buildCampaigns() {
+  if (campaignsReady) return;
+  campaignsReady = true;
+  try {
+    await Promise.all([buildC1(), buildC2(), buildC3()]);
+    document.getElementById('campaignsLoading').style.display = 'none';
+    document.getElementById('campaignsContent').style.display = 'block';
+  } catch(e) {
+    console.error('Campaign load error:', e);
+    const el = document.getElementById('campaignsLoading');
+    if (el) el.innerHTML = '<div style="color:var(--red);padding:2rem">Error loading campaigns. Check console.</div>';
+  }
 }
 
 // Canadian Veterinary CPI Inflation Rates (annual) 
@@ -997,93 +1003,29 @@ Object.assign(CPI_RATES, {
  2023: 0.058, 2024: 0.052 // through end of 2024 — no forecast rates used
 });
 
-let c1DataReady = false;
+async function buildC1() {
+  const data = await campaignFetch('inflation');
+  const items = (data.items || []).map(it => {
+    const gapPct = it.currentPrice > 0 ? it.delta / it.currentPrice : 0;
+    return { ...it, price: it.currentPrice, gap: it.delta, gapPct,
+      status_flag: gapPct > 0.15 ? 'urgent' : gapPct > 0.04 ? 'behind' : 'low' };
+  });
+  c1AllItems = items;
 
-function buildC1() {
- computeC1();
-}
+  const withUsage = items.filter(i => (i.usage || 0) > 0);
+  const usageUplift = withUsage.reduce((s, i) => s + (i.uplift || 0), 0);
+  const urgent = items.filter(i => i.status_flag === 'urgent');
+  const maxDays = items.length ? items.reduce((m, i) => Math.max(m, i.daysSince || 0), 0) : 0;
+  const avgDays = items.length ? Math.round(items.reduce((s, i) => s + (i.daysSince || 0), 0) / items.length) : 0;
 
-function computeC1() {
- if (c1DataReady) return;
- c1DataReady = true;
+  document.getElementById('c1Badge').textContent =
+    `${items.length} items behind inflation · ${fmt$(usageUplift)} confirmed annual uplift`;
 
- // Build treatment name lookup
- const treatmentNames = {};
- for (const t of (treatmentsData || [])) { if (t.code) treatmentNames[t.code] = t.name || t.code; }
+  document.getElementById('c1Summary').innerHTML = `
+<div class="stat-bar-item"><div class="stat-bar-label">Confirmed Annual Uplift</div><div class="stat-bar-value" style="color:var(--green)">${fmt$(usageUplift)}</div><div class="stat-bar-sub">items with real usage × delta</div></div><div class="stat-bar-item"><div class="stat-bar-label">Items Behind Inflation</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">${withUsage.length} with recent usage</div></div><div class="stat-bar-item"><div class="stat-bar-label">Urgent (&gt;15% gap)</div><div class="stat-bar-value" style="color:var(--red)">${urgent.length}</div><div class="stat-bar-sub">immediate review needed</div></div><div class="stat-bar-item"><div class="stat-bar-label">Oldest Stale Price</div><div class="stat-bar-value" style="color:var(--orange)">${Math.round(maxDays / 365.25)} yrs</div><div class="stat-bar-sub">since last price change</div></div><div class="stat-bar-item"><div class="stat-bar-label">Avg Days Stale</div><div class="stat-bar-value" style="color:var(--purple)">${fmtN(avgDays)}</div><div class="stat-bar-sub">avg since last price change</div></div>
+  `;
 
- // 1. Build price map: treatment_code → { lastMod: Date, price, name }
- const priceMap = {};
- for (const row of (pricesData || [])) {
- const id = (row.treatment_code || '').trim();
- const price = parseFloat(row.price) || 0;
- const d = row.updated_at ? new Date(row.updated_at) : null;
- if (!id || !d || price <= 0) continue;
- const name = treatmentNames[id] || id;
- if (!priceMap[id] || d > priceMap[id].lastMod) {
- priceMap[id] = { lastMod: d, price, name };
- }
- if (!priceMap[id].name && name) priceMap[id].name = name;
- }
-
- // 2. Build usage map from serviceData
- const TODAY = new Date();
- const usageMap = {};
- if (serviceData) {
- for (const row of serviceData) {
- const id = (row.code || '').trim();
- const qty = parseFloat(row.quantity) || 0;
- if (id && qty > 0) usageMap[id] = (usageMap[id] || 0) + qty;
- }
- }
-
- // 3. Build report
- const ONE_YR_AGO = new Date(TODAY); ONE_YR_AGO.setFullYear(TODAY.getFullYear() - 1);
- const items = [];
-
- for (const [id, info] of Object.entries(priceMap)) {
- // Stale = not changed in over 1 year
- if (info.lastMod >= ONE_YR_AGO) continue;
- // Skip zero usage
- if (!usageMap[id] || usageMap[id] <= 0) continue;
-
- const fromYear = info.lastMod.getFullYear();
- const factor = compoundInflation(fromYear, 2025); // actual CPI only, no forecast
- const suggested = parseFloat((info.price * factor).toFixed(2));
- const delta = parseFloat((suggested - info.price).toFixed(2));
- if (delta <= 0.005) continue;
-
- const inflPct = ((factor - 1) * 100).toFixed(1);
- const daysSince = Math.round((TODAY - info.lastMod) / 86400000);
- const usage = usageMap[id] || 0;
- const uplift = parseFloat((delta * usage).toFixed(2));
- const gapPct = info.price > 0 ? delta / info.price : 0;
- const status_flag = gapPct > 0.15 ? 'urgent' : gapPct > 0.04 ? 'behind' : 'low';
-
- items.push({
- id, name: info.name, lastMod: info.lastMod,
- lastModStr: info.lastMod.toLocaleDateString('en-CA'),
- daysSince, inflPct, price: info.price,
- suggested, delta, gapPct, usage, uplift, status_flag
- });
- }
-
- // Sort: uplift desc, then delta desc for zero-usage items
- items.sort((a, b) => b.uplift - a.uplift || b.delta - a.delta);
- c1AllItems = items;
-
- const withUsage = items.filter(i => i.usage > 0);
- const urgent = items.filter(i => i.status_flag === 'urgent');
- const totalUplift = items.reduce((s, i) => s + i.uplift, 0);
- const usageUplift = withUsage.reduce((s, i) => s + i.uplift, 0);
-
- document.getElementById('c1Badge').textContent =
- `${items.length} items behind inflation · ${fmt$(usageUplift)} confirmed annual uplift`;
-
- document.getElementById('c1Summary').innerHTML = `
- <div class="stat-bar-item"><div class="stat-bar-label">Confirmed Annual Uplift</div><div class="stat-bar-value" style="color:var(--green)">${fmt$(usageUplift)}</div><div class="stat-bar-sub">items with real usage × delta</div></div><div class="stat-bar-item"><div class="stat-bar-label">Items Behind Inflation</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">${withUsage.length} with recent usage</div></div><div class="stat-bar-item"><div class="stat-bar-label">Urgent (&gt;15% gap)</div><div class="stat-bar-value" style="color:var(--red)">${urgent.length}</div><div class="stat-bar-sub">immediate review needed</div></div><div class="stat-bar-item"><div class="stat-bar-label">Oldest Stale Price</div><div class="stat-bar-value" style="color:var(--orange)">${items.length ? Math.round(items.reduce((m,i)=>Math.max(m,i.daysSince),0)/365.25) : 0} yrs</div><div class="stat-bar-sub">since last price change</div></div><div class="stat-bar-item"><div class="stat-bar-label">Avg Days Stale</div><div class="stat-bar-value" style="color:var(--purple)">${items.length ? fmtN(Math.round(items.reduce((s,i)=>s+i.daysSince,0)/items.length)) : 0}</div><div class="stat-bar-sub">avg since last price change</div></div>
- `;
-
- c1Render('all');
+  c1Render('all');
 }
 
 function c1Filter(btn, filter) {
@@ -1113,145 +1055,37 @@ function c1Render(filter) {
  ? fmtN(Math.round(it.usage))
  : '<span style="color:var(--muted)">—</span>';
  const daysColor = it.daysSince > 730 ? '#ef4444' : it.daysSince > 365 ? '#ea580c' : '#64748b';
- return `<tr><td>${escHtml(it.name || it.id)}</td><td class="num" style="color:${daysColor};font-weight:600">${it.lastModStr}</td><td class="num" style="color:${daysColor};font-weight:700">${fmtN(it.daysSince)}</td><td class="num" style="color:var(--orange);font-weight:700">+${it.inflPct}%</td><td class="num">${fmt$(it.price)}</td><td class="num" style="color:var(--primary);font-weight:700">${fmt$(it.suggested)}</td><td class="num" style="color:${gapColor};font-weight:700">+${fmt$(it.delta)}</td><td class="num">${usageStr}</td><td class="num">${upliftStr}</td></tr>`;
+ return `<tr><td>${escHtml(it.name || it.id)}</td><td class="num" style="color:${daysColor};font-weight:600">${it.lastModStr || '—'}</td><td class="num" style="color:${daysColor};font-weight:700">${fmtN(it.daysSince)}</td><td class="num" style="color:var(--orange);font-weight:700">${it.inflPct ? '+'+it.inflPct+'%' : '—'}</td><td class="num">${fmt$(it.price)}</td><td class="num" style="color:var(--primary);font-weight:700">${fmt$(it.suggested)}</td><td class="num" style="color:${gapColor};font-weight:700">+${fmt$(it.delta)}</td><td class="num">${usageStr}</td><td class="num">${upliftStr}</td></tr>`;
  }).join('');
 }
 
-function buildC2() {
- // .99 pricing recovery: based on actual Supabase services data
- const svcTxns = {}; // name → { totalRev, totalQty, cat, txnCount }
- for (const row of serviceData) {
- const name = (row.description || '').trim();
- const cat = (row.service_type || '').trim();
- const qty = parseFloat(row.quantity) || 0;
- const tot = parseFloat(row.amount) || 0;
- if (!name || qty <= 0 || tot <= 0) continue;
- if (!svcTxns[name]) svcTxns[name] = { totalRev: 0, totalQty: 0, cat, txnCount: 0 };
- svcTxns[name].totalRev += tot;
- svcTxns[name].totalQty += qty;
- svcTxns[name].txnCount += 1;
- }
+async function buildC2() {
+  const data = await campaignFetch('99-pricing');
+  const items = data.items || [];
 
- // For each service, compute avg unit price from actuals
- // Then find the next .99 price above it (round up to X.99)
- const items = [];
- let grandUplift = 0;
- let grandVolume = 0;
+  const grandUplift = items.reduce((s, i) => s + (i.uplift || 0), 0);
+  const grandVolume = items.reduce((s, i) => s + (i.volume || 0), 0);
 
- for (const [name, s] of Object.entries(svcTxns)) {
- const avgPrice = s.totalQty > 0 ? s.totalRev / s.totalQty : 0;
- if (avgPrice <= 1) continue;
+  document.getElementById('c2Badge').textContent = `${fmt$(grandUplift)} missed last year`;
+  document.getElementById('c2Summary').innerHTML = `
+<div class="stat-bar-item"><div class="stat-bar-label">Missed Revenue</div><div class="stat-bar-value" style="color:var(--purple)">${fmt$(grandUplift)}</div><div class="stat-bar-sub">if all adjusted to .99</div></div><div class="stat-bar-item"><div class="stat-bar-label">Affected Services</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">not at .99 pricing</div></div><div class="stat-bar-item"><div class="stat-bar-label">Total Transactions</div><div class="stat-bar-value">${fmtN(Math.round(grandVolume))}</div><div class="stat-bar-sub">units across affected items</div></div><div class="stat-bar-item"><div class="stat-bar-label">Avg Gain / Unit</div><div class="stat-bar-value">${grandVolume > 0 ? fmt$(grandUplift / grandVolume) : '—'}</div><div class="stat-bar-sub">across all affected items</div></div>
+  `;
 
- // Next .99 above current avg price
- const floor99 = Math.floor(avgPrice); // e.g. 45.30 → 45
- // .99 price options: floor-1 + .99, floor + .99
- let next99;
- if (Math.abs(avgPrice % 1 - 0.99) < 0.005) {
- // already at .99 — skip
- continue;
- }
- // Next .99 above: if avgPrice is e.g. 45.30, next99 = 45.99; if 45.99+ already, 46.99
- next99 = floor99 + 0.99;
- if (next99 < avgPrice) next99 = floor99 + 1 + 0.99;
-
- const gainPerUnit = next99 - avgPrice;
- // Only include if gain is meaningful (> $0.01 and < $5 — avoid huge jumps)
- if (gainPerUnit < 0.01 || gainPerUnit > 5.0) continue;
-
- const annualUplift = gainPerUnit * s.totalQty;
- grandUplift += annualUplift;
- grandVolume += s.totalQty;
-
- items.push({
- name, cat: s.cat, avgPrice, next99,
- gainPerUnit, annualQty: s.totalQty,
- annualUplift, txnCount: s.txnCount
- });
- }
-
- items.sort((a, b) => b.annualUplift - a.annualUplift);
-
- const alreadyAt99 = Object.values(svcTxns).filter(s => {
- const avg = s.totalQty > 0 ? s.totalRev / s.totalQty : 0;
- return Math.abs(avg % 1 - 0.99) < 0.05;
- }).length;
-
- document.getElementById('c2Badge').textContent = `${fmt$(grandUplift)} missed last year`;
- document.getElementById('c2Summary').innerHTML = `
- <div class="stat-bar-item"><div class="stat-bar-label">Missed Revenue</div><div class="stat-bar-value" style="color:var(--purple)">${fmt$(grandUplift)}</div><div class="stat-bar-sub">if all adjusted to .99</div></div><div class="stat-bar-item"><div class="stat-bar-label">Affected Services</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">not at .99 pricing</div></div><div class="stat-bar-item"><div class="stat-bar-label">Total Transactions</div><div class="stat-bar-value">${fmtN(Math.round(grandVolume))}</div><div class="stat-bar-sub">units across affected items</div></div><div class="stat-bar-item"><div class="stat-bar-label">Already at .99</div><div class="stat-bar-value">${alreadyAt99}</div><div class="stat-bar-sub">services already optimized</div></div><div class="stat-bar-item"><div class="stat-bar-label">Avg Gain / Unit</div><div class="stat-bar-value">${grandVolume > 0 ? fmt$(grandUplift / grandVolume) : '—'}</div><div class="stat-bar-sub">across all affected items</div></div>
- `;
-
- document.getElementById('c2Table').innerHTML = items.slice(0, 100).map(it => `<tr><td>${escHtml(it.name)}</td><td class="muted">${escHtml(it.cat)}</td><td class="num">${fmt$(it.avgPrice)}</td><td class="num blue">${fmt$(it.next99)}</td><td class="num" style="color:var(--purple);font-weight:700">+${fmt$(it.gainPerUnit)}</td><td class="num">${fmtN(Math.round(it.annualQty))}</td><td class="num green" style="font-weight:700">+${fmt$(it.annualUplift)}</td></tr>`).join('');
+  document.getElementById('c2Table').innerHTML = items.slice(0, 100).map(it => `<tr><td>${escHtml(it.service)}</td><td class="muted">${escHtml(it.category || '')}</td><td class="num">${fmt$(it.currentPrice)}</td><td class="num blue">${fmt$(it['99Price'])}</td><td class="num" style="color:var(--purple);font-weight:700">+${fmt$(it.gainPerTxn)}</td><td class="num">${fmtN(Math.round(it.volume || 0))}</td><td class="num green" style="font-weight:700">+${fmt$(it.uplift)}</td></tr>`).join('');
 }
 
-function buildC3() {
- computeC3();
-}
+async function buildC3() {
+  const data = await campaignFetch('micro-margin');
+  const items = data.items || [];
 
-function computeC3() {
- // Build treatment name lookup
- const treatmentNames = {};
- for (const t of (treatmentsData || [])) { if (t.code) treatmentNames[t.code] = t.name || t.code; }
+  const totalUplift = items.reduce((s, it) => s + (it.annualUplift || 0), 0);
+  const totalQty = items.reduce((s, it) => s + (it.annualQty || 0), 0);
 
- // 1. Annual usage by code
- const usageById = {};
- for (const row of serviceData) {
- const id = (row.code || '').trim();
- const qty = parseFloat(row.quantity) || 0;
- if (id && qty > 0) usageById[id] = (usageById[id] || 0) + qty;
- }
-
- // 2. Price history per treatment_code: all entries sorted newest first
- const histByItem = {};
- for (const row of (pricesData || [])) {
- const id = (row.treatment_code || '').trim();
- const price = parseFloat(row.price) || 0;
- const d = row.updated_at ? new Date(row.updated_at) : null;
- if (!id || price <= 0 || !d) continue;
- if (!histByItem[id]) histByItem[id] = [];
- histByItem[id].push({ price, date: d });
- }
- for (const id of Object.keys(histByItem)) {
- histByItem[id].sort((a, b) => b.date - a.date);
- }
-
- // 3. Identify items with recent price increases — suggest +5% extra bump
- const items = [];
- for (const [id, hist] of Object.entries(histByItem)) {
- if (hist.length < 2) continue;
- const annualQty = usageById[id] || 0;
- if (annualQty < 5) continue;
-
- const latestPrice = hist[0].price;
- const prevPrice = hist[1].price;
- if (latestPrice <= prevPrice * 1.01) continue;
-
- const priceIncrease = latestPrice - prevPrice;
- const priceWithBump = parseFloat((latestPrice * 1.05).toFixed(2));
- const extraMarginPerUnit = parseFloat((priceWithBump - latestPrice).toFixed(2));
- if (extraMarginPerUnit <= 0) continue;
-
- items.push({
-  name: treatmentNames[id] || id,
-  prevPrice: parseFloat(prevPrice.toFixed(2)),
-  currentPrice: parseFloat(latestPrice.toFixed(2)),
-  priceIncrease: parseFloat(priceIncrease.toFixed(2)),
-  priceWithBump,
-  extraMarginPerUnit,
-  annualQty,
-  annualUplift: parseFloat((extraMarginPerUnit * annualQty).toFixed(2))
- });
- }
- items.sort((a, b) => b.annualUplift - a.annualUplift);
-
- const totalUplift = items.reduce((s, it) => s + it.annualUplift, 0);
- const totalQty = items.reduce((s, it) => s + it.annualQty, 0);
-
- document.getElementById('c3Badge').textContent = `${items.length} items with recent price increases`;
- document.getElementById('c3Summary').innerHTML = `<div class="stat-bar-item"><div class="stat-bar-label">Extra Annual Margin</div><div class="stat-bar-value" style="color:var(--green)">+${fmt$(totalUplift)}</div><div class="stat-bar-sub">captured by bumping recent increases +5%</div></div><div class="stat-bar-item"><div class="stat-bar-label">Items Qualifying</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">recent increase detected + &gt;5 units/yr</div></div><div class="stat-bar-item"><div class="stat-bar-label">Avg Extra / Unit</div><div class="stat-bar-value" style="color:var(--emerald)">${totalQty > 0 ? fmt$(totalUplift / totalQty) : '—'}</div><div class="stat-bar-sub">additional margin per unit sold</div></div>`;
- document.getElementById('c3Table').innerHTML = items.map(it =>
-  `<tr><td>${escHtml(it.name)}</td><td class="num orange">${fmt$(it.priceIncrease)} <span class="muted" style="font-weight:400">(${fmt$(it.prevPrice)}→${fmt$(it.currentPrice)})</span></td><td class="num">${fmt$(it.currentPrice)} → <span style="color:var(--emerald);font-weight:700">${fmt$(it.priceWithBump)}</span></td><td class="num">${fmtN(Math.round(it.annualQty))}</td><td class="num green" style="font-weight:700">+${fmt$(it.annualUplift)}</td></tr>`
- ).join('');
+  document.getElementById('c3Badge').textContent = `${items.length} items with recent price increases`;
+  document.getElementById('c3Summary').innerHTML = `<div class="stat-bar-item"><div class="stat-bar-label">Extra Annual Margin</div><div class="stat-bar-value" style="color:var(--green)">+${fmt$(totalUplift)}</div><div class="stat-bar-sub">captured by bumping recent increases +5%</div></div><div class="stat-bar-item"><div class="stat-bar-label">Items Qualifying</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">recent increase detected + &gt;5 units/yr</div></div><div class="stat-bar-item"><div class="stat-bar-label">Avg Extra / Unit</div><div class="stat-bar-value" style="color:var(--emerald)">${totalQty > 0 ? fmt$(totalUplift / totalQty) : '—'}</div><div class="stat-bar-sub">additional margin per unit sold</div></div>`;
+  document.getElementById('c3Table').innerHTML = items.map(it =>
+    `<tr><td>${escHtml(it.name)}</td><td class="num orange">${fmt$(it.costIncrease)} <span class="muted" style="font-weight:400">(${fmt$(it.oldCost)}→${fmt$(it.newCost)})</span></td><td class="num">${fmt$(it.newCost)} → <span style="color:var(--emerald);font-weight:700">${fmt$(it.priceWithBump)}</span></td><td class="num">${fmtN(Math.round(it.annualQty || 0))}</td><td class="num green" style="font-weight:700">+${fmt$(it.annualUplift)}</td></tr>`
+  ).join('');
 }
 
 // 
@@ -1320,6 +1154,28 @@ function sendQuickAction(text) {
 }
 
 const AI_WEBHOOK = 'https://n8n.wildeautomations.com/webhook/rosslyn-clinic-assistant';
+
+const CAMPAIGN_WEBHOOK = window.location.hostname === 'localhost'
+  ? 'http://localhost:5678/webhook/campaign-data'
+  : 'https://n8n.wildeautomations.com/webhook/campaign-data';
+const campaignCache = {};
+const CAMPAIGN_TTL = 7 * 60 * 1000;
+
+async function campaignFetch(campaign) {
+  const now = Date.now();
+  if (campaignCache[campaign] && now - campaignCache[campaign].ts < CAMPAIGN_TTL) {
+    return campaignCache[campaign].data;
+  }
+  const res = await fetch(CAMPAIGN_WEBHOOK, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ campaign })
+  });
+  if (!res.ok) throw new Error('n8n ' + res.status);
+  const data = await res.json();
+  campaignCache[campaign] = { data, ts: now };
+  return data;
+}
 
 function sendAIMessage() {
   if (aiTyping) return;
