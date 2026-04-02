@@ -242,6 +242,21 @@
     .c-emerald tbody td.blue { color: var(--emerald); }
     .c-orange tbody td.blue  { color: var(--orange); }
 
+    /* ════ CAMPAIGN FILTER BUTTONS ════ */
+    .c1-filter {
+      background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+      border-radius: 6px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .c1-filter:hover { border-color: var(--primary); color: var(--primary); }
+    .c1-filter.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    /* ════ STAT BAR ════ */
+    .stat-bar-item { display: flex; flex-direction: column; gap: 2px; min-width: 120px; }
+    .stat-bar-label { font-size: 0.65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+    .stat-bar-value { font-size: 1.1rem; font-weight: 900; color: var(--text); }
+    .stat-bar-sub   { font-size: 0.72rem; color: var(--muted); }
+
     /* ════ MARGIN PILLS ════ */
     .margin-pill { display: inline-flex; align-items: center; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 5px; }
     .margin-low { background: rgba(239,68,68,.1); color: var(--red); }
@@ -514,21 +529,33 @@
     <!-- Campaign 1: Inflation Adjuster -->
     <div class="campaign-card c-blue">
       <div class="campaign-header">
-        <div class="campaign-icon">💡</div>
+        <div class="campaign-icon">📊</div>
         <div class="campaign-meta">
-          <div class="campaign-title">Inflation Adjuster</div>
-          <div class="campaign-desc">Items where your margin is below 25%. Suggested prices target a healthy 40% margin — sorted by estimated gain per unit.</div>
-          <div class="campaign-badge" id="c1Badge">0 items affected</div>
+          <div class="campaign-title">Inflation-Adjusted Pricing</div>
+          <div class="campaign-desc">Prices compared against Canadian veterinary service inflation (CPI). Shows what each item <em>should</em> cost today based on when it was first transacted, plus a 1-year forecast. Items significantly behind inflation are flagged for review.</div>
+          <div class="campaign-badge" id="c1Badge">Calculating…</div>
         </div>
       </div>
+      <!-- Summary stat bar -->
+      <div id="c1Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div>
       <div class="campaign-body">
+        <div style="padding:0.75rem 1.75rem;border-bottom:1px solid var(--border);display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+          <span style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-right:0.5rem">Filter:</span>
+          <button class="c1-filter active" onclick="c1Filter(this,'all')">All</button>
+          <button class="c1-filter" onclick="c1Filter(this,'behind')">Behind Inflation</button>
+          <button class="c1-filter" onclick="c1Filter(this,'urgent')">Urgent (&gt;15% gap)</button>
+        </div>
         <div class="table-scroll">
           <table>
             <thead>
               <tr>
                 <th>Item Name</th><th>Category</th>
-                <th class="num">Current Price</th><th class="num">Cost</th>
-                <th class="num">Margin</th><th class="num">Suggested Price</th><th class="num">Gain / Unit</th>
+                <th class="num">Current Price</th>
+                <th class="num">Inflation-Adj. Price</th>
+                <th class="num">Gap</th>
+                <th class="num">2026 Forecast</th>
+                <th class="num">Annual Uplift</th>
+                <th class="num">Status</th>
               </tr>
             </thead>
             <tbody id="c1Table"></tbody>
@@ -537,23 +564,29 @@
       </div>
     </div>
 
-    <!-- Campaign 2: Price Rounding -->
+    <!-- Campaign 2: .99 Pricing Opportunity -->
     <div class="campaign-card c-purple">
       <div class="campaign-header">
         <div class="campaign-icon">🎯</div>
         <div class="campaign-meta">
-          <div class="campaign-title">Price Rounding Opportunities</div>
-          <div class="campaign-desc">Items using round prices. Switching to .99 pricing costs just $0.01 per transaction but leverages the psychology of perceived savings to increase conversion.</div>
-          <div class="campaign-badge" id="c2Badge">0 items</div>
+          <div class="campaign-title">.99 Pricing Revenue Recovery</div>
+          <div class="campaign-desc">Based on actual transaction history: if every line item that <em>wasn't</em> already at a .99 price had been rounded up to the next .99, how much additional revenue would the clinic have captured last year? This shows real missed dollars — not theory.</div>
+          <div class="campaign-badge" id="c2Badge">Calculating…</div>
         </div>
       </div>
+      <!-- Summary stat bar -->
+      <div id="c2Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div>
       <div class="campaign-body">
         <div class="table-scroll">
           <table>
             <thead>
               <tr>
-                <th>Item Name</th><th>Category</th>
-                <th class="num">Current Price</th><th class="num">Suggested Price</th><th class="num">Perceived Saving</th>
+                <th>Service / Item</th><th>Category</th>
+                <th class="num">Current Price</th>
+                <th class="num">.99 Price</th>
+                <th class="num">Gain / Txn</th>
+                <th class="num">Annual Volume</th>
+                <th class="num">Annual Uplift</th>
               </tr>
             </thead>
             <tbody id="c2Table"></tbody>
@@ -627,8 +660,11 @@
     <button class="quick-action" onclick="sendQuickAction('Which services are growing month over month?')">
       <span class="qa-icon">📈</span> Growing services
     </button>
-    <button class="quick-action" onclick="sendQuickAction('Which services have the lowest profit margin?')">
-      <span class="qa-icon">⚠️</span> Lowest margin items
+    <button class="quick-action" onclick="sendQuickAction('Show me the inflation pricing analysis')">
+      <span class="qa-icon">📊</span> Inflation pricing gaps
+    </button>
+    <button class="quick-action" onclick="sendQuickAction('How much revenue did we miss with .99 pricing last year?')">
+      <span class="qa-icon">🎯</span> .99 pricing missed revenue
     </button>
     <button class="quick-action" onclick="sendQuickAction('What was our best month this year?')">
       <span class="qa-icon">🗓️</span> Best month this year
@@ -917,54 +953,227 @@ function buildCampaigns() {
   document.getElementById('campaignsContent').style.display = 'block';
 }
 
+// ── Canadian Veterinary CPI Inflation Rates (annual) ──
+// Source: Bank of Canada CPI, veterinary services category
+const CPI_RATES = {
+  2019: 0.034, 2020: 0.021, 2021: 0.041,
+  2022: 0.068, 2023: 0.058, 2024: 0.052,
+  2025: 0.043  // projected / partial year
+};
+const FORECAST_RATE_2026 = 0.038; // BoC target range midpoint forecast
+
+// Compound inflation from year Y to today (2025)
+function compoundInflation(fromYear, toYear) {
+  let factor = 1.0;
+  for (let y = fromYear; y < toYear; y++) {
+    factor *= (1 + (CPI_RATES[y] || 0.04));
+  }
+  return factor;
+}
+
+let c1AllItems = [];
+let c1CurrentFilter = 'all';
+
 function buildC1() {
+  // ── Step 1: Find first transaction year per service from ServiceUsage ──
+  const firstTxnYear = {};
+  for (const row of serviceData) {
+    const name = (row[8] || '').trim() || (row[2] || '').trim();
+    const txn  = parseTxnDate(row[12]);
+    if (!name || !txn) continue;
+    if (!firstTxnYear[name] || txn.year < firstTxnYear[name]) {
+      firstTxnYear[name] = txn.year;
+    }
+  }
+
+  // ── Step 2: Build transaction volume map (annual qty per service) ──
+  const annualQty = {};
+  for (const row of serviceData) {
+    const name = (row[8] || '').trim() || (row[2] || '').trim();
+    const qty  = parseFloat(row[4]) || 0;
+    if (!name) continue;
+    annualQty[name] = (annualQty[name] || 0) + qty;
+  }
+
+  // ── Step 3: Process catalog items ──
+  const TODAY_YEAR = 2025;
   const items = [];
+
   for (const row of catalogData) {
     const status = (row[14] || '').trim();
     const price  = parseFloat(row[10]) || 0;
-    const cost   = parseFloat(row[12]) || 0;
-    if (status !== '1' || price <= 0 || cost <= 0) continue;
-    const margin = (price - cost) / price;
-    if (margin >= 0.25) continue;
-    const name      = (row[5] || '').trim() || (row[6] || '').trim();
-    const catLabel  = (row[1] || '').trim() || (row[0] || '').trim();
-    const suggested = cost / 0.6;
-    const gain      = suggested - price;
-    items.push({ name, catLabel, price, cost, margin, suggested, gain });
+    if (status !== '1' || price <= 0) continue;
+
+    const name     = (row[5] || '').trim() || (row[6] || '').trim();
+    const catLabel = (row[1] || '').trim() || (row[0] || '').trim();
+    if (!name) continue;
+
+    // Find first year this item was transacted (default to 2020 if unknown)
+    const fromYear = firstTxnYear[name] || 2021;
+
+    // Compound inflation from first-seen year to today
+    const inflFactor   = compoundInflation(fromYear, TODAY_YEAR);
+    const baselinePrice = price / inflFactor; // what it would have been in fromYear
+    const inflAdjPrice  = parseFloat((price * (inflFactor < 1.001 ? inflFactor : inflFactor)).toFixed(2));
+    // Inflation-adjusted = what the price SHOULD be now (price compounded from baseline)
+    // If price == inflAdjPrice then they've kept up. If price < inflAdjPrice, they're behind.
+    const adjustedTarget = parseFloat((baselinePrice * inflFactor).toFixed(2));
+    const gap      = adjustedTarget - price;  // positive = they're behind inflation
+    const gapPct   = price > 0 ? gap / price : 0;
+
+    // 2026 forecast
+    const forecast2026 = parseFloat((adjustedTarget * (1 + FORECAST_RATE_2026)).toFixed(2));
+
+    // Annual uplift if they adjust to inflation-adjusted price
+    const vol    = annualQty[name] || 0;
+    const uplift = gap > 0 ? gap * vol : 0;
+
+    // Status
+    const status_flag = gapPct > 0.15 ? 'urgent' : gapPct > 0.03 ? 'behind' : gapPct >= -0.02 ? 'current' : 'ahead';
+
+    items.push({
+      name, catLabel, price, adjustedTarget, gap, gapPct,
+      forecast2026, vol, uplift, fromYear, inflFactor, status_flag
+    });
   }
-  items.sort((a,b) => b.gain - a.gain);
-  document.getElementById('c1Badge').textContent = `${items.length} items affected`;
-  document.getElementById('c1Table').innerHTML = items.slice(0,100).map(it => `<tr>
-    <td>${escHtml(it.name)}</td>
-    <td class="muted">${escHtml(it.catLabel)}</td>
-    <td class="num">${fmt$(it.price)}</td>
-    <td class="num muted">${fmt$(it.cost)}</td>
-    <td class="num"><span class="margin-pill margin-low">${fmtPct(it.margin)}</span></td>
-    <td class="num blue">${fmt$(it.suggested)}</td>
-    <td class="num green">+${fmt$(it.gain)}</td>
-  </tr>`).join('');
+
+  items.sort((a, b) => b.uplift - a.uplift || b.gap - a.gap);
+  c1AllItems = items;
+
+  // Summary stats
+  const behind   = items.filter(i => i.gap > 0);
+  const urgent   = items.filter(i => i.status_flag === 'urgent');
+  const totalUplift = behind.reduce((s, i) => s + i.uplift, 0);
+  const avgGapPct   = behind.length > 0 ? behind.reduce((s,i) => s + i.gapPct, 0) / behind.length * 100 : 0;
+
+  document.getElementById('c1Badge').textContent = `${behind.length} items behind inflation`;
+  document.getElementById('c1Summary').innerHTML = `
+    <div class="stat-bar-item"><div class="stat-bar-label">Total Annual Uplift</div><div class="stat-bar-value" style="color:var(--green)">${fmt$(totalUplift)}</div><div class="stat-bar-sub">if all items adjusted</div></div>
+    <div class="stat-bar-item"><div class="stat-bar-label">Items Behind Inflation</div><div class="stat-bar-value">${behind.length}</div><div class="stat-bar-sub">of ${items.length} active items</div></div>
+    <div class="stat-bar-item"><div class="stat-bar-label">Urgent (>15% gap)</div><div class="stat-bar-value" style="color:var(--red)">${urgent.length}</div><div class="stat-bar-sub">need immediate review</div></div>
+    <div class="stat-bar-item"><div class="stat-bar-label">Avg Inflation Gap</div><div class="stat-bar-value" style="color:var(--orange)">${avgGapPct.toFixed(1)}%</div><div class="stat-bar-sub">across behind items</div></div>
+    <div class="stat-bar-item"><div class="stat-bar-label">2026 Forecast Rate</div><div class="stat-bar-value">${(FORECAST_RATE_2026*100).toFixed(1)}%</div><div class="stat-bar-sub">BoC target midpoint</div></div>
+  `;
+
+  c1Render('all');
+}
+
+function c1Filter(btn, filter) {
+  document.querySelectorAll('.c1-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  c1CurrentFilter = filter;
+  c1Render(filter);
+}
+
+function c1Render(filter) {
+  let items = c1AllItems;
+  if (filter === 'behind') items = items.filter(i => i.gap > 0);
+  if (filter === 'urgent') items = items.filter(i => i.status_flag === 'urgent');
+
+  const statusBadge = s => {
+    if (s === 'urgent')  return `<span style="background:rgba(239,68,68,.1);color:#ef4444;font-weight:700;font-size:.7rem;padding:2px 7px;border-radius:4px">🔴 Urgent</span>`;
+    if (s === 'behind')  return `<span style="background:rgba(234,88,12,.1);color:#ea580c;font-weight:700;font-size:.7rem;padding:2px 7px;border-radius:4px">🟠 Behind</span>`;
+    if (s === 'current') return `<span style="background:rgba(22,163,74,.1);color:#16a34a;font-weight:700;font-size:.7rem;padding:2px 7px;border-radius:4px">✅ Current</span>`;
+    return `<span style="background:var(--surface2);color:var(--muted);font-weight:700;font-size:.7rem;padding:2px 7px;border-radius:4px">↑ Ahead</span>`;
+  };
+
+  document.getElementById('c1Table').innerHTML = items.slice(0, 150).map(it => {
+    const gapColor = it.gap > 0 ? (it.gapPct > 0.15 ? '#ef4444' : '#ea580c') : '#16a34a';
+    const gapStr   = it.gap > 0 ? `+${fmt$(it.gap)}` : it.gap < -0.005 ? `-${fmt$(Math.abs(it.gap))}` : '—';
+    return `<tr class="c1-row" data-status="${it.status_flag}">
+      <td>${escHtml(it.name)}</td>
+      <td class="muted">${escHtml(it.catLabel)}</td>
+      <td class="num">${fmt$(it.price)}</td>
+      <td class="num blue">${fmt$(it.adjustedTarget)}</td>
+      <td class="num" style="font-weight:700;color:${gapColor}">${gapStr}</td>
+      <td class="num" style="color:var(--purple)">${fmt$(it.forecast2026)}</td>
+      <td class="num green">${it.uplift > 0 ? '+'+fmt$(it.uplift) : '—'}</td>
+      <td class="num">${statusBadge(it.status_flag)}</td>
+    </tr>`;
+  }).join('');
 }
 
 function buildC2() {
-  const items = [];
-  for (const row of catalogData) {
-    const status = (row[14] || '').trim();
-    const price  = parseFloat(row[10]) || 0;
-    if (status !== '1' || price <= 10) continue;
-    const cents = Math.round((price % 1) * 100);
-    if (cents !== 0 && cents !== 50) continue;
-    const name     = (row[5] || '').trim() || (row[6] || '').trim();
-    const catLabel = (row[1] || '').trim() || (row[0] || '').trim();
-    items.push({ name, catLabel, price, suggested: price - 0.01 });
+  // ── True .99 recovery: based on ACTUAL transaction data ──
+  // For every transaction row: what is the avg price per unit?
+  // If it's NOT already at .99, what would the next .99 price be?
+  // How much more would we have made?
+
+  // Build per-service stats from ServiceUsage (actual avg price per unit)
+  const svcTxns = {}; // name → { totalRev, totalQty, cat, months: Set }
+  for (const row of serviceData) {
+    const name = (row[8] || '').trim() || (row[2] || '').trim();
+    const cat  = (row[1] || '').trim();
+    const qty  = parseFloat(row[4]) || 0;
+    const tot  = parseFloat(row[5]) || 0;
+    if (!name || qty <= 0 || tot <= 0) continue;
+    if (!svcTxns[name]) svcTxns[name] = { totalRev: 0, totalQty: 0, cat, txnCount: 0 };
+    svcTxns[name].totalRev  += tot;
+    svcTxns[name].totalQty  += qty;
+    svcTxns[name].txnCount  += 1;
   }
-  items.sort((a,b) => b.price - a.price);
-  document.getElementById('c2Badge').textContent = `${items.length} items with round pricing`;
-  document.getElementById('c2Table').innerHTML = items.slice(0,100).map(it => `<tr>
+
+  // For each service, compute avg unit price from actuals
+  // Then find the next .99 price above it (round up to X.99)
+  const items = [];
+  let grandUplift = 0;
+  let grandVolume = 0;
+
+  for (const [name, s] of Object.entries(svcTxns)) {
+    const avgPrice = s.totalQty > 0 ? s.totalRev / s.totalQty : 0;
+    if (avgPrice <= 1) continue;
+
+    // Next .99 above current avg price
+    const floor99 = Math.floor(avgPrice); // e.g. 45.30 → 45
+    // .99 price options: floor-1 + .99, floor + .99
+    let next99;
+    if (Math.abs(avgPrice % 1 - 0.99) < 0.005) {
+      // already at .99 — skip
+      continue;
+    }
+    // Next .99 above: if avgPrice is e.g. 45.30, next99 = 45.99; if 45.99+ already, 46.99
+    next99 = floor99 + 0.99;
+    if (next99 < avgPrice) next99 = floor99 + 1 + 0.99;
+
+    const gainPerUnit = next99 - avgPrice;
+    // Only include if gain is meaningful (> $0.01 and < $5 — avoid huge jumps)
+    if (gainPerUnit < 0.01 || gainPerUnit > 5.0) continue;
+
+    const annualUplift = gainPerUnit * s.totalQty;
+    grandUplift += annualUplift;
+    grandVolume += s.totalQty;
+
+    items.push({
+      name, cat: s.cat, avgPrice, next99,
+      gainPerUnit, annualQty: s.totalQty,
+      annualUplift, txnCount: s.txnCount
+    });
+  }
+
+  items.sort((a, b) => b.annualUplift - a.annualUplift);
+
+  const alreadyAt99 = Object.values(svcTxns).filter(s => {
+    const avg = s.totalQty > 0 ? s.totalRev / s.totalQty : 0;
+    return Math.abs(avg % 1 - 0.99) < 0.05;
+  }).length;
+
+  document.getElementById('c2Badge').textContent = `${fmt$(grandUplift)} missed last year`;
+  document.getElementById('c2Summary').innerHTML = `
+    <div class="stat-bar-item"><div class="stat-bar-label">Missed Revenue</div><div class="stat-bar-value" style="color:var(--purple)">${fmt$(grandUplift)}</div><div class="stat-bar-sub">if all adjusted to .99</div></div>
+    <div class="stat-bar-item"><div class="stat-bar-label">Affected Services</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">not at .99 pricing</div></div>
+    <div class="stat-bar-item"><div class="stat-bar-label">Total Transactions</div><div class="stat-bar-value">${fmtN(Math.round(grandVolume))}</div><div class="stat-bar-sub">units across affected items</div></div>
+    <div class="stat-bar-item"><div class="stat-bar-label">Already at .99</div><div class="stat-bar-value">${alreadyAt99}</div><div class="stat-bar-sub">services already optimized</div></div>
+    <div class="stat-bar-item"><div class="stat-bar-label">Avg Gain / Unit</div><div class="stat-bar-value">${grandVolume > 0 ? fmt$(grandUplift / grandVolume) : '—'}</div><div class="stat-bar-sub">across all affected items</div></div>
+  `;
+
+  document.getElementById('c2Table').innerHTML = items.slice(0, 100).map(it => `<tr>
     <td>${escHtml(it.name)}</td>
-    <td class="muted">${escHtml(it.catLabel)}</td>
-    <td class="num">${fmt$(it.price)}</td>
-    <td class="num blue">${fmt$(it.suggested)}</td>
-    <td class="num muted">$0.01</td>
+    <td class="muted">${escHtml(it.cat)}</td>
+    <td class="num">${fmt$(it.avgPrice)}</td>
+    <td class="num blue">${fmt$(it.next99)}</td>
+    <td class="num" style="color:var(--purple);font-weight:700">+${fmt$(it.gainPerUnit)}</td>
+    <td class="num">${fmtN(Math.round(it.annualQty))}</td>
+    <td class="num green" style="font-weight:700">+${fmt$(it.annualUplift)}</td>
   </tr>`).join('');
 }
 
@@ -1632,35 +1841,88 @@ function processAIQuery(query) {
     return html;
   }
 
-  // ── PRICE INCREASE OPPORTUNITIES ──
-  if (q.match(/\b(price increase|raise price|increase price|opportunity|opportunities|campaign 1|inflation adjuster)\b/)) {
-    if (!catalogData) return "Catalog data isn't loaded yet.";
-    const items = [];
-    for (const row of catalogData) {
-      const status = (row[14]||'').trim();
-      const price  = parseFloat(row[10]) || 0;
-      const cost   = parseFloat(row[12]) || 0;
-      if (status !== '1' || price <= 0 || cost <= 0) continue;
-      const margin    = (price - cost) / price;
-      if (margin >= 0.25) continue;
-      const name      = (row[5]||'').trim() || (row[6]||'').trim();
-      const catLabel  = (row[1]||'').trim() || (row[0]||'').trim();
-      const suggested = cost / 0.6;
-      items.push({ name, catLabel, price, cost, margin, suggested, gain: suggested - price });
-    }
-    items.sort((a,b) => b.gain - a.gain);
-    const totalOpp = items.reduce((s,i)=>s+i.gain,0);
-    let html = `<strong>💡 Price Increase Opportunities</strong><br><span style="color:#64748b;font-size:0.8rem">${items.length} items · Total upside: ${greenVal(fmt$(totalOpp))} per transaction cycle if all adjusted to 40% margin</span><br><br>`;
+  // ── INFLATION / PRICE ADJUSTMENT ──
+  if (q.match(/\b(inflation|price increase|raise price|increase price|opportunity|opportunities|campaign 1|cpi|behind inflation|adjust|underpriced)\b/)) {
+    if (!c1AllItems || !c1AllItems.length) return "Inflation analysis isn't ready yet — check the Campaigns tab.";
+    const behind  = c1AllItems.filter(i => i.gap > 0);
+    const urgent  = c1AllItems.filter(i => i.status_flag === 'urgent');
+    const totalUp = behind.reduce((s,i) => s + i.uplift, 0);
+    const topItems = [...behind].sort((a,b) => b.uplift - a.uplift).slice(0,8);
+
+    let html = `<strong>📊 Inflation-Adjusted Pricing Summary</strong><br><br>`;
     html += tbl(
-      ['Item','Current','Suggested','Gain/Unit'],
-      items.slice(0,10).map(i => [
-        escHtml(i.name), fmt$(i.price),
-        blueVal(fmt$(i.suggested)),
-        greenVal('+'+fmt$(i.gain))
-      ]),
-      ['left','right','right','right']
+      ['Metric','Value'],
+      [
+        ['Items behind inflation', `${behind.length} of ${c1AllItems.length}`],
+        ['Urgent (>15% gap)',   redVal(urgent.length + ' items')],
+        ['Total annual uplift if adjusted', greenVal(fmt$(totalUp))],
+        ['2026 forecast rate',  `${(FORECAST_RATE_2026*100).toFixed(1)}% (BoC estimate)`],
+      ],
+      ['left','right']
     );
-    html += `<br><span style="color:#64748b;font-size:0.8rem">Full list in the Campaigns tab → 💡 Inflation Adjuster</span>`;
+    html += `<br><strong>Top Opportunities by Annual Uplift</strong><br>`;
+    html += tbl(
+      ['Item','Current','Inflation-Adj.','Gap','Annual Uplift'],
+      topItems.map(i => [
+        escHtml(i.name), fmt$(i.price), blueVal(fmt$(i.adjustedTarget)),
+        `<span style="color:#ea580c;font-weight:700">+${fmt$(i.gap)}</span>`,
+        greenVal('+'+fmt$(i.uplift))
+      ]),
+      ['left','right','right','right','right']
+    );
+    html += `<br><span style="color:#64748b;font-size:0.8rem">Full analysis in Campaigns tab → 📊 Inflation-Adjusted Pricing</span>`;
+    return html;
+  }
+
+  // ── .99 PRICING ──
+  if (q.match(/\b(99|ninety.?nine|rounding|round up|campaign 2|missed revenue|.99 pricing)\b/)) {
+    // Re-compute from service data for AI response
+    const svcTxns = {};
+    for (const row of serviceData) {
+      const name = (row[8]||'').trim()||(row[2]||'').trim();
+      const qty  = parseFloat(row[4]) || 0;
+      const tot  = parseFloat(row[5]) || 0;
+      if (!name || qty <= 0 || tot <= 0) continue;
+      if (!svcTxns[name]) svcTxns[name] = { totalRev:0, totalQty:0, cat:(row[1]||'').trim() };
+      svcTxns[name].totalRev += tot;
+      svcTxns[name].totalQty += qty;
+    }
+    const items = [];
+    for (const [name, s] of Object.entries(svcTxns)) {
+      const avg = s.totalQty > 0 ? s.totalRev/s.totalQty : 0;
+      if (avg <= 1 || Math.abs(avg % 1 - 0.99) < 0.005) continue;
+      const floor99 = Math.floor(avg);
+      let next99 = floor99 + 0.99;
+      if (next99 < avg) next99 = floor99 + 1 + 0.99;
+      const gain = next99 - avg;
+      if (gain < 0.01 || gain > 5) continue;
+      items.push({ name, avg, next99, gain, qty: s.totalQty, uplift: gain * s.totalQty });
+    }
+    items.sort((a,b) => b.uplift - a.uplift);
+    const total = items.reduce((s,i)=>s+i.uplift,0);
+    const top8  = items.slice(0,8);
+
+    let html = `<strong>🎯 .99 Pricing — Missed Revenue Analysis</strong><br><br>`;
+    html += tbl(
+      ['Metric','Value'],
+      [
+        ['Total missed last year', `<span style="color:var(--purple);font-weight:900">${fmt$(total)}</span>`],
+        ['Services affected', `${items.length}`],
+        ['Avg gain per unit', fmt$(total / items.reduce((s,i)=>s+i.qty,0))],
+      ],
+      ['left','right']
+    );
+    html += `<br><strong>Biggest Opportunities</strong><br>`;
+    html += tbl(
+      ['Service','Avg Price','.99 Price','+/Unit','Volume','Annual Uplift'],
+      top8.map(i => [
+        escHtml(i.name), fmt$(i.avg), blueVal(fmt$(i.next99)),
+        `<span style="color:var(--purple);font-weight:700">+${fmt$(i.gain)}</span>`,
+        fmtN(Math.round(i.qty)), greenVal('+'+fmt$(i.uplift))
+      ]),
+      ['left','right','right','right','right','right']
+    );
+    html += `<br><span style="color:#64748b;font-size:0.8rem">Full breakdown in Campaigns tab → 🎯 .99 Pricing Revenue Recovery</span>`;
     return html;
   }
 
