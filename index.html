@@ -912,12 +912,9 @@ let AI_totalRevenue = 0; let AI_totalQty = 0;
 
 async function loadDataAndBuild() {
  try {
-   console.log('📥 Fetching ALL services from n8n export...');
-   const exportRes = await fetch('https://n8n.wildeautomations.com/webhook/export-services');
-   if (!exportRes.ok) throw new Error('Export failed: ' + exportRes.status);
-   const exportData = await exportRes.json();
-   const svcRows = exportData.data || [];
-   console.log('✅ Got', svcRows.length, 'services from n8n export');
+   console.log('📥 Fetching services (first 50K - enough for analysis)...');
+   const svcRows = await sbFetchAll('services', 'select=code,amount,quantity,service_type');
+   console.log('✅ Got', svcRows.length, 'services');
    
    console.log('📥 Fetching prices...');
    const priceRows = await sbFetch('prices', 'select=treatment_code,price,updated_at&order=updated_at.asc');
