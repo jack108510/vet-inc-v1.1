@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Rosslyn Vet — Business Dashboard</title><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><style>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Clinic Control — Business Dashboard</title><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><style>
  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
  :root {
@@ -767,7 +767,7 @@
   opacity: 0; transition: opacity 0.4s;
 }
 .settings-save-indicator.visible { opacity: 1; }
-</style></head><body><!-- HEADER --><header class="header"><div class="header-left"><div class="logo-wrap"><div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="logo-text">Clinic<span>IQ</span></div></div><div class="header-divider"></div><div class="clinic-name" id="clinicName">Rosslyn Veterinary Clinic</div></div><div class="header-right"><span class="last-updated" id="lastUpdated">Loading data…</span><span class="btn-upload" style="cursor:default;pointer-events:none;opacity:0.75">● Live</span></div></header><!-- TAB NAV --><nav class="tab-nav"><button class="tab-btn active" onclick="showTab('analytics', this)"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg></span> Analytics &amp; KPIs
+</style></head><body><!-- HEADER --><header class="header"><div class="header-left"><div class="logo-wrap"><div class="logo-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="logo-text">Clinic<span>Control</span></div></div><div class="header-divider"></div><div class="clinic-name" id="clinicName">Rosslyn Veterinary Clinic</div></div><div class="header-right"><span class="last-updated" id="lastUpdated">Loading data…</span><span class="btn-upload" style="cursor:default;pointer-events:none;opacity:0.75">● Live</span></div></header><!-- TAB NAV --><nav class="tab-nav"><button class="tab-btn active" onclick="showTab('analytics', this)"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg></span> Analytics &amp; KPIs
  </button><button class="tab-btn" onclick="showTab('campaigns', this)"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span> Campaigns
  </button><button class="tab-btn" onclick="showTab('ai', this)"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span> AI Assistant
  </button><button class="tab-btn" onclick="showTab('settings', this)"><span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span> Settings
@@ -778,7 +778,7 @@
  --><section id="tab-campaigns" class="section"><div id="campaignsLoading" class="loading"><div class="spinner"></div> Analyzing pricing opportunities…
  </div><div id="campaignsContent" style="display:none"><!-- Campaign 1: Inflation Adjuster --><div class="campaign-card c-blue"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div class="campaign-meta"><div class="campaign-title">Inflation Price Adjustment Report</div><div class="campaign-desc">Uses real price history (exact last-modified date per item) and actual transaction volume over the last 365 days. Canadian CPI is compounded from the last price change to today — showing exactly what each item should cost now and the annual revenue left on the table.</div><div class="campaign-badge" id="c1Badge">Loading price history…</div></div></div><div id="c1Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▾</span></button><div class="campaign-body"><div style="padding:0.6rem 1.75rem;border-bottom:1px solid var(--border);display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap"><span style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-right:0.5rem">Show:</span><button class="c1-filter active" onclick="c1Filter(this,'all')">All Behind</button><button class="c1-filter" onclick="c1Filter(this,'used')">With Usage Only</button><button class="c1-filter" onclick="c1Filter(this,'urgent')">Urgent (&gt;15%)</button></div><div class="table-scroll"><table><thead><tr><th>Item Name</th><th class="num">Last Changed</th><th class="num">Days Stale</th><th class="num">Infl. %</th><th class="num">Current Price</th><th class="num">Suggested Price</th><th class="num">Delta</th><th class="num">Usage / yr</th><th class="num">Est. Uplift / yr</th></tr></thead><tbody id="c1Table"></tbody></table></div></div></div><!-- Campaign 2: .99 Pricing Opportunity --><div class="campaign-card c-purple"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8"/><path d="M12 6v2m0 8v2"/></svg></div><div class="campaign-meta"><div class="campaign-title">.99 Pricing Revenue Recovery</div><div class="campaign-desc">Based on actual transaction history: if every line item that <em>wasn't</em> already at a .99 price had been rounded up to the next .99, how much additional revenue would the clinic have captured last year? This shows real missed dollars — not theory.</div><div class="campaign-badge" id="c2Badge">Calculating…</div></div></div><!-- Summary stat bar --><div id="c2Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▾</span></button><div class="campaign-body"><div class="table-scroll"><table><thead><tr><th>Service / Item</th><th>Category</th><th class="num">Current Price</th><th class="num">.99 Price</th><th class="num">Gain / Txn</th><th class="num">Annual Volume</th><th class="num">Annual Uplift</th></tr></thead><tbody id="c2Table"></tbody></table></div></div></div><!-- Campaign 3: Micro Margin Increases --><div class="campaign-card c-emerald"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div class="campaign-meta"><div class="campaign-title">Micro Margin Increases</div><div class="campaign-desc">When supplier costs rise, prices have to go up anyway — customers expect it. Use that cover to also bump the markup percentage slightly (e.g. 250% → 260%). The customer sees an unavoidable cost-driven increase; you quietly capture a few extra margin points on top. Identified from items where pricehistory shows a recent price increase and cost is tracked in catalog.</div><div class="campaign-badge" id="c3Badge">Loading price history…</div></div></div><div id="c3Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">▾</span></button><div class="campaign-body"><div class="table-scroll"><table><thead><tr><th>Item</th><th class="num">Price Increase</th><th class="num">Current → +5% Bump</th><th class="num">Annual Volume</th><th class="num">Extra Margin / Year</th></tr></thead><tbody id="c3Table"></tbody></table></div></div></div></div></section><!-- 
  SECTION 3: AI Assistant
- --><section id="tab-ai" class="section full-h"><!-- Chat Header --><div class="ai-chat-header"><div class="ai-chat-header-left"><div class="ai-chat-avatar">R</div><div><div class="ai-chat-name">Rosslyn Assistant</div><div class="ai-chat-status">Connected to your clinic data</div></div></div><div class="ai-chat-indicators"><div class="ai-status-item"><span class="ai-data-dot" id="dotService"></span> Service Usage</div><div class="ai-status-item"><span class="ai-data-dot" id="dotCatalog"></span> Price Catalog</div><div class="ai-status-item"><span class="ai-data-dot" id="dotPriceHistory"></span> Price History</div></div></div><!-- Messages --><div class="ai-messages" id="aiMessages"><div class="msg-row"><div class="msg-avatar ai">R</div><div class="msg-meta"><div class="msg-bubble ai"><p><strong>Good morning, I'm your Rosslyn clinic assistant.</strong></p><p>I have full access to your service history, pricing catalog, price change history, and transaction data. Ask me anything about the clinic — I'll answer with real numbers from your data.</p><p style="color:var(--muted);font-size:0.82rem">Try asking about revenue, pricing gaps, service trends, or building an estimate.</p></div><div class="msg-time">--:--</div></div></div></div><!-- Suggested Prompts --><div class="ai-suggestions"><button class="suggestion-chip" onclick="sendQuickAction('How are we performing this month?')">How are we performing this month?</button><button class="suggestion-chip" onclick="sendQuickAction('Which services need a price increase?')">Which services need a price increase?</button><button class="suggestion-chip" onclick="sendQuickAction('What are our top 10 revenue drivers?')">Top 10 revenue drivers</button><button class="suggestion-chip" onclick="sendQuickAction('Show me the dental department breakdown')">Dental department</button><button class="suggestion-chip" onclick="sendQuickAction('Which services are growing?')">Growing services</button><button class="suggestion-chip" onclick="sendQuickAction('How much revenue are we leaving on the table?')">Revenue opportunities</button><button class="suggestion-chip" onclick="sendQuickAction('Build a wellness exam invoice')">Build an invoice</button><button class="suggestion-chip" onclick="sendQuickAction('Compare our best and worst months')">Best vs worst months</button><button class="suggestion-chip" onclick="sendQuickAction('What is our average transaction value?')">Avg transaction value</button><button class="suggestion-chip" onclick="sendQuickAction('Which categories drive the most volume?')">Category volume breakdown</button></div><!-- Input --><div class="ai-input-wrapper"><div class="ai-input-inner"><input class="ai-input" id="aiInput" type="text" placeholder="Ask anything about Rosslyn's clinic data…" onkeydown="if(event.key==='Enter') sendAIMessage()" /><button class="ai-send" id="aiSendBtn" onclick="sendAIMessage()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send</button></div></div></section><!--
+ --><section id="tab-ai" class="section full-h"><!-- Chat Header --><div class="ai-chat-header"><div class="ai-chat-header-left"><div class="ai-chat-avatar">CC</div><div><div class="ai-chat-name">Clinic Control AI</div><div class="ai-chat-status">Connected to your clinic data</div></div></div><div class="ai-chat-indicators"><div class="ai-status-item"><span class="ai-data-dot" id="dotService"></span> Service Usage</div><div class="ai-status-item"><span class="ai-data-dot" id="dotCatalog"></span> Price Catalog</div><div class="ai-status-item"><span class="ai-data-dot" id="dotPriceHistory"></span> Price History</div></div></div><!-- Messages --><div class="ai-messages" id="aiMessages"><div class="msg-row"><div class="msg-avatar ai">CC</div><div class="msg-meta"><div class="msg-bubble ai"><p><strong>Good morning, I'm your Clinic Control AI assistant.</strong></p><p>I have full access to your service history, pricing catalog, price change history, and transaction data. Ask me anything about the clinic — I'll answer with real numbers from your data.</p><p style="color:var(--muted);font-size:0.82rem">Try asking about revenue, pricing gaps, service trends, or building an estimate.</p></div><div class="msg-time">--:--</div></div></div></div><!-- Suggested Prompts --><div class="ai-suggestions"><button class="suggestion-chip" onclick="sendQuickAction('How are we performing this month?')">How are we performing this month?</button><button class="suggestion-chip" onclick="sendQuickAction('Which services need a price increase?')">Which services need a price increase?</button><button class="suggestion-chip" onclick="sendQuickAction('What are our top 10 revenue drivers?')">Top 10 revenue drivers</button><button class="suggestion-chip" onclick="sendQuickAction('Show me the dental department breakdown')">Dental department</button><button class="suggestion-chip" onclick="sendQuickAction('Which services are growing?')">Growing services</button><button class="suggestion-chip" onclick="sendQuickAction('How much revenue are we leaving on the table?')">Revenue opportunities</button><button class="suggestion-chip" onclick="sendQuickAction('Build a wellness exam invoice')">Build an invoice</button><button class="suggestion-chip" onclick="sendQuickAction('Compare our best and worst months')">Best vs worst months</button><button class="suggestion-chip" onclick="sendQuickAction('What is our average transaction value?')">Avg transaction value</button><button class="suggestion-chip" onclick="sendQuickAction('Which categories drive the most volume?')">Category volume breakdown</button></div><!-- Input --><div class="ai-input-wrapper"><div class="ai-input-inner"><input class="ai-input" id="aiInput" type="text" placeholder="Ask anything about Rosslyn's clinic data…" onkeydown="if(event.key==='Enter') sendAIMessage()" /><button class="ai-send" id="aiSendBtn" onclick="sendAIMessage()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send</button></div></div></section><!--
 SECTION 4: Settings
 --><section id="tab-settings" class="section"><div class="settings-wrap"><div class="settings-page-header"><div><div class="settings-page-title">Clinic Settings</div><div class="settings-page-sub">Monthly cost structure · auto-saved to Supabase</div></div><span class="settings-save-indicator" id="settingsSaveIndicator">Saved just now</span></div><div class="settings-layout"><!-- Fixed Costs --><div class="settings-card"><div class="settings-card-title">Fixed Costs</div><div class="settings-card-subtitle">Monthly recurring fixed expenses</div><div id="fixedCostsList"></div><button class="settings-add-btn" onclick="ClinicSettings.addRow('fixed')">+ Add Fixed Cost</button><div class="settings-total-row"><span class="settings-total-label">Total Fixed Costs</span><span class="settings-total-amount" id="fixedCostsTotal">$0.00</span></div></div><!-- Utility Costs --><div class="settings-card"><div class="settings-card-title">Utility Costs</div><div class="settings-card-subtitle">Monthly utility expenses</div><div id="utilityCostsList"></div><button class="settings-add-btn" onclick="ClinicSettings.addRow('utility')">+ Add Utility Cost</button><div class="settings-total-row"><span class="settings-total-label">Total Utility Costs</span><span class="settings-total-amount" id="utilityCostsTotal">$0.00</span></div></div></div></div></section><script>
 // 
@@ -878,7 +878,6 @@ async function sbFetchAll(table, params) {
      const cr = res.headers.get('content-range');
      if (cr) { const m = cr.match(/\/(\d+)/); if (m) total = parseInt(m[1]); }
      const rows = await res.json();
-     console.log('Fetched', table, 'offset', from, '→', rows.length, 'rows, total:', total);
      if (!rows || rows.length === 0) break;
      all = all.concat(rows);
      from += rows.length;
@@ -913,27 +912,17 @@ let AI_totalRevenue = 0; let AI_totalQty = 0;
 
 async function loadDataAndBuild() {
  try {
-   console.log('📥 Fetching aggregated service data (5K rows from 622K)...');
    const svcRows = await sbFetch('service_usage_agg', 'select=code,total_amount,total_qty,txn_count,service_type');
    // Map to expected format for campaigns
    svcRows.forEach(r => { r.amount = r.total_amount / (r.txn_count || 1); r.quantity = r.total_qty; });
-   console.log('✅ Got', svcRows.length, 'aggregated service codes (from 622K raw)');
    
-   console.log('📥 Fetching prices...');
    const priceRows = await sbFetch('prices', 'select=treatment_code,price,updated_at&order=updated_at.asc');
-   console.log('✅ Got', priceRows.length, 'prices');
    
-   console.log('📥 Fetching treatments...');
    const treatRows = await sbFetch('treatments', 'select=code,name');
-   console.log('✅ Got', treatRows.length, 'treatments');
    
-   console.log('📥 Fetching accounts...');
    const acctRows = await sbFetch('accounts', 'select=txn_date,amount_raw,type_flag&order=txn_date.asc');
-   console.log('✅ Got', acctRows.length, 'accounts');
    
-   console.log('📥 Fetching micro margin data...');
    const mmRows = await sbFetch('micro_margin_agg', 'select=code,price,price_changed,sales_since_change,potential_uplift');
-   console.log('✅ Got', mmRows.length, 'micro margin items');
    
    serviceData = svcRows;
    pricesData = priceRows;
@@ -952,9 +941,7 @@ async function loadDataAndBuild() {
    document.getElementById('dotService').classList.add('loaded');
    document.getElementById('dotCatalog').classList.add('loaded');
    document.getElementById('dotPriceHistory').classList.add('loaded');
-   console.log('🔄 Running buildAnalytics...');
    buildAnalytics();
-   console.log('✅ buildAnalytics done');
  } catch(e) {
    console.error('❌ Data load error:', e);
    const el = document.getElementById('campaignsLoading');
@@ -963,7 +950,6 @@ async function loadDataAndBuild() {
 }
 
 loadDataAndBuild().then(() => {
-  console.log('✅ Data loaded:', (serviceData||[]).length, 'services');
   document.getElementById('kpiDateLabel').textContent = 'All time';
   document.getElementById('lastUpdated').textContent = 'Loading ' + (serviceData||[]).length.toLocaleString() + ' services… campaigns next';
   return buildCampaigns();
@@ -1093,7 +1079,6 @@ async function buildAnalytics() {
 async function buildCampaigns() {
   if (campaignsReady) return;
   campaignsReady = true;
-  console.log('🔄 Building campaigns...');
   try {
     console.log('  C1...');
     await buildC1();
@@ -1101,7 +1086,6 @@ async function buildCampaigns() {
     await buildC2();
     console.log('  C3...');
     await buildC3();
-    console.log('✅ All campaigns done');
     document.getElementById('campaignsLoading').style.display = 'none';
     document.getElementById('campaignsContent').style.display = 'block';
   } catch(e) {
@@ -1151,9 +1135,7 @@ Object.assign(CPI_RATES, {
 
 async function buildC1() {
   try {
-  console.log('C1: pricesData=', (pricesData||[]).length, 'serviceData=', (serviceData||[]).length, 'treatmentsData=', (treatmentsData||[]).length);
   const data = await campaignFetch('inflation');
-  console.log('C1: campaignFetch returned', data.items.length, 'items');
   const items = (data.items || []).map(it => {
     const gapPct = it.currentPrice > 0 ? it.delta / it.currentPrice : 0;
     return { ...it, price: it.currentPrice, gap: it.delta, gapPct,
@@ -1529,7 +1511,7 @@ function appendMessage(role, html) {
  row.className = 'msg-row ' + role;
  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
  const avatarHtml = role === 'ai'
-   ? '<div class="msg-avatar ai">R</div>'
+   ? '<div class="msg-avatar ai">CC</div>'
    : '<div class="msg-avatar user"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>';
  row.innerHTML = avatarHtml + `<div class="msg-meta"><div class="msg-bubble ${role}">${html}</div><div class="msg-time">${time}</div></div>`;
  msgs.appendChild(row);
@@ -1542,7 +1524,7 @@ function appendTyping() {
  const row = document.createElement('div');
  row.className = 'msg-row';
  row.id = 'typingRow';
- row.innerHTML = `<div class="msg-avatar ai">R</div><div class="msg-meta"><div class="msg-bubble ai"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>`;
+ row.innerHTML = `<div class="msg-avatar ai">CC</div><div class="msg-meta"><div class="msg-bubble ai"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>`;
  msgs.appendChild(row);
  msgs.scrollTop = msgs.scrollHeight;
  return 'typingRow';
@@ -2391,7 +2373,7 @@ document.addEventListener('DOMContentLoaded', function() {
  const hr = new Date().getHours();
  const greeting = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
  const greetEl = document.querySelector('#aiMessages .msg-bubble.ai strong');
- if (greetEl) greetEl.textContent = `${greeting}, I'm your Rosslyn clinic assistant.`;
+ if (greetEl) greetEl.textContent = `${greeting}, I'm your Clinic Control AI assistant.`;
  const timeEl = document.querySelector('#aiMessages .msg-time');
  if (timeEl) timeEl.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 });
