@@ -912,11 +912,12 @@ let AI_totalRevenue = 0; let AI_totalQty = 0;
 
 async function loadDataAndBuild() {
  try {
-   console.log('📥 Loading all 488K services from cached data...');
-   const servicesRes = await fetch('./data/services.json');
+   console.log('📥 Fetching ALL services dynamically from n8n...');
+   const servicesRes = await fetch('http://localhost:5678/webhook/services-all');
+   if (!servicesRes.ok) throw new Error('Services fetch failed');
    const servicesData = await servicesRes.json();
    const svcRows = servicesData.data || [];
-   console.log('✅ Got', svcRows.length, 'services from cache');
+   console.log('✅ Got', svcRows.length, 'services dynamically');
    
    console.log('📥 Fetching prices...');
    const priceRows = await sbFetch('prices', 'select=treatment_code,price,updated_at&order=updated_at.asc');
