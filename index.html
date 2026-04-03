@@ -1121,6 +1121,10 @@ async function buildC1() {
   `;
 
   c1Render('all');
+  } catch(e) {
+    console.error('C1 error:', e);
+    document.getElementById('c1Table').innerHTML = `<tr><td colspan="9" style="color:var(--red)">Error: ${e.message}</td></tr>`;
+  }
 }
 
 function c1Filter(btn, filter) {
