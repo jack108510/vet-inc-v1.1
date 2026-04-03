@@ -964,10 +964,7 @@ async function loadDataAndBuild() {
 
 loadDataAndBuild().then(() => {
   console.log('✅ Data loaded:', (serviceData||[]).length, 'services');
-  // Set date input to today
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('kpiDateFilter').value = today;
-  document.getElementById('kpiDateLabel').textContent = `Showing ${new Date(today).toLocaleDateString()}`;
+  document.getElementById('kpiDateLabel').textContent = 'All time';
   document.getElementById('lastUpdated').textContent = 'Loading ' + (serviceData||[]).length.toLocaleString() + ' services… campaigns next';
   return buildCampaigns();
 }).catch(e => {
@@ -982,61 +979,93 @@ loadDataAndBuild().then(() => {
 //
 let analyticsFilterDate = null;
 
-function filterKPIByDate(dateStr) {
-  analyticsFilterDate = dateStr ? new Date(dateStr) : null;
+async function filterKPIByDate(dateStr) {
+  analyticsFilterDate = dateStr ? new Date(dateStr + 'T12:00:00') : null;
   const label = document.getElementById('kpiDateLabel');
   if (analyticsFilterDate) {
-    label.textContent = `Showing ${analyticsFilterDate.toLocaleDateString()}`;
+    label.textContent = `Loading ${analyticsFilterDate.toLocaleDateString()}...`;
   } else {
     label.textContent = 'All time';
   }
   analyticsReady = false;
-  buildAnalytics();
+  await buildAnalytics();
+  if (analyticsFilterDate) {
+    label.textContent = analyticsFilterDate.toLocaleDateString();
+  }
 }
 
-function buildAnalytics() {
- if (!serviceData || analyticsReady) return;
+async function buildAnalytics() {
  analyticsReady = true;
-
- let totalRevenue = 0, totalQty = 0;
+ const selectedDate = analyticsFilterDate;
+ 
+ let totalRevenue = 0, totalQty = 0, visits = 0, uniqueServices = 0, avgLineAmount = 0;
  const byMonth = {}, byCat = {}, byService = {};
 
- // Use accounts table for monthly revenue (has real txn_date)
- for (const row of (accountsData || [])) {
- const tot = (row.amount_raw || 0) / 100;
- const txn = parseTxnDateISO(row.txn_date);
- 
- // Filter by selected date if one is chosen
- if (analyticsFilterDate) {
-   const txnDate = new Date(row.txn_date);
-   if (txnDate.toDateString() !== analyticsFilterDate.toDateString()) continue;
- }
- 
- totalRevenue += tot;
- totalQty += 1;
- if (txn) {
- if (!byMonth[txn.key]) byMonth[txn.key] = { rev: 0, qty: 0 };
- byMonth[txn.key].rev += tot;
- byMonth[txn.key].qty += 1;
- }
- }
-
- // Use services for category and per-service breakdowns (no date needed)
- for (const row of serviceData) {
- const classid = (row.service_type || '').trim();
- const qty = parseFloat(row.quantity) || 0;
- const tot = parseFloat(row.amount) || 0;
- const desc = (row.description || '').trim() || 'Unknown';
-
- if (classid) {
- if (!byCat[classid]) byCat[classid] = { rev: 0 };
- byCat[classid].rev += tot;
- }
- if (desc) {
- if (!byService[desc]) byService[desc] = { rev: 0, qty: 0, classid };
- byService[desc].rev += tot;
- byService[desc].qty += qty;
- }
+ if (selectedDate) {
+   // Day view: fetch from daily_kpis and daily_service_breakdown
+   const dayStr = selectedDate.toISOString().slice(0,10);
+   const [dayKpi, daySvc] = await Promise.all([
+     sbFetch('daily_kpis', 'select=*&txn_day=eq.' + dayStr),
+     sbFetch('daily_service_breakdown', 'select=*&txn_day=eq.' + dayStr)
+   ]);
+   
+   if (dayKpi.length) {
+     const k = dayKpi[0];
+     totalRevenue = k.revenue || 0;
+     totalQty = k.line_items || 0;
+     visits = k.visits || 0;
+     uniqueServices = k.unique_services || 0;
+     avgLineAmount = k.avg_line_amount || 0;
+   }
+   
+   // Category + service breakdown for that day
+   for (const row of daySvc) {
+     const classid = (row.service_type || '').trim();
+     const code = row.code;
+     if (classid) {
+       if (!byCat[classid]) byCat[classid] = { rev: 0 };
+       byCat[classid].rev += row.revenue || 0;
+     }
+     if (code) {
+       const name = code;
+       if (!byService[name]) byService[name] = { rev: 0, qty: 0, classid };
+       byService[name].rev += row.revenue || 0;
+       byService[name].qty += row.qty || 0;
+     }
+   }
+   
+   // Month key for this day
+   const mk = dayStr.slice(0,7);
+   byMonth[mk] = { rev: totalRevenue, qty: totalQty };
+   
+ } else {
+   // All-time view: use accounts + aggregated services
+   for (const row of (accountsData || [])) {
+     const tot = (row.amount_raw || 0) / 100;
+     const txn = parseTxnDateISO(row.txn_date);
+     totalRevenue += tot;
+     totalQty += 1;
+     if (txn) {
+       if (!byMonth[txn.key]) byMonth[txn.key] = { rev: 0, qty: 0 };
+       byMonth[txn.key].rev += tot;
+       byMonth[txn.key].qty += 1;
+     }
+   }
+   for (const row of (serviceData||[])) {
+     const classid = (row.service_type || '').trim();
+     const tot = parseFloat(row.total_amount || row.amount) || 0;
+     const qty = parseFloat(row.total_qty || row.quantity) || 0;
+     const code = row.code || 'Unknown';
+     if (classid) {
+       if (!byCat[classid]) byCat[classid] = { rev: 0 };
+       byCat[classid].rev += tot;
+     }
+     if (code) {
+       if (!byService[code]) byService[code] = { rev: 0, qty: 0, classid };
+       byService[code].rev += tot;
+       byService[code].qty += qty;
+     }
+   }
  }
 
  // Save for AI and widget board
@@ -1049,7 +1078,11 @@ function buildAnalytics() {
  const monthKeys = sortMonthKeys(Object.keys(byMonth));
  AI_monthKeys = monthKeys;
 
- document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleString();
+ const dateLabel = selectedDate ? selectedDate.toLocaleDateString() : 'All Time';
+ document.getElementById('lastUpdated').textContent = `${dateLabel} · ${fmt$(totalRevenue)} revenue · ${fmtN(totalQty)} transactions`;
+ if (selectedDate) {
+   document.getElementById('lastUpdated').textContent += ` · ${fmtN(visits)} visits · ${fmtN(uniqueServices)} services`;
+ }
 
  if (typeof WidgetBoard !== 'undefined') WidgetBoard.onCSVReady();
 }
