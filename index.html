@@ -1361,9 +1361,9 @@ async function buildAnalytics() {
  AI_monthKeys = monthKeys;
 
  const dateLabel = selectedDate ? selectedDate.toLocaleDateString() : 'All Time';
- document.getElementById('lastUpdated').textContent = `${dateLabel} Â· ${fmt$(totalRevenue)} revenue Â· ${fmtN(totalQty)} transactions`;
+ document.getElementById('lastUpdated').textContent = `${dateLabel} &middot; ${fmt$(totalRevenue)} revenue &middot; ${fmtN(totalQty)} transactions`;
  if (selectedDate) {
-   document.getElementById('lastUpdated').textContent += ` Â· ${fmtN(visits)} visits Â· ${fmtN(uniqueServices)} services`;
+   document.getElementById('lastUpdated').textContent += ` &middot; ${fmtN(visits)} visits &middot; ${fmtN(uniqueServices)} services`;
  }
 
  window._avgLineAmount = avgLineAmount; refreshUpliftBoard();
@@ -1447,7 +1447,7 @@ async function buildC1() {
   const avgDays = items.length ? Math.round(items.reduce((s, i) => s + (i.daysSince || 0), 0) / items.length) : 0;
 
   document.getElementById('c1Badge').textContent =
-    `${items.length} items behind inflation Â· ${fmt$(usageUplift)} confirmed annual uplift`;
+    `${items.length} items behind inflation &middot; ${fmt$(usageUplift)} confirmed annual uplift`;
 
   document.getElementById('c1Summary').innerHTML = `
 <div class="stat-bar-item"><div class="stat-bar-label">Confirmed Annual Uplift</div><div class="stat-bar-value" style="color:var(--green)">${fmt$(usageUplift)}</div><div class="stat-bar-sub">items with real usage Ã- delta</div></div><div class="stat-bar-item"><div class="stat-bar-label">Items Behind Inflation</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">${withUsage.length} with recent usage</div></div><div class="stat-bar-item"><div class="stat-bar-label">Urgent (&gt;15% gap)</div><div class="stat-bar-value" style="color:var(--red)">${urgent.length}</div><div class="stat-bar-sub">immediate review needed</div></div><div class="stat-bar-item"><div class="stat-bar-label">Oldest Stale Price</div><div class="stat-bar-value" style="color:var(--orange)">${Math.round(maxDays / 365.25)} yrs</div><div class="stat-bar-sub">since last price change</div></div><div class="stat-bar-item"><div class="stat-bar-label">Avg Days Stale</div><div class="stat-bar-value" style="color:var(--purple)">${fmtN(avgDays)}</div><div class="stat-bar-sub">avg since last price change</div></div>
@@ -1483,12 +1483,12 @@ function c1Render(filter) {
  const gapColor = it.gapPct > 0.15 ? '#ef4444' : it.gapPct > 0.07 ? '#ea580c' : '#64748b';
  const upliftStr = it.uplift > 0.01
  ? `<strong style="color:#16a34a">+${fmt$(it.uplift)}</strong>`
- : '<span style="color:var(--muted)">â€"</span>';
+ : '<span style="color:var(--muted)">&mdash;</span>';
  const usageStr = it.usage > 0
  ? fmtN(Math.round(it.usage))
- : '<span style="color:var(--muted)">â€"</span>';
+ : '<span style="color:var(--muted)">&mdash;</span>';
  const daysColor = it.daysSince > 730 ? '#ef4444' : it.daysSince > 365 ? '#ea580c' : '#64748b';
- return `<tr><td>${escHtml(it.name || it.id)}</td><td class="num" style="color:${daysColor};font-weight:600">${it.lastModStr || 'â€"'}</td><td class="num" style="color:${daysColor};font-weight:700">${fmtN(it.daysSince)}</td><td class="num" style="color:var(--orange);font-weight:700">${it.inflPct ? '+'+it.inflPct+'%' : 'â€"'}</td><td class="num">${fmt$(it.price)}</td><td class="num" style="color:var(--primary);font-weight:700">${fmt$(it.suggested)}</td><td class="num" style="color:${gapColor};font-weight:700">+${fmt$(it.delta)}</td><td class="num">${usageStr}</td><td class="num">${upliftStr}</td></tr>`;
+ return `<tr><td>${escHtml(it.name || it.id)}</td><td class="num" style="color:${daysColor};font-weight:600">${it.lastModStr || '&mdash;'}</td><td class="num" style="color:${daysColor};font-weight:700">${fmtN(it.daysSince)}</td><td class="num" style="color:var(--orange);font-weight:700">${it.inflPct ? '+'+it.inflPct+'%' : '&mdash;'}</td><td class="num">${fmt$(it.price)}</td><td class="num" style="color:var(--primary);font-weight:700">${fmt$(it.suggested)}</td><td class="num" style="color:${gapColor};font-weight:700">+${fmt$(it.delta)}</td><td class="num">${usageStr}</td><td class="num">${upliftStr}</td></tr>`;
  }).join('');
 }
 
@@ -1501,7 +1501,7 @@ async function buildC2() {
 
   document.getElementById('c2Badge').textContent = `${fmt$(grandUplift)} missed last year`;
   document.getElementById('c2Summary').innerHTML = `
-<div class="stat-bar-item"><div class="stat-bar-label">Missed Revenue</div><div class="stat-bar-value" style="color:var(--purple)">${fmt$(grandUplift)}</div><div class="stat-bar-sub">if all adjusted to .99</div></div><div class="stat-bar-item"><div class="stat-bar-label">Affected Services</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">not at .99 pricing</div></div><div class="stat-bar-item"><div class="stat-bar-label">Total Transactions</div><div class="stat-bar-value">${fmtN(Math.round(grandVolume))}</div><div class="stat-bar-sub">units across affected items</div></div><div class="stat-bar-item"><div class="stat-bar-label">Avg Gain / Unit</div><div class="stat-bar-value">${grandVolume > 0 ? fmt$(grandUplift / grandVolume) : 'â€"'}</div><div class="stat-bar-sub">across all affected items</div></div>
+<div class="stat-bar-item"><div class="stat-bar-label">Missed Revenue</div><div class="stat-bar-value" style="color:var(--purple)">${fmt$(grandUplift)}</div><div class="stat-bar-sub">if all adjusted to .99</div></div><div class="stat-bar-item"><div class="stat-bar-label">Affected Services</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">not at .99 pricing</div></div><div class="stat-bar-item"><div class="stat-bar-label">Total Transactions</div><div class="stat-bar-value">${fmtN(Math.round(grandVolume))}</div><div class="stat-bar-sub">units across affected items</div></div><div class="stat-bar-item"><div class="stat-bar-label">Avg Gain / Unit</div><div class="stat-bar-value">${grandVolume > 0 ? fmt$(grandUplift / grandVolume) : '&mdash;'}</div><div class="stat-bar-sub">across all affected items</div></div>
   `;
 
   window._c2Uplift = grandUplift; refreshUpliftBoard();
@@ -1516,10 +1516,10 @@ async function buildC3() {
   const totalQty = items.reduce((s, it) => s + (it.annualQty || 0), 0);
 
   document.getElementById('c3Badge').textContent = `${items.length} items with recent price increases`;
-  document.getElementById('c3Summary').innerHTML = `<div class="stat-bar-item"><div class="stat-bar-label">Extra Annual Margin</div><div class="stat-bar-value" style="color:var(--green)">+${fmt$(totalUplift)}</div><div class="stat-bar-sub">captured by bumping recent increases +5%</div></div><div class="stat-bar-item"><div class="stat-bar-label">Items Qualifying</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">recent increase detected + &gt;5 units/yr</div></div><div class="stat-bar-item"><div class="stat-bar-label">Avg Extra / Unit</div><div class="stat-bar-value" style="color:var(--emerald)">${totalQty > 0 ? fmt$(totalUplift / totalQty) : 'â€"'}</div><div class="stat-bar-sub">additional margin per unit sold</div></div>`;
+  document.getElementById('c3Summary').innerHTML = `<div class="stat-bar-item"><div class="stat-bar-label">Extra Annual Margin</div><div class="stat-bar-value" style="color:var(--green)">+${fmt$(totalUplift)}</div><div class="stat-bar-sub">captured by bumping recent increases +5%</div></div><div class="stat-bar-item"><div class="stat-bar-label">Items Qualifying</div><div class="stat-bar-value">${items.length}</div><div class="stat-bar-sub">recent increase detected + &gt;5 units/yr</div></div><div class="stat-bar-item"><div class="stat-bar-label">Avg Extra / Unit</div><div class="stat-bar-value" style="color:var(--emerald)">${totalQty > 0 ? fmt$(totalUplift / totalQty) : '&mdash;'}</div><div class="stat-bar-sub">additional margin per unit sold</div></div>`;
   window._c3Uplift = totalUplift; refreshUpliftBoard();
   document.getElementById('c3Table').innerHTML = items.map(it =>
-    `<tr><td>${escHtml(it.name)}</td><td class="num orange">${fmt$(it.costIncrease)} <span class="muted" style="font-weight:400">(${fmt$(it.oldCost)}â†'${fmt$(it.newCost)})</span></td><td class="num">${fmt$(it.newCost)} â†' <span style="color:var(--emerald);font-weight:700">${fmt$(it.priceWithBump)}</span></td><td class="num">${fmtN(Math.round(it.annualQty || 0))}</td><td class="num green" style="font-weight:700">+${fmt$(it.annualUplift)}</td></tr>`
+    `<tr><td>${escHtml(it.name)}</td><td class="num orange">${fmt$(it.costIncrease)} <span class="muted" style="font-weight:400">(${fmt$(it.oldCost)} &#x2192; ${fmt$(it.newCost)})</span></td><td class="num">${fmt$(it.newCost)} &#x2192; <span style="color:var(--emerald);font-weight:700">${fmt$(it.priceWithBump)}</span></td><td class="num">${fmtN(Math.round(it.annualQty || 0))}</td><td class="num green" style="font-weight:700">+${fmt$(it.annualUplift)}</td></tr>`
   ).join('');
 }
 
@@ -1796,7 +1796,7 @@ function markdownToHtml(text) {
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     // Italic
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    // Tables (basic â€" | col | col |)
+    // Tables (basic &mdash; | col | col |)
     .replace(/(\|.+\|\n)+/g, m => {
       const rows = m.trim().split('\n');
       let html = '<table style="margin:0.6rem 0">';
@@ -1860,7 +1860,7 @@ function processAIQuery(query, matchedIntent) {
  const raw = query.trim();
 
  if (!serviceData && !pricesData) {
-   return buildResponse("Data is still loading â€" give it a moment then try again.", null, []);
+   return buildResponse("Data is still loading &mdash; give it a moment then try again.", null, []);
  }
 
  // Recommendations handler
@@ -2018,7 +2018,7 @@ function processAIQuery(query, matchedIntent) {
  ['Total Revenue', blueVal(fmt$(cur.rev))],
  prev ? [`vs ${monthLabel(prevKey)}`, changeBadge(pct) + ` &nbsp;(${diff >= 0 ? '+' : ''}${fmt$(Math.abs(diff))})`] : [],
  ['Transaction Volume', fmtN(Math.round(cur.qty))],
- ['Avg per Transaction', cur.qty > 0 ? fmt$(cur.rev / cur.qty) : 'â€"'],
+ ['Avg per Transaction', cur.qty > 0 ? fmt$(cur.rev / cur.qty) : '&mdash;'],
  ].filter(r => r.length),
  ['left','right']
  );
@@ -2052,18 +2052,18 @@ function processAIQuery(query, matchedIntent) {
  // Last 3 months trend
  const last3 = AI_monthKeys.slice(-3);
  const trendRevs = last3.map(k => AI_byMonth[k]?.rev || 0);
- const trendDir = trendRevs[2] > trendRevs[0] ? ' upward' : trendRevs[2] < trendRevs[0] ? ' downward' : 'â†' flat';
+ const trendDir = trendRevs[2] > trendRevs[0] ? ' upward' : trendRevs[2] < trendRevs[0] ? ' downward' : '&#x2192; flat';
 
- let html = `<strong> Annual Overview â€" ${AI_monthKeys.length} Months of Data</strong><br><br>`;
+ let html = `<strong> Annual Overview &mdash; ${AI_monthKeys.length} Months of Data</strong><br><br>`;
  html += tbl(
  ['Metric', 'Value'],
  [
  ['Total Revenue', blueVal(fmt$(totalRevenue))],
  ['Avg Monthly Revenue', fmt$(avgMonthly)],
- ['Best Month', `${monthLabel(bestKey)} â€" ${blueVal(fmt$(AI_byMonth[bestKey].rev))}`],
- ['Slowest Month', `${monthLabel(worstKey)} â€" ${fmt$(AI_byMonth[worstKey].rev)}`],
+ ['Best Month', `${monthLabel(bestKey)} &mdash; ${blueVal(fmt$(AI_byMonth[bestKey].rev))}`],
+ ['Slowest Month', `${monthLabel(worstKey)} &mdash; ${fmt$(AI_byMonth[worstKey].rev)}`],
  ['3-Month Trend', trendDir],
- ['Data Range', `${monthLabel(AI_monthKeys[0])} â†' ${monthLabel(AI_monthKeys[AI_monthKeys.length-1])}`],
+ ['Data Range', `${monthLabel(AI_monthKeys[0])} &#x2192; ${monthLabel(AI_monthKeys[AI_monthKeys.length-1])}`],
  ],
  ['left','right']
  );
@@ -2111,7 +2111,7 @@ function processAIQuery(query, matchedIntent) {
  const wSum = weights.reduce((a,b) => a+b, 0);
  const forecast = revs.reduce((s, r, i) => s + r * weights[i], 0) / wSum;
 
- // Seasonal nudge â€" look at same month last year if available
+ // Seasonal nudge &mdash; look at same month last year if available
  const lastKey = AI_monthKeys[AI_monthKeys.length-1];
  const nextMonthNum = (parseInt(lastKey.split('-')[1]) % 12) + 1;
  const sameMonthLastYear = AI_monthKeys.find(k => {
@@ -2121,7 +2121,7 @@ function processAIQuery(query, matchedIntent) {
 
  const nextLabel = MONTH_NAMES[nextMonthNum - 1] + ' ' + (nextMonthNum === 1 ? String(parseInt(lastKey.split('-')[0])+1).slice(2) : lastKey.split('-')[0].slice(2));
 
- let html = `<strong> Revenue Forecast â€" ${nextLabel}</strong><br><br>`;
+ let html = `<strong> Revenue Forecast &mdash; ${nextLabel}</strong><br><br>`;
  html += tbl(
  ['Basis', 'Value'],
  [
@@ -2302,7 +2302,7 @@ function processAIQuery(query, matchedIntent) {
  ['Avg Revenue/Unit', fmt$(svc.qty>0 ? svc.rev/svc.qty : 0)],
  catPrice ? ['Current Price', fmt$(catPrice)] : null,
  mom !== null ? ['MoM Trend', changeBadge(mom)] : null,
- ['Category', escHtml(svc.classid||'â€"')],
+ ['Category', escHtml(svc.classid||'&mdash;')],
  ].filter(Boolean),
  ['left','right']
  );
@@ -2328,7 +2328,7 @@ function processAIQuery(query, matchedIntent) {
  let html = `<strong>Top ${safeLimit} Services by Revenue</strong><br><br>`;
  html += tbl(
  ['#','Service','Category','Revenue','Share'],
- top.map(([n,v],i) => [i+1, escHtml(n), escHtml(v.classid||'â€"'), blueVal(fmt$(v.rev)), (v.rev/total*100).toFixed(1)+'%']),
+ top.map(([n,v],i) => [i+1, escHtml(n), escHtml(v.classid||'&mdash;'), blueVal(fmt$(v.rev)), (v.rev/total*100).toFixed(1)+'%']),
  ['left','left','left','right','right']
  );
  aiConversation.push({ role: 'ai', text: `top services` });
@@ -2358,14 +2358,14 @@ function processAIQuery(query, matchedIntent) {
 
  // PRICING GAP ANALYSIS
  if (q.match(/\b(margin|profit|cost|underpriced|overpriced|pricing)\b/)) {
- if (!c1AllItems || !c1AllItems.length) return "Pricing analysis isn't ready yet â€" check the Campaigns tab.";
+ if (!c1AllItems || !c1AllItems.length) return "Pricing analysis isn't ready yet &mdash; check the Campaigns tab.";
  const top = c1AllItems.slice(0, 12);
- let html = `<strong>Pricing Gap Analysis</strong><br><span style="color:#64748b;font-size:0.8rem">${top.length} of ${c1AllItems.length} items shown â€" full analysis in Campaigns tab</span><br><br>`;
+ let html = `<strong>Pricing Gap Analysis</strong><br><span style="color:#64748b;font-size:0.8rem">${top.length} of ${c1AllItems.length} items shown &mdash; full analysis in Campaigns tab</span><br><br>`;
  html += tbl(
  ['Item','Current Price','Suggested','Inflation Gap','Annual Uplift'],
  top.map(i => [escHtml(i.name), fmt$(i.price), blueVal(fmt$(i.suggested)),
  `<span style="color:#ea580c;font-weight:700">+${fmt$(i.delta)}</span>`,
- i.uplift > 0 ? greenVal('+'+fmt$(i.uplift)) : 'â€"']),
+ i.uplift > 0 ? greenVal('+'+fmt$(i.uplift)) : '&mdash;']),
  ['left','right','right','right','right']
  );
  return html;
@@ -2373,7 +2373,7 @@ function processAIQuery(query, matchedIntent) {
 
  // INFLATION / PRICE ADJUSTMENT
  if (q.match(/\b(inflation|price increase|raise price|increase price|opportunity|opportunities|campaign 1|cpi|behind inflation|adjust|underpriced)\b/)) {
- if (!c1AllItems || !c1AllItems.length) return "Inflation analysis isn't ready yet â€" check the Campaigns tab.";
+ if (!c1AllItems || !c1AllItems.length) return "Inflation analysis isn't ready yet &mdash; check the Campaigns tab.";
  const behind = c1AllItems.filter(i => i.gap > 0);
  const urgent = c1AllItems.filter(i => i.status_flag === 'urgent');
  const totalUp = behind.reduce((s,i) => s + i.uplift, 0);
@@ -2432,7 +2432,7 @@ function processAIQuery(query, matchedIntent) {
  const total = items.reduce((s,i)=>s+i.uplift,0);
  const top8 = items.slice(0,8);
 
- let html = `<strong> .99 Pricing â€" Missed Revenue Analysis</strong><br><br>`;
+ let html = `<strong> .99 Pricing &mdash; Missed Revenue Analysis</strong><br><br>`;
  html += tbl(
  ['Metric','Value'],
  [
@@ -2536,7 +2536,7 @@ function processAIQuery(query, matchedIntent) {
  }
  }
 
- // Pick 3â€"5 relevant items
+ // Pick 3&mdash;5 relevant items
  const selected = catalogItems.slice(0, 5);
  if (!selected.length) {
  return `I couldn't find items matching "${serviceHint}" in the catalog. Try: "Create an invoice for a dental cleaning" or "Build a wellness exam invoice".`;
@@ -2546,7 +2546,7 @@ function processAIQuery(query, matchedIntent) {
  const tax = subtotal * 0.05; // GST
  const total = subtotal + tax;
 
- let html = `<strong> Sample Invoice â€" ${serviceHint.charAt(0).toUpperCase()+serviceHint.slice(1)} Visit</strong><br><span style="color:#64748b;font-size:0.8rem">Rosslyn Veterinary Clinic Â· Generated from catalog pricing</span><br><br>`;
+ let html = `<strong> Sample Invoice &mdash; ${serviceHint.charAt(0).toUpperCase()+serviceHint.slice(1)} Visit</strong><br><span style="color:#64748b;font-size:0.8rem">Rosslyn Veterinary Clinic &middot; Generated from catalog pricing</span><br><br>`;
  html += tbl(
  ['Service / Item', 'Qty', 'Unit Price', 'Total'],
  selected.map(i => [escHtml(i.name), '1', fmt$(i.price), blueVal(fmt$(i.price))]),
@@ -2587,7 +2587,7 @@ function processAIQuery(query, matchedIntent) {
 
  // HELP / WHAT CAN YOU DO
  if (q.match(/\b(help|what can|what do|capabilities|how to use|guide|commands)\b/)) {
- return `<strong>Here's what you can ask me:</strong><br><br><ul><li><strong>Monthly performance:</strong> "How did we do in December?" Â· "Summarize last month" Â· "Compare Jan vs Feb"</li><li><strong>Annual overview:</strong> "Show me year-to-date" Â· "What was our best month?"</li><li><strong>Services:</strong> "Top 10 services" Â· "Tell me about Oral Surgery" Â· "Which services are growing?"</li><li><strong>Departments:</strong> "Dental department performance" Â· "How's our lab revenue?"</li><li><strong>Pricing:</strong> "Which items have low margins?" Â· "Price increase opportunities"</li><li><strong>Forecasting:</strong> "Forecast next month revenue"</li><li><strong>Invoices:</strong> "Create a wellness exam invoice" Â· "Build a dental invoice"</li></ul>`;
+ return `<strong>Here's what you can ask me:</strong><br><br><ul><li><strong>Monthly performance:</strong> "How did we do in December?" &middot; "Summarize last month" &middot; "Compare Jan vs Feb"</li><li><strong>Annual overview:</strong> "Show me year-to-date" &middot; "What was our best month?"</li><li><strong>Services:</strong> "Top 10 services" &middot; "Tell me about Oral Surgery" &middot; "Which services are growing?"</li><li><strong>Departments:</strong> "Dental department performance" &middot; "How's our lab revenue?"</li><li><strong>Pricing:</strong> "Which items have low margins?" &middot; "Price increase opportunities"</li><li><strong>Forecasting:</strong> "Forecast next month revenue"</li><li><strong>Invoices:</strong> "Create a wellness exam invoice" &middot; "Build a dental invoice"</li></ul>`;
  }
 
  // CATCH-ALL: try to find a keyword match in services
@@ -2605,7 +2605,7 @@ function processAIQuery(query, matchedIntent) {
  ['Total Revenue', blueVal(fmt$(svc.rev))],
  ['Total Qty', fmtN(Math.round(svc.qty))],
  ['Avg per Unit', fmt$(svc.qty>0?svc.rev/svc.qty:0)],
- ['Category', escHtml(svc.classid||'â€"')],
+ ['Category', escHtml(svc.classid||'&mdash;')],
  ],
  ['left','right']
  );
@@ -2617,12 +2617,12 @@ function processAIQuery(query, matchedIntent) {
  return buildResponse(
    "I'm not sure what you're asking, but here's what I can help with:",
    `<ul>
-     <li><strong>"How did we do last month?"</strong> â€" monthly revenue summary</li>
-     <li><strong>"Show top 10 services"</strong> â€" revenue leaders</li>
-     <li><strong>"Dental department"</strong> â€" drill into any category</li>
-     <li><strong>"Which services are growing?"</strong> â€" trend analysis</li>
-     <li><strong>"Forecast next month"</strong> â€" revenue projection</li>
-     <li><strong>"Create a dental invoice"</strong> â€" sample invoice from your catalog</li>
+     <li><strong>"How did we do last month?"</strong> &mdash; monthly revenue summary</li>
+     <li><strong>"Show top 10 services"</strong> &mdash; revenue leaders</li>
+     <li><strong>"Dental department"</strong> &mdash; drill into any category</li>
+     <li><strong>"Which services are growing?"</strong> &mdash; trend analysis</li>
+     <li><strong>"Forecast next month"</strong> &mdash; revenue projection</li>
+     <li><strong>"Create a dental invoice"</strong> &mdash; sample invoice from your catalog</li>
    </ul>`,
    ['How are we performing this month?', 'Top 10 revenue drivers', 'Which services need a price increase?']
  );
@@ -3053,7 +3053,7 @@ const WidgetBoard = (() => {
       lines = AI_byMonth[k] ? AI_byMonth[k].qty : 0;
       visits = Math.max(1, Math.round(lines / 3.5));
     }
-    const avg = visits > 0 ? (lines / visits).toFixed(1) : 'â€"';
+    const avg = visits > 0 ? (lines / visits).toFixed(1) : '&mdash;';
     bodyEl.innerHTML = `<div class="w-value">${avg}</div><div class="w-sub">service lines per visit this month</div>`;
   }
 
@@ -3249,7 +3249,7 @@ const WidgetBoard = (() => {
     } catch(e) { rows = []; }
     const count = rows.length;
     const listHtml = rows.slice(0,5).map(r =>
-      `<div class="appt-item"><span class="appt-time">${r.appt_time||''}</span> <span class="appt-doc">${escHtml(r.doctor||'')} Â· ${escHtml(r.status||'')}</span></div>`
+      `<div class="appt-item"><span class="appt-time">${r.appt_time||''}</span> <span class="appt-doc">${escHtml(r.doctor||'')} &middot; ${escHtml(r.status||'')}</span></div>`
     ).join('');
     bodyEl.innerHTML = `<div class="w-value" style="margin-bottom:6px">${count}</div>${listHtml || '<div class="w-sub">No appointments found</div>'}`;
   }
@@ -3391,7 +3391,7 @@ const WidgetBoard = (() => {
       const k = AI_monthKeys[AI_monthKeys.length-1]||'';
       projection = AI_byMonth[k] ? AI_byMonth[k].rev * 0.28 : 0;
     }
-    bodyEl.innerHTML = `<div class="w-value">${fmt$(projection)}</div><div class="w-sub">projected inventory spend next month</div><div class="w-sub" style="margin-top:6px;font-size:0.68rem">40% last 3mo avg Â· 30% last 6mo Â· 20% same month Â· 10% 12mo avg</div>`;
+    bodyEl.innerHTML = `<div class="w-value">${fmt$(projection)}</div><div class="w-sub">projected inventory spend next month</div><div class="w-sub" style="margin-top:6px;font-size:0.68rem">40% last 3mo avg &middot; 30% last 6mo &middot; 20% same month &middot; 10% 12mo avg</div>`;
   }
 
   async function renderYTDRevenue(id, bodyEl) {
@@ -3999,16 +3999,16 @@ const InsightsDashboard = (() => {
     const body = document.getElementById('iwDrawerBody');
     if (!drawer || !body) return;
     if (type === 'profit') {
-      title.textContent = 'Profit Calculator â€" Last 30 Days';
+      title.textContent = 'Profit Calculator &mdash; Last 30 Days';
       initProfitCosts(); // reload from settings each open
       body.innerHTML = renderProfitDrawer();
       attachProfitInputListeners();
     } else if (type === 'cost') {
-      title.textContent = 'Cost Per Day â€" Detail';
+      title.textContent = 'Cost Per Day &mdash; Detail';
       body.innerHTML = renderCostDrawer();
       attachCostInputListeners();
     } else if (type === 'revenue') {
-      title.textContent = 'Revenue Trend â€" Last 30 Days';
+      title.textContent = 'Revenue Trend &mdash; Last 30 Days';
       body.innerHTML = renderRevenueDrawer();
     }
     backdrop.classList.add('open');
@@ -4067,7 +4067,7 @@ const InsightsDashboard = (() => {
     const thStyle = 'style="font-size:0.66rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em"';
 
     const tableHead =
-      '<div class="iw-section-title" style="margin-top:1.5rem">Daily Breakdown â€" Last 30 Days</div>' +
+      '<div class="iw-section-title" style="margin-top:1.5rem">Daily Breakdown &mdash; Last 30 Days</div>' +
       '<div ' + colStyle + ' style="display:grid;grid-template-columns:68px 1fr 1fr 1fr 28px;gap:0.4rem;align-items:center;padding:5px 0;border-bottom:2px solid var(--border)">' +
       '<div ' + thStyle + '>Date</div>' +
       '<div ' + thStyle + ' style="text-align:right">Revenue</div>' +
@@ -4077,7 +4077,7 @@ const InsightsDashboard = (() => {
       '</div>';
 
     const mockNote = !revLoaded
-      ? '<div style="font-size:0.72rem;color:var(--muted);font-style:italic;padding:0.35rem 0 0.1rem">Using simulated revenue â€" live data loadingâ€¦</div>'
+      ? '<div style="font-size:0.72rem;color:var(--muted);font-style:italic;padding:0.35rem 0 0.1rem">Using simulated revenue &mdash; live data loadingâ€¦</div>'
       : '';
 
     const tableRows = days.map(d => {
@@ -4088,9 +4088,9 @@ const InsightsDashboard = (() => {
       const status = rev > 0 ? (isPos ? 'âœ…' : 'âŒ') : '';
       return '<div style="display:grid;grid-template-columns:68px 1fr 1fr 1fr 28px;gap:0.4rem;align-items:center;padding:6px 0;border-bottom:1px solid rgba(219,234,254,0.4);font-size:0.82rem">' +
         '<span style="color:var(--muted)">' + fmtDate(d) + '</span>' +
-        '<span style="text-align:right;font-weight:700">' + (rev > 0 ? fd(rev) : 'â€"') + '</span>' +
+        '<span style="text-align:right;font-weight:700">' + (rev > 0 ? fd(rev) : '&mdash;') + '</span>' +
         '<span style="text-align:right;color:var(--muted)">' + fd(dailyCost) + '</span>' +
-        '<span style="text-align:right;font-weight:800;color:' + netColor + '">' + (rev > 0 ? (isPos ? '+' : '') + fd(net) : 'â€"') + '</span>' +
+        '<span style="text-align:right;font-weight:800;color:' + netColor + '">' + (rev > 0 ? (isPos ? '+' : '') + fd(net) : '&mdash;') + '</span>' +
         '<span style="text-align:center">' + status + '</span>' +
         '</div>';
     }).join('');
@@ -4106,7 +4106,7 @@ const InsightsDashboard = (() => {
     const total = totalFixed + totalUtility;
 
     function makeRows(rows, type) {
-      if (!rows.length) return '<div style="color:var(--muted);font-size:0.83rem;padding:0.4rem 0">No costs â€" configure in Settings.</div>';
+      if (!rows.length) return '<div style="color:var(--muted);font-size:0.83rem;padding:0.4rem 0">No costs &mdash; configure in Settings.</div>';
       return rows.map((r, i) =>
         '<div class="iw-cost-row">' +
         '<span class="iw-cost-name">' + (r.label || 'Unnamed') + '</span>' +
@@ -4122,8 +4122,8 @@ const InsightsDashboard = (() => {
       makeRows(utility, 'utility') +
       '<div class="iw-total-row"><span>Total Monthly</span><span style="color:var(--primary)">' + fd(total) + '</span></div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-top:1rem">' +
-      '<div class="iw-metric"><div class="iw-metric-label">Cost Per Day (Ã·30)</div><div class="iw-metric-value" style="color:var(--primary)">' + fd(total / 30) + '</div></div>' +
-      '<div class="iw-metric"><div class="iw-metric-label">Cost Per Working Day (Ã·22)</div><div class="iw-metric-value" style="color:var(--primary)">' + fd(total / 22) + '</div></div>' +
+      '<div class="iw-metric"><div class="iw-metric-label">Cost Per Day (&divide;30)</div><div class="iw-metric-value" style="color:var(--primary)">' + fd(total / 30) + '</div></div>' +
+      '<div class="iw-metric"><div class="iw-metric-label">Cost Per Working Day (&divide;22)</div><div class="iw-metric-value" style="color:var(--primary)">' + fd(total / 22) + '</div></div>' +
       '</div>' +
       '<div class="iw-save-note" id="iwCostSaveNote"></div>';
   }
@@ -4191,7 +4191,7 @@ const InsightsDashboard = (() => {
       return '<div class="iw-rev-bar-wrap">' +
         '<span class="iw-rev-bar-date">' + fmtDate(d) + '</span>' +
         '<div class="iw-rev-bar-track"><div class="iw-rev-bar-fill" style="width:' + pct + '%"></div></div>' +
-        '<span class="iw-rev-bar-val">' + (rev > 0 ? fd(rev) : 'â€"') + '</span>' +
+        '<span class="iw-rev-bar-val">' + (rev > 0 ? fd(rev) : '&mdash;') + '</span>' +
         '</div>';
     }).join('');
 
