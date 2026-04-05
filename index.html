@@ -1318,23 +1318,27 @@ async function buildAnalytics() {
    byMonth[mk] = { rev: totalRevenue, qty: totalQty };
 
  } else {
-   // All-time view: use accounts + aggregated services
+   // All-time view: use accounts for monthly breakdown + serviceData for categories
    for (const row of (accountsData || [])) {
      const tot = (row.amount_raw || 0) / 100;
      const txn = parseTxnDateISO(row.txn_date);
-     totalRevenue += tot;
-     totalQty += 1;
      if (txn) {
        if (!byMonth[txn.key]) byMonth[txn.key] = { rev: 0, qty: 0 };
        byMonth[txn.key].rev += tot;
        byMonth[txn.key].qty += 1;
      }
    }
+   // Use serviceData for real revenue/qty totals and category breakdown
+   let totalLineItems = 0;
    for (const row of (serviceData||[])) {
      const classid = (row.service_type || '').trim();
      const tot = parseFloat(row.total_amount || row.amount) || 0;
      const qty = parseFloat(row.total_qty || row.quantity) || 0;
+     const txnCount = parseInt(row.txn_count || 0);
      const code = row.code || 'Unknown';
+     totalRevenue += tot;
+     totalQty += txnCount || qty;
+     totalLineItems += txnCount || 1;
      if (classid) {
        if (!byCat[classid]) byCat[classid] = { rev: 0 };
        byCat[classid].rev += tot;
@@ -1345,6 +1349,8 @@ async function buildAnalytics() {
        byService[code].qty += qty;
      }
    }
+   // Calculate avg line amount from real service data
+   avgLineAmount = totalLineItems > 0 ? totalRevenue / totalLineItems : 0;
  }
 
  // Save for AI and widget board
