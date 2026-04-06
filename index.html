@@ -1739,6 +1739,43 @@ async function loadCapturedRevenue() {
   }
 }
 
+async function loadServiceData() {
+  try {
+    // Fetch last 90 days of services (type_flag 'A' = services only)
+    const res = await fetch('https://rnqhhzatlxmyvccdvqkr.supabase.co/rest/v1/services?select=service_date,amount&service_date=not.is.null&amount=gt.0&order=service_date.desc&limit=10000', {
+      headers: {
+        apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTQ5ODUsImV4cCI6MjA5MDU5MDk4NX0.zokle21pVEPG5bIOFiyZIWYkYIwhkolWNOhJ7Cbub30',
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTQ5ODUsImV4cCI6MjA5MDU5MDk4NX0.zokle21pVEPG5bIOFiyZIWYkYIwhkolWNOhJ7Cbub30'
+      }
+    });
+    
+    if (!res.ok) {
+      console.error('Failed to load service data');
+      return;
+    }
+    
+    window.serviceData = await res.json();
+    
+    // Calculate baseline monthly revenue (last 90 days / 3)
+    const now = new Date();
+    const ninetyDaysAgo = new Date(now - 90 * 24 * 60 * 60 * 1000);
+    
+    let totalRevenue = 0;
+    window.serviceData.forEach(row => {
+      const date = new Date(row.service_date);
+      if (date >= ninetyDaysAgo) {
+        totalRevenue += parseFloat(row.amount) || 0;
+      }
+    });
+    
+    window._baselineMonthly = Math.round(totalRevenue / 3);
+    refreshUpliftBoard();
+    buildAvgTxnChart();
+  } catch (e) {
+    console.error('Failed to load service data:', e);
+  }
+}
+
 function buildAvgTxnChart() {
   const canvas = document.getElementById('avgTxnChart');
   if (!canvas || !window.serviceData || window.serviceData.length === 0) return;
@@ -4475,6 +4512,7 @@ const InsightsDashboard = (() => {
 document.addEventListener('DOMContentLoaded', function() {
   WidgetBoard.init();
   ClinicSettings.init();
+  loadServiceData(); // Load service data for baseline + chart
 
   const origShowTab = window.showTab;
   window.showTab = function(name, btn) {
