@@ -1025,6 +1025,16 @@
 .uplift-card-value.ub-green{color:var(--green)}
 .uplift-card-value.ub-blue{color:var(--primary)}
 .uplift-card-sub{font-size:0.8rem;color:var(--muted);margin-top:.2rem}
+.uplift-chart-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.75rem;box-shadow:0 1px 6px rgba(37,99,235,.05)}
+.uplift-chart-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem}
+.uplift-chart-title{font-size:1rem;font-weight:700;color:var(--text)}
+.uplift-chart-sub{font-size:0.8rem;color:var(--muted);margin-top:.25rem}
+.uplift-chart-stats{display:flex;gap:1.5rem}
+.uplift-chart-stat{display:flex;flex-direction:column;align-items:flex-end}
+.uplift-chart-stat .stat-label{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.uplift-chart-stat .stat-value{font-size:1.1rem;font-weight:700;color:var(--text)}
+.uplift-chart-stat .stat-value.trend-up{color:var(--green)}
+.uplift-chart-stat .stat-value.trend-down{color:var(--red)}
 .uplift-breakdown{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.5rem 1.75rem;box-shadow:0 1px 6px rgba(37,99,235,.05)}
 .uplift-breakdown-title{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:1rem}
 .uplift-breakdown-items{display:flex;flex-direction:column;gap:.6rem}
@@ -1054,8 +1064,33 @@
       <div class="uplift-card-label">Avg Transaction Value</div>
       <div class="uplift-card-value ub-blue" id="ub-avg-txn">--</div>
       <div class="uplift-card-sub">Per Line Item</div>
-      <canvas id="avgTxnChart" style="margin-top:0.5rem;height:60px"></canvas>
     </div>
+  </div>
+  <!-- Avg Transaction Value Chart - Full Width -->
+  <div class="uplift-chart-card">
+    <div class="uplift-chart-header">
+      <div>
+        <div class="uplift-chart-title">Average Transaction Value</div>
+        <div class="uplift-chart-sub">90-day rolling average per service line item</div>
+      </div>
+      <div class="uplift-chart-stats">
+        <div class="uplift-chart-stat">
+          <span class="stat-label">Current</span>
+          <span class="stat-value" id="chart-current">--</span>
+        </div>
+        <div class="uplift-chart-stat">
+          <span class="stat-label">30d Avg</span>
+          <span class="stat-value" id="chart-avg30">--</span>
+        </div>
+        <div class="uplift-chart-stat">
+          <span class="stat-label">Trend</span>
+          <span class="stat-value" id="chart-trend">--</span>
+        </div>
+      </div>
+    </div>
+    <canvas id="avgTxnChart" style="height:140px;margin-top:1rem"></canvas>
+  </div>
+  <div class="uplift-cards" style="margin-top:1.25rem">
     <div class="uplift-card">
       <div class="uplift-card-label">Revenue Captured</div>
       <div class="uplift-card-value ub-green" id="ub-captured-total">--</div>
@@ -1794,29 +1829,92 @@ function buildAvgTxnChart() {
   const dates = Object.keys(byDate).sort().slice(-90);
   const values = dates.map(d => byDate[d].count > 0 ? byDate[d].total / byDate[d].count : 0);
   
+  if (values.length === 0) return;
+  
+  // Calculate stats
+  const current = values[values.length - 1] || 0;
+  const avg30 = values.slice(-30).reduce((a, b) => a + b, 0) / Math.min(30, values.length);
+  const avg60 = values.slice(-60, -30).reduce((a, b) => a + b, 0) / Math.min(30, values.slice(-60, -30).length || 1);
+  const trendPct = avg60 > 0 ? ((current - avg60) / avg60 * 100) : 0;
+  
+  // Update stat displays
+  const fmtMoney = v => '$' + v.toFixed(2);
+  document.getElementById('chart-current').textContent = fmtMoney(current);
+  document.getElementById('chart-avg30').textContent = fmtMoney(avg30);
+  
+  const trendEl = document.getElementById('chart-trend');
+  if (trendPct > 0.5) {
+    trendEl.textContent = '+' + trendPct.toFixed(1) + '%';
+    trendEl.className = 'stat-value trend-up';
+  } else if (trendPct < -0.5) {
+    trendEl.textContent = trendPct.toFixed(1) + '%';
+    trendEl.className = 'stat-value trend-down';
+  } else {
+    trendEl.textContent = 'Flat';
+    trendEl.className = 'stat-value';
+  }
+  
   if (window._avgTxnChart) window._avgTxnChart.destroy();
+  
+  // Format labels: show first, middle, last date
+  const labels = dates.map((d, i) => {
+    if (i === 0 || i === Math.floor(dates.length / 2) || i === dates.length - 1) {
+      return d.substring(5); // MM-DD
+    }
+    return '';
+  });
   
   window._avgTxnChart = new Chart(canvas, {
     type: 'line',
     data: {
-      labels: dates.map(d => d.substring(5)),
+      labels: labels,
       datasets: [{
         data: values,
         borderColor: '#2563eb',
-        backgroundColor: 'rgba(37,99,235,0.1)',
+        backgroundColor: 'rgba(37,99,235,0.08)',
         fill: true,
-        tension: 0.3,
+        tension: 0.4,
         pointRadius: 0,
-        borderWidth: 2
+        borderWidth: 2.5
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      plugins: { 
+        legend: { display: false },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: ctx => '$' + ctx.parsed.y.toFixed(2)
+          }
+        }
+      },
       scales: {
-        x: { display: false },
-        y: { display: false }
+        x: { 
+          display: true,
+          grid: { display: false },
+          ticks: { 
+            font: { size: 10 },
+            color: '#94a3b8',
+            maxRotation: 0
+          }
+        },
+        y: { 
+          display: true,
+          grid: { color: 'rgba(0,0,0,0.04)' },
+          ticks: { 
+            font: { size: 10 },
+            color: '#94a3b8',
+            callback: v => '$' + v.toFixed(0)
+          }
+        }
+      },
+      interaction: {
+        mode: 'nearest',
+        axis: 'x',
+        intersect: false
       }
     }
   });
