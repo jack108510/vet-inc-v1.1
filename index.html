@@ -244,6 +244,61 @@
  .c-emerald tbody td.blue { color: var(--emerald); }
  .c-orange tbody td.blue { color: var(--orange); }
 
+ /* CAMPAIGN TRACKING v1.1 */
+ .campaign-status { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.6rem; flex-wrap: wrap; }
+ .campaign-status .badge { display: inline-flex; align-items: center; gap: 0.3rem; border-radius: 20px; padding: 0.3rem 0.9rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.03em; }
+ .campaign-status .badge.inactive { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+ .campaign-status .badge.active { background: rgba(22,163,74,.1); color: #16a34a; border: 1px solid rgba(22,163,74,.25); }
+ .campaign-status .badge.paused { background: rgba(234,88,12,.1); color: #ea580c; border: 1px solid rgba(234,88,12,.25); }
+ 
+ .campaign-progress { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.5rem; }
+ .progress-bar-wrap { flex: 1; max-width: 200px; }
+ .progress-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+ .progress-bar .fill { height: 100%; background: linear-gradient(90deg, #16a34a, #22c55e); border-radius: 3px; transition: width 0.5s ease; }
+ .progress-label { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
+ 
+ .btn-activate { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.75rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.15s; }
+ .btn-activate.primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; }
+ .btn-activate.primary:hover { box-shadow: 0 4px 12px rgba(37,99,235,.35); transform: translateY(-1px); }
+ .btn-activate.secondary { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+ .btn-activate.secondary:hover { background: #e2e8f0; }
+ .btn-activate.success { background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff; }
+ 
+ .btn-analytics { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.72rem; font-weight: 600; background: rgba(37,99,235,.08); color: var(--primary); border: 1px solid rgba(37,99,235,.2); cursor: pointer; transition: all 0.15s; }
+ .btn-analytics:hover { background: rgba(37,99,235,.15); }
+ 
+ /* Campaign Analytics Modal */
+ .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.4); backdrop-filter: blur(4px); z-index: 999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+ .modal-overlay.open { opacity: 1; pointer-events: all; }
+ .modal-content { background: #fff; border-radius: 16px; box-shadow: 0 25px 50px rgba(0,0,0,.25); width: 90%; max-width: 900px; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; transform: translateY(20px); transition: transform 0.25s; }
+ .modal-overlay.open .modal-content { transform: translateY(0); }
+ .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+ .modal-header h2 { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+ .modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: #f1f5f9; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #64748b; transition: all 0.15s; }
+ .modal-close:hover { background: #e2e8f0; color: #1e293b; }
+ .modal-body { padding: 1.5rem; overflow-y: auto; flex: 1; }
+ .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: 0.75rem; justify-content: flex-end; background: #f8fafc; }
+ 
+ .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+ .stat-card { background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 12px; padding: 1rem; border: 1px solid #e2e8f0; }
+ .stat-card .label { font-size: 0.7rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem; }
+ .stat-card .value { font-size: 1.5rem; font-weight: 800; color: #1e293b; }
+ .stat-card .sub { font-size: 0.72rem; color: #64748b; margin-top: 0.25rem; }
+ .stat-card.success .value { color: #16a34a; }
+ .stat-card.warning .value { color: #ea580c; }
+ 
+ .chart-wrap { background: #f8fafc; border-radius: 12px; padding: 1rem; border: 1px solid #e2e8f0; margin-bottom: 1.5rem; }
+ .chart-title { font-size: 0.8rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem; }
+ 
+ .items-list { max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
+ .items-list-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 0.5rem; padding: 0.75rem 1rem; background: #f1f5f9; font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; position: sticky; top: 0; }
+ .items-list-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 0.5rem; padding: 0.6rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.8rem; align-items: center; }
+ .items-list-row:hover { background: #f8fafc; }
+ .items-list-row .status-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.68rem; font-weight: 600; }
+ .items-list-row .status-badge.implemented { background: rgba(22,163,74,.1); color: #16a34a; }
+ .items-list-row .status-badge.pending { background: #f1f5f9; color: #64748b; }
+ .items-list-row .status-badge.skipped { background: rgba(239,68,68,.1); color: #ef4444; }
+
  /* CAMPAIGN FILTER BUTTONS */
  .c1-filter {
  background: var(--surface); border: 1px solid var(--border); color: var(--muted);
@@ -1014,7 +1069,31 @@
   </div>
 </div></section><!-- SECTION 2: Campaigns
  --><section id="tab-campaigns" class="section"><div id="campaignsLoading" class="loading"><div class="spinner"></div> Analyzing pricing opportunities
- </div><div id="campaignsContent" style="display:none"><!-- Campaign 1: Inflation Adjuster --><div class="campaign-card c-blue"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div class="campaign-meta"><div class="campaign-title">Inflation Price Adjustment Report</div><div class="campaign-desc">Uses real price history (exact last-modified date per item) and actual transaction volume over the last 365 days. Canadian CPI is compounded from the last price change to today &mdash; showing exactly what each item should cost now and the annual revenue left on the table.</div><div class="campaign-badge" id="c1Badge">Loading price history</div></div></div><div id="c1Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">&#9662;</span></button><div class="campaign-body"><div style="padding:0.6rem 1.75rem;border-bottom:1px solid var(--border);display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap"><span style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-right:0.5rem">Show:</span><button class="c1-filter active" onclick="c1Filter(this,'all')">All Behind</button><button class="c1-filter" onclick="c1Filter(this,'used')">With Usage Only</button><button class="c1-filter" onclick="c1Filter(this,'urgent')">Urgent (&gt;15%)</button></div><div class="table-scroll"><table><thead><tr><th>Code</th><th>Description</th><th class="num">Last Changed</th><th class="num">Days Stale</th><th class="num">Infl. %</th><th class="num">Current Price</th><th class="num">Suggested Price</th><th class="num">Delta</th><th class="num">Usage / yr</th><th class="num">Est. Uplift / yr</th></tr></thead><tbody id="c1Table"></tbody></table></div></div></div><!-- Campaign 2: .99 Pricing Opportunity --><div class="campaign-card c-purple"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8"/><path d="M12 6v2m0 8v2"/></svg></div><div class="campaign-meta"><div class="campaign-title">.99 Pricing Revenue Recovery</div><div class="campaign-desc">Based on actual transaction history: if every line item that <em>wasn't</em> already at a .99 price had been rounded up to the next .99, how much additional revenue would the clinic have captured last year? This shows real missed dollars &mdash; not theory.</div><div class="campaign-badge" id="c2Badge">Calculating</div></div></div><!-- Summary stat bar --><div id="c2Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">&#9662;</span></button><div class="campaign-body"><div class="table-scroll"><table><thead><tr><th>Service / Item</th><th>Category</th><th class="num">Current Price</th><th class="num">.99 Price</th><th class="num">Gain / Txn</th><th class="num">Annual Volume</th><th class="num">Annual Uplift</th></tr></thead><tbody id="c2Table"></tbody></table></div></div></div><!-- Campaign 3: Inventory Micro Margin --><div class="campaign-card c-emerald"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div class="campaign-meta"><div class="campaign-title">Inventory Micro Margin</div><div class="campaign-desc">Inventory items (drugs, supplies) with price changes in the last 365 days. When a supplier raises costs and you update the selling price, add an extra 5% margin bump. Shows units sold since the price change and what the extra margin would have been.</div><div class="campaign-badge" id="c3Badge">Loading price history</div></div></div><div id="c3Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">&#9662;</span></button><div class="campaign-body"><div class="table-scroll"><table><thead><tr><th>Item</th><th class="num">Price Increase</th><th class="num">Current &rarr; +5% Bump</th><th class="num">Annual Volume</th><th class="num">Extra Margin / Year</th></tr></thead><tbody id="c3Table"></tbody></table></div></div></div></div></section><!--
+ </div><div id="campaignsContent" style="display:none"><!-- Campaign 1: Inflation Adjuster --><div class="campaign-card c-blue"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div class="campaign-meta"><div class="campaign-title">Inflation Price Adjustment Report</div><div class="campaign-desc">Uses real price history (exact last-modified date per item) and actual transaction volume over the last 365 days. Canadian CPI is compounded from the last price change to today &mdash; showing exactly what each item should cost now and the annual revenue left on the table.</div><div class="campaign-status" id="c1Status">
+      <div class="badge inactive" id="c1StatusBadge"><span>&#9679;</span> Not Started</div>
+      <button class="btn-activate primary" id="c1ActivateBtn" onclick="activateCampaign('inflation')">Start Campaign</button>
+     </div>
+     <div class="campaign-progress" id="c1Progress" style="display:none">
+      <div class="progress-bar-wrap"><div class="progress-bar"><div class="fill" id="c1ProgressFill" style="width:0%"></div></div></div>
+      <div class="progress-label" id="c1ProgressLabel">0/0 implemented</div>
+      <button class="btn-analytics" onclick="openCampaignAnalytics('inflation')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg> Analytics</button>
+     </div></div></div><div id="c1Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">&#9662;</span></button><div class="campaign-body"><div style="padding:0.6rem 1.75rem;border-bottom:1px solid var(--border);display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap"><span style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-right:0.5rem">Show:</span><button class="c1-filter active" onclick="c1Filter(this,'all')">All Behind</button><button class="c1-filter" onclick="c1Filter(this,'used')">With Usage Only</button><button class="c1-filter" onclick="c1Filter(this,'urgent')">Urgent (&gt;15%)</button></div><div class="table-scroll"><table><thead><tr><th>Code</th><th>Description</th><th class="num">Last Changed</th><th class="num">Days Stale</th><th class="num">Infl. %</th><th class="num">Current Price</th><th class="num">Suggested Price</th><th class="num">Delta</th><th class="num">Usage / yr</th><th class="num">Est. Uplift / yr</th></tr></thead><tbody id="c1Table"></tbody></table></div></div></div><!-- Campaign 2: .99 Pricing Opportunity --><div class="campaign-card c-purple"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8"/><path d="M12 6v2m0 8v2"/></svg></div><div class="campaign-meta"><div class="campaign-title">.99 Pricing Revenue Recovery</div><div class="campaign-desc">Based on actual transaction history: if every line item that <em>wasn't</em> already at a .99 price had been rounded up to the next .99, how much additional revenue would the clinic have captured last year? This shows real missed dollars &mdash; not theory.</div><div class="campaign-status" id="c2Status">
+      <div class="badge inactive" id="c2StatusBadge"><span>&#9679;</span> Not Started</div>
+      <button class="btn-activate primary" id="c2ActivateBtn" onclick="activateCampaign('99-pricing')">Start Campaign</button>
+     </div>
+     <div class="campaign-progress" id="c2Progress" style="display:none">
+      <div class="progress-bar-wrap"><div class="progress-bar"><div class="fill" id="c2ProgressFill" style="width:0%"></div></div></div>
+      <div class="progress-label" id="c2ProgressLabel">0/0 implemented</div>
+      <button class="btn-analytics" onclick="openCampaignAnalytics('99-pricing')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg> Analytics</button>
+     </div></div></div><!-- Summary stat bar --><div id="c2Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">&#9662;</span></button><div class="campaign-body"><div class="table-scroll"><table><thead><tr><th>Service / Item</th><th>Category</th><th class="num">Current Price</th><th class="num">.99 Price</th><th class="num">Gain / Txn</th><th class="num">Annual Volume</th><th class="num">Annual Uplift</th></tr></thead><tbody id="c2Table"></tbody></table></div></div></div><!-- Campaign 3: Inventory Micro Margin --><div class="campaign-card c-emerald"><div class="campaign-header"><div class="campaign-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div class="campaign-meta"><div class="campaign-title">Inventory Micro Margin</div><div class="campaign-desc">Inventory items (drugs, supplies) with price changes in the last 365 days. When a supplier raises costs and you update the selling price, add an extra 5% margin bump. Shows units sold since the price change and what the extra margin would have been.</div><div class="campaign-status" id="c3Status">
+      <div class="badge inactive" id="c3StatusBadge"><span>&#9679;</span> Not Started</div>
+      <button class="btn-activate primary" id="c3ActivateBtn" onclick="activateCampaign('micro-margin')">Start Campaign</button>
+     </div>
+     <div class="campaign-progress" id="c3Progress" style="display:none">
+      <div class="progress-bar-wrap"><div class="progress-bar"><div class="fill" id="c3ProgressFill" style="width:0%"></div></div></div>
+      <div class="progress-label" id="c3ProgressLabel">0/0 implemented</div>
+      <button class="btn-analytics" onclick="openCampaignAnalytics('micro-margin')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg> Analytics</button>
+     </div></div></div><div id="c3Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">&#9662;</span></button><div class="campaign-body"><div class="table-scroll"><table><thead><tr><th>Item</th><th class="num">Price Increase</th><th class="num">Current &rarr; +5% Bump</th><th class="num">Annual Volume</th><th class="num">Extra Margin / Year</th></tr></thead><tbody id="c3Table"></tbody></table></div></div></div></div></section><!--
  SECTION 3: Inventory Intelligence (Coming Soon)
  --><section id="tab-inventory" class="section"><div style="min-height:60vh;display:flex;align-items:center;justify-content:center;background:#eff6ff"><div style="background:#fff;border-radius:16px;box-shadow:0 2px 16px rgba(37,99,235,0.08);padding:3rem 4rem;text-align:center;max-width:480px"><div style="font-size:3.5rem;margin-bottom:1rem">&#128230;</div><div style="font-size:1.5rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem">Inventory Intelligence</div><div style="font-size:1rem;color:#94a3b8">This module is coming soon.</div></div></div></section><!--
  SECTION 4: Insights & Actions
@@ -1486,6 +1565,7 @@ async function buildC1() {
       status_flag: gapPct > 0.15 ? 'urgent' : gapPct > 0.04 ? 'behind' : 'low' };
   });
   c1AllItems = items;
+  window.c1Items = items; // for campaign tracking
 
   const withUsage = items.filter(i => (i.usage || 0) > 0);
   const usageUplift = withUsage.reduce((s, i) => s + (i.uplift || 0), 0);
@@ -1542,6 +1622,10 @@ function c1Render(filter) {
 async function buildC2() {
   const data = await campaignFetch('99-pricing');
   const items = data.items || [];
+  c2AllItems = items;
+  window.c2Items = items; // for campaign tracking
+  c2AllItems = items;
+  window.c2Items = items; // for campaign tracking
 
   const grandUplift = items.reduce((s, i) => s + (i.uplift || 0), 0);
   const grandVolume = items.reduce((s, i) => s + (i.volume || 0), 0);
@@ -1558,6 +1642,8 @@ async function buildC2() {
 async function buildC3() {
   const data = await campaignFetch('micro-margin');
   const items = data.items || [];
+  c3AllItems = items;
+  window.c3Items = items; // for campaign tracking
 
   const totalUplift = items.reduce((s, it) => s + (it.annualUplift || 0), 0);
   const totalQty = items.reduce((s, it) => s + (it.annualQty || 0), 0);
@@ -4283,5 +4369,297 @@ document.addEventListener('DOMContentLoaded', function() {
     if (name === 'insights') InsightsDashboard.init();
   };
 });
-</script></body></html>
+
+// ========== CAMPAIGN TRACKING v1.1 ==========
+const CampaignUI = (() => {
+  const campaigns = { inflation: 1, '99-pricing': 2, 'micro-margin': 3 };
+  
+  async function loadCampaignState() {
+    for (const [type, num] of Object.entries(campaigns)) {
+      try {
+        const res = await fetch(`https://rnqhhzatlxmyvccdvqkr.supabase.co/rest/v1/campaigns?select=*&clinic_id=eq.rosslyn&campaign_type=eq.${type}&status=eq.active&limit=1`, {
+          headers: {
+            apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTQ5ODUsImV4cCI6MjA5MDU5MDk4NX0.zokle21pVEPG5bIOFiyZIWYkYIwhkolWNOhJ7Cbub30',
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTQ5ODUsImV4cCI6MjA5MDU5MDk4NX0.zokle21pVEPG5bIOFiyZIWYkYIwhkolWNOhJ7Cbub30'
+          }
+        });
+        const data = await res.json();
+        if (data && data[0]) {
+          updateCampaignUI(type, data[0]);
+        }
+      } catch (e) {
+        console.warn('Campaign state load failed:', type, e);
+      }
+    }
+  }
+
+  function updateCampaignUI(type, campaign) {
+    const num = campaigns[type];
+    const statusBadge = document.getElementById(`c${num}StatusBadge`);
+    const activateBtn = document.getElementById(`c${num}ActivateBtn`);
+    const progressDiv = document.getElementById(`c${num}Progress`);
+    const progressFill = document.getElementById(`c${num}ProgressFill`);
+    const progressLabel = document.getElementById(`c${num}ProgressLabel`);
+    const statusDiv = document.getElementById(`c${num}Status`);
+
+    if (campaign && campaign.status === 'active') {
+      // Show active state
+      statusBadge.className = 'badge active';
+      statusBadge.innerHTML = '<span>&#10003;</span> Active';
+      activateBtn.style.display = 'none';
+      progressDiv.style.display = 'flex';
+      
+      const pct = campaign.total_items > 0 ? (campaign.implemented_items / campaign.total_items * 100) : 0;
+      progressFill.style.width = pct + '%';
+      progressLabel.textContent = `${campaign.implemented_items}/${campaign.total_items} implemented`;
+      
+      // Update summary badge
+      const summary = document.getElementById(`c${num}Summary`);
+      if (summary) {
+        const captured = fmt$(campaign.total_captured || 0);
+        const potential = fmt$(campaign.total_potential || 0);
+        summary.innerHTML = `
+          <div style="font-size:0.72rem;color:var(--muted)">Captured</div>
+          <div style="font-size:1.3rem;font-weight:800;color:#16a34a">${captured}</div>
+          <div style="font-size:0.72rem;color:var(--muted)">of ${potential} potential</div>
+        `;
+      }
+    } else {
+      // Inactive state
+      statusBadge.className = 'badge inactive';
+      statusBadge.innerHTML = '<span>&#9679;</span> Not Started';
+      activateBtn.style.display = 'inline-flex';
+      progressDiv.style.display = 'none';
+    }
+  }
+
+  function fmt$(n) {
+    if (n == null || isNaN(n)) return '$0';
+    return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  return { loadCampaignState, updateCampaignUI, campaigns };
+})();
+
+// Activate campaign
+window.activateCampaign = async function(type) {
+  const num = CampaignUI.campaigns[type];
+  const btn = document.getElementById(`c${num}ActivateBtn`);
+  const badge = document.getElementById(`c${num}StatusBadge`);
+  
+  btn.disabled = true;
+  btn.innerHTML = 'Activating...';
+  badge.className = 'badge';
+  badge.innerHTML = 'Loading...';
+
+  try {
+    // Get items from the campaign data
+    const items = type === 'inflation' ? window.c1Items || [] :
+                  type === '99-pricing' ? window.c2Items || [] :
+                  window.c3Items || [];
+    
+    if (!items.length) throw new Error('No items to track');
+
+    // Create campaign
+    const res = await fetch('https://rnqhhzatlxmyvccdvqkr.supabase.co/rest/v1/campaigns', {
+      method: 'POST',
+      headers: {
+        apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTQ5ODUsImV4cCI6MjA5MDU5MDk4NX0.zokle21pVEPG5bIOFiyZIWYkYIwhkolWNOhJ7Cbub30',
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTQ5ODUsImV4cCI6MjA5MDU5MDk4NX0.zokle21pVEPG5bIOFiyZIWYkYIwhkolWNOhJ7Cbub30',
+        'Content-Type': 'application/json',
+        Prefer: 'return=representation'
+      },
+      body: JSON.stringify({
+        clinic_id: 'rosslyn',
+        campaign_type: type,
+        name: type === 'inflation' ? 'Inflation Price Adjustment' :
+              type === '99-pricing' ? '.99 Pricing Recovery' : 'Inventory Micro Margin',
+        status: 'active',
+        activated_at: new Date().toISOString(),
+        total_items: items.length,
+        implemented_items: 0,
+        total_potential: items.reduce((s, i) => s + (i.uplift || 0), 0),
+        total_captured: 0
+      })
+    });
+    const [campaign] = await res.json();
+    
+    // Create campaign items
+    const campaignItems = items.slice(0, 100).map(item => ({
+      campaign_id: campaign.id,
+      treatment_code: item.id || item.code,
+      treatment_name: item.name,
+      old_price: item.price,
+      suggested_price: item.suggested,
+      annual_volume: item.usage || item.volume || 0,
+      potential_uplift: item.uplift || 0
+    }));
+
+    await fetch('https://rnqhhzatlxmyvccdvqkr.supabase.co/rest/v1/campaign_items', {
+      method: 'POST',
+      headers: {
+        apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTQ5ODUsImV4cCI6MjA5MDU5MDk4NX0.zokle21pVEPG5bIOFiyZIWYkYIwhkolWNOhJ7Cbub30',
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTQ5ODUsImV4cCI6MjA5MDU5MDk4NX0.zokle21pVEPG5bIOFiyZIWYkYIwhkolWNOhJ7Cbub30',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(campaignItems)
+    });
+
+    CampaignUI.updateCampaignUI(type, campaign);
+  } catch (e) {
+    console.error('Activation failed:', e);
+    badge.className = 'badge inactive';
+    badge.innerHTML = '<span>&#10007;</span> Failed';
+    btn.disabled = false;
+    btn.innerHTML = 'Start Campaign';
+  }
+};
+
+// Analytics modal
+window.openCampaignAnalytics = async function(type) {
+  const modal = document.getElementById('campaignModal');
+  const title = document.getElementById('modalTitle');
+  const body = document.getElementById('modalBody');
+  
+  title.textContent = type === 'inflation' ? 'Inflation Price Adjustment - Analytics' :
+                      type === '99-pricing' ? '.99 Pricing Recovery - Analytics' :
+                      'Inventory Micro Margin - Analytics';
+  body.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted)">Loading...</div>';
+  modal.classList.add('open');
+
+  try {
+    // Get campaign
+    const res = await fetch(`https://rnqhhzatlxmyvccdvqkr.supabase.co/rest/v1/campaigns?select=*&clinic_id=eq.rosslyn&campaign_type=eq.${type}&status=eq.active&limit=1`, {
+      headers: {
+        apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTQ5ODUsImV4cCI6MjA5MDU5MDk4NX0.zokle21pVEPG5bIOFiyZIWYkYIwhkolWNOhJ7Cbub30',
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTQ5ODUsImV4cCI6MjA5MDU5MDk4NX0.zokle21pVEPG5bIOFiyZIWYkYIwhkolWNOhJ7Cbub30'
+      }
+    });
+    const campaigns = await res.json();
+    const campaign = campaigns[0];
+
+    if (!campaign) {
+      body.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted)">No active campaign found.</div>';
+      return;
+    }
+
+    // Get items
+    const itemsRes = await fetch(`https://rnqhhzatlxmyvccdvqkr.supabase.co/rest/v1/campaign_items?select=*&campaign_id=eq.${campaign.id}&order=potential_uplift.desc`, {
+      headers: {
+        apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTQ5ODUsImV4cCI6MjA5MDU5MDk4NX0.zokle21pVEPG5bIOFiyZIWYkYIwhkolWNOhJ7Cbub30',
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTQ5ODUsImV4cCI6MjA5MDU5MDk4NX0.zokle21pVEPG5bIOFiyZIWYkYIwhkolWNOhJ7Cbub30'
+      }
+    });
+    const items = await itemsRes.json();
+
+    const fmt$ = n => '$' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    const pct = campaign.total_items > 0 ? Math.round(campaign.implemented_items / campaign.total_items * 100) : 0;
+
+    body.innerHTML = `
+      <div class="analytics-grid">
+        <div class="stat-card">
+          <div class="label">Total Items</div>
+          <div class="value">${campaign.total_items}</div>
+        </div>
+        <div class="stat-card success">
+          <div class="label">Implemented</div>
+          <div class="value">${campaign.implemented_items} <span style="font-size:0.8em;font-weight:500">(${pct}%)</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Captured Revenue</div>
+          <div class="value" style="color:#16a34a">${fmt$(campaign.total_captured)}</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="label">Remaining Potential</div>
+          <div class="value">${fmt$((campaign.total_potential || 0) - (campaign.total_captured || 0))}</div>
+        </div>
+      </div>
+      
+      <div class="chart-wrap">
+        <div class="chart-title">Implementation Progress</div>
+        <canvas id="progressChart" height="60"></canvas>
+      </div>
+      
+      <div style="margin-bottom:0.75rem;font-size:0.8rem;font-weight:700;color:#1e293b">Campaign Items</div>
+      <div class="items-list">
+        <div class="items-list-header">
+          <span>Item</span>
+          <span>Current</span>
+          <span>Suggested</span>
+          <span>Uplift/Yr</span>
+          <span>Status</span>
+        </div>
+        ${items.slice(0, 50).map(item => `
+          <div class="items-list-row">
+            <span title="${item.treatment_name || item.treatment_code}">${item.treatment_code}</span>
+            <span>${fmt$(item.old_price)}</span>
+            <span style="color:var(--primary);font-weight:600">${fmt$(item.suggested_price)}</span>
+            <span style="color:#16a34a">${fmt$(item.potential_uplift)}</span>
+            <span class="status-badge ${item.status || 'pending'}">${item.status === 'implemented' ? '&#10003; Done' : item.status === 'skipped' ? 'Skipped' : 'Pending'}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    // Draw simple progress chart
+    const ctx = document.getElementById('progressChart');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: [''],
+          datasets: [{
+            label: 'Implemented',
+            data: [campaign.implemented_items],
+            backgroundColor: '#16a34a'
+          }, {
+            label: 'Pending',
+            data: [campaign.total_items - campaign.implemented_items],
+            backgroundColor: '#e2e8f0'
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          plugins: { legend: { display: true, position: 'bottom' } },
+          scales: { x: { stacked: true, display: false }, y: { stacked: true, display: false } }
+        }
+      });
+    }
+  } catch (e) {
+    console.error('Analytics load failed:', e);
+    body.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--red)">Error loading analytics: ${e.message}</div>`;
+  }
+};
+
+window.closeCampaignModal = function() {
+  document.getElementById('campaignModal').classList.remove('open');
+};
+
+// Store campaign items for activation
+window.c1Items = [];
+window.c2Items = [];
+window.c3Items = [];
+
+// Load campaign state on init
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => CampaignUI.loadCampaignState(), 1000);
+});
+</script>
+
+<!-- Campaign Analytics Modal -->
+<div class="modal-overlay" id="campaignModal" onclick="if(event.target===this)closeCampaignModal()">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">Campaign Analytics</h2>
+      <button class="modal-close" onclick="closeCampaignModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-activate secondary" onclick="closeCampaignModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+</body></html>
 
