@@ -5064,72 +5064,49 @@ function showDayDetail(day){
   var d=new Date(day+"T12:00:00");
   var label=CAL_MONTH_NAMES[d.getMonth()]+" "+d.getDate()+", "+d.getFullYear();
 
-  // Build items table sorted by revenue
-  var rows=[];
-  if(items){
-    for(var k in items) rows.push(items[k]);
-    rows.sort(function(a,b){return b.rev-a.rev;});
-  }
-  var top10=rows.slice(0,20);
-  var otherRev=0,otherQty=0;
-  for(var i=20;i<rows.length;i++){otherRev+=rows[i].rev;otherQty+=rows[i].qty;}
+  // Daily fixed cost from settings
+  var monthlyFixed=0;
+  if(window.clinicTotalFixed) monthlyFixed=window.clinicTotalFixed();
+  var dailyFixed=monthlyFixed/30;
 
-  var h='<div style="max-width:600px;margin:0 auto">';
-  // KPI bar
-  h+='<div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid #e2e8f0">';
-  h+='<div><div style="font-size:0.7rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em">Revenue</div><div style="font-size:1.3rem;font-weight:700;color:#1e3a5f">'+calFmtFull(rev)+'</div></div>';
-  h+='<div><div style="font-size:0.7rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em">COGS</div><div style="font-size:1.3rem;font-weight:700;color:#ef4444">'+calFmtFull(cogs)+'</div></div>';
-  h+='<div><div style="font-size:0.7rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em">Gross Profit</div><div style="font-size:1.3rem;font-weight:700;color:#16a34a">'+calFmtFull(gp)+'</div></div>';
-  h+='<div><div style="font-size:0.7rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em">Margin</div><div style="font-size:1.3rem;font-weight:700;color:'+(margin>=85?"#16a34a":margin>=70?"#ca8a04":"#ef4444")+'">'+margin.toFixed(1)+'%</div></div>';
-  h+='<div><div style="font-size:0.7rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em">Transactions</div><div style="font-size:1.3rem;font-weight:700;color:#1e3a5f">'+(dd?dd.qty||rows.length:rows.length)+'</div></div>';
-  h+='</div>';
+  // Count unique services and total transactions
+  var txns=0, uniqueItems=0;
+  if(items){for(var k in items){txns+=items[k].txns;uniqueItems++;}}
 
-  // Items table
-  if(top10.length){
-    h+='<div style="font-size:0.85rem;font-weight:700;margin-bottom:0.5rem">Service Breakdown</div>';
-    h+='<div style="max-height:400px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px">';
-    h+='<table style="width:100%;border-collapse:collapse;font-size:0.78rem">';
-    h+='<thead><tr style="background:#f8fafc;position:sticky;top:0">';
-    h+='<th style="text-align:left;padding:0.5rem 0.75rem;border-bottom:1px solid #e2e8f0">Code</th>';
-    h+='<th style="text-align:right;padding:0.5rem 0.75rem;border-bottom:1px solid #e2e8f0">Txns</th>';
-    h+='<th style="text-align:right;padding:0.5rem 0.75rem;border-bottom:1px solid #e2e8f0">Qty</th>';
-    h+='<th style="text-align:right;padding:0.5rem 0.75rem;border-bottom:1px solid #e2e8f0">Revenue</th>';
-    h+='<th style="text-align:right;padding:0.5rem 0.75rem;border-bottom:1px solid #e2e8f0">COGS</th>';
-    h+='<th style="text-align:right;padding:0.5rem 0.75rem;border-bottom:1px solid #e2e8f0">Profit</th>';
-    h+='<th style="text-align:right;padding:0.5rem 0.75rem;border-bottom:1px solid #e2e8f0">Margin</th>';
-    h+='</tr></thead><tbody>';
-    top10.forEach(function(r){
-      var p=r.rev-r.cogs, m=r.rev>0?p/r.rev*100:0;
-      var mc=m>=85?"#16a34a":m>=70?"#ca8a04":"#ef4444";
-      h+='<tr style="border-bottom:1px solid #f1f5f9">';
-      h+='<td style="padding:0.4rem 0.75rem;font-weight:600">'+(r.code||"(N/A)")+'</td>';
-      h+='<td style="text-align:right;padding:0.4rem 0.75rem">'+r.txns+'</td>';
-      h+='<td style="text-align:right;padding:0.4rem 0.75rem">'+r.qty+'</td>';
-      h+='<td style="text-align:right;padding:0.4rem 0.75rem;font-weight:600;color:#1e3a5f">'+calFmtFull(r.rev)+'</td>';
-      h+='<td style="text-align:right;padding:0.4rem 0.75rem;color:#ef4444">'+calFmtFull(r.cogs)+'</td>';
-      h+='<td style="text-align:right;padding:0.4rem 0.75rem;color:#16a34a">'+calFmtFull(p)+'</td>';
-      h+='<td style="text-align:right;padding:0.4rem 0.75rem;font-weight:600;color:'+mc+'">'+m.toFixed(1)+'%</td>';
-      h+='</tr>';
-    });
-    if(rows.length>20){
-      h+='<tr style="background:#f8fafc;border-top:2px solid #e2e8f0">';
-      h+='<td style="padding:0.4rem 0.75rem;font-weight:700">+'+( rows.length-20)+' more items</td>';
-      h+='<td></td><td style="text-align:right;padding:0.4rem 0.75rem">'+otherQty+'</td>';
-      h+='<td style="text-align:right;padding:0.4rem 0.75rem;font-weight:700;color:#1e3a5f">'+calFmtFull(otherRev)+'</td>';
-      h+='<td colspan="3"></td></tr>';
-    }
-    h+='</tbody></table></div>';
+  // Avg transaction value
+  var avgTxn=txns>0?rev/txns:0;
+
+  // Net profit = gross profit - daily fixed cost
+  var netProfit=gp-dailyFixed;
+
+  var h='<div style="max-width:550px;margin:0 auto">';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">';
+
+  function kpi(l,v,c){
+    return '<div style="background:#f8fafc;border-radius:10px;padding:0.8rem 1rem"><div style="font-size:0.68rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em">'+l+'</div><div style="font-size:1.2rem;font-weight:800;color:'+(c||"#1e3a5f")+'">'+v+'</div></div>';
   }
-  h+='</div>';
+
+  h+=kpi("Revenue",calFmtFull(rev),"#1e3a5f");
+  h+=kpi("COGS",calFmtFull(cogs),"#ef4444");
+  h+=kpi("Gross Profit",calFmtFull(gp),"#16a34a");
+  h+=kpi("Margin",margin.toFixed(1)+"%",margin>=85?"#16a34a":margin>=70?"#ca8a04":"#ef4444");
+  h+=kpi("Fixed Cost (daily)",calFmtFull(dailyFixed),"#8b5cf6");
+  h+=kpi("Net Profit",calFmtFull(netProfit),netProfit>=0?"#16a34a":"#ef4444");
+  h+=kpi("Staff Cost","—","#64748b");
+  h+=kpi("Avg Transaction",calFmtFull(avgTxn),"#0ea5e9");
+  h+=kpi("Transactions",fmtN(txns),"#1e3a5f");
+  h+=kpi("Unique Services",fmtN(uniqueItems),"#1e3a5f");
+
+  h+='</div></div>';
 
   if(!calDayModal){
     calDayModal=document.createElement("div");
     calDayModal.className="modal-overlay";
     calDayModal.onclick=function(e){if(e.target===calDayModal)calDayModal.style.display="none";};
-    calDayModal.innerHTML='<div class="modal-content" style="max-width:700px"><div class="modal-header"><h2 id="calDayTitle"></h2><button class="modal-close" onclick="calDayModal.style.display=\'none\'">&times;</button></div><div class="modal-body" id="calDayBody"></div></div>';
+    calDayModal.innerHTML='<div class="modal-content" style="max-width:620px"><div class="modal-header"><h2 id="calDayTitle"></h2><button class="modal-close" onclick="calDayModal.style.display=\'none\'">&times;</button></div><div class="modal-body" id="calDayBody"></div></div>';
     document.body.appendChild(calDayModal);
   }
-  document.getElementById("calDayTitle").textContent=label+" — Daily Breakdown";
+  document.getElementById("calDayTitle").textContent=label+" — Daily Summary";
   document.getElementById("calDayBody").innerHTML=h;
   calDayModal.style.display="flex";
 }
