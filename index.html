@@ -1146,7 +1146,54 @@
  SECTION 3: Inventory Intelligence (Coming Soon)
  --><section id="tab-inventory" class="section"><div style="min-height:60vh;display:flex;align-items:center;justify-content:center;background:#eff6ff"><div style="background:#fff;border-radius:16px;box-shadow:0 2px 16px rgba(37,99,235,0.08);padding:3rem 4rem;text-align:center;max-width:480px"><div style="font-size:3.5rem;margin-bottom:1rem">&#128230;</div><div style="font-size:1.5rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem">Inventory Intelligence</div><div style="font-size:1rem;color:#94a3b8">This module is coming soon.</div></div></div></section><!--
  SECTION 4: Insights & Actions
- --><section id="tab-insights" class="section"><div style="min-height:60vh;display:flex;align-items:center;justify-content:center;background:#eff6ff"><div style="background:#fff;border-radius:16px;box-shadow:0 2px 16px rgba(37,99,235,0.08);padding:3rem 4rem;text-align:center;max-width:480px"><div style="font-size:3.5rem;margin-bottom:1rem">&#128161;</div><div style="font-size:1.5rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem">Insights &amp; Actions</div><div style="font-size:1rem;color:#94a3b8">This module is coming soon.</div></div></div></section><!-- SECTION 5: AI Assistant
+ --><section id="tab-insights" class="section"><div style="padding:1.5rem 1.75rem">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+  <div><div style="font-size:1.1rem;font-weight:700;color:var(--text)">Revenue Calendar</div><div style="font-size:0.78rem;color:var(--muted)">Daily revenue, COGS &amp; inventory cost %</div></div>
+  <div style="display:flex;align-items:center;gap:0.5rem">
+    <button onclick="calPrev()" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.35rem 0.7rem;cursor:pointer;color:var(--text);font-size:0.85rem">&#8592;</button>
+    <span id="calMonthLabel" style="font-size:0.95rem;font-weight:600;color:var(--text);min-width:140px;text-align:center"></span>
+    <button onclick="calNext()" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.35rem 0.7rem;cursor:pointer;color:var(--text);font-size:0.85rem">&#8594;</button>
+  </div>
+</div>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+  <span style="display:flex;align-items:center;gap:0.35rem;font-size:0.73rem;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:#dcfce7;border:1px solid #16a34a;display:inline-block"></span>Margin &gt;85%</span>
+  <span style="display:flex;align-items:center;gap:0.35rem;font-size:0.73rem;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:#fef9c3;border:1px solid #ca8a04;display:inline-block"></span>70-85%</span>
+  <span style="display:flex;align-items:center;gap:0.35rem;font-size:0.73rem;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:#fee2e2;border:1px solid #ef4444;display:inline-block"></span>&lt;70%</span>
+  <span style="display:flex;align-items:center;gap:0.35rem;font-size:0.73rem;color:var(--muted)"><span style="width:10px;height:10px;border-radius:2px;background:#f1f5f9;border:1px solid #cbd5e1;display:inline-block"></span>Closed</span>
+</div>
+<div id="calGrid" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+  <div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--border)">
+    <div style="padding:0.5rem;text-align:center;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Sun</div>
+    <div style="padding:0.5rem;text-align:center;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Mon</div>
+    <div style="padding:0.5rem;text-align:center;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Tue</div>
+    <div style="padding:0.5rem;text-align:center;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Wed</div>
+    <div style="padding:0.5rem;text-align:center;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Thu</div>
+    <div style="padding:0.5rem;text-align:center;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Fri</div>
+    <div style="padding:0.5rem;text-align:center;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Sat</div>
+  </div>
+  <div id="calDays" style="display:grid;grid-template-columns:repeat(7,1fr)"></div>
+</div>
+<div id="calLoading" style="text-align:center;padding:2rem;color:var(--muted);font-size:0.85rem;display:none">Loading calendar data...</div>
+<div id="calSummary" style="display:flex;gap:2rem;margin-top:1rem;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;flex-wrap:wrap"></div>
+<div style="margin-top:1.5rem">
+  <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:0.75rem">Staff Hours &amp; Pay</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse;font-size:0.83rem">
+      <thead><tr style="background:var(--surface2)">
+        <th style="padding:0.6rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Staff Name</th>
+        <th style="padding:0.6rem 1rem;text-align:right;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Hours</th>
+        <th style="padding:0.6rem 1rem;text-align:right;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Hourly Rate</th>
+        <th style="padding:0.6rem 1rem;text-align:right;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Total Pay</th>
+      </tr></thead>
+      <tbody>
+        <tr><td style="padding:0.6rem 1rem;color:var(--muted);font-style:italic" colspan="4">Staff hours data coming soon</td></tr>
+        <tr style="background:#f8faff"><td style="padding:0.6rem 1rem;color:var(--muted);font-style:italic" colspan="4">&#8212;</td></tr>
+        <tr><td style="padding:0.6rem 1rem;color:var(--muted);font-style:italic" colspan="4">&#8212;</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div></section><!-- SECTION 5: AI Assistant
  --><section id="tab-ai" class="section"><div style="min-height:60vh;display:flex;align-items:center;justify-content:center;background:#eff6ff"><div style="background:#fff;border-radius:16px;box-shadow:0 2px 16px rgba(37,99,235,0.08);padding:3rem 4rem;text-align:center;max-width:480px"><div style="font-size:3.5rem;margin-bottom:1rem">&#129302;</div><div style="font-size:1.5rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem">AI Assistant</div><div style="font-size:1rem;color:#94a3b8">This module is coming soon.</div></div></div></section><!-- SECTION 4: Settings
 --><section id="tab-settings" class="section"><div class="settings-wrap" style="max-width:960px;margin:0 auto;padding:2rem 1.5rem">
 
@@ -4891,6 +4938,107 @@ window.c3Items = [];
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => CampaignUI.loadCampaignState(), 1000);
 });
+
+// ===== REVENUE CALENDAR =====
+var CAL_YEAR = 2026;
+var CAL_MONTH = 0;
+var SURL = "https://rnqhhzatlxmyvccdvqkr.supabase.co";
+var SKEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTAxNDk4NSwiZXhwIjoyMDkwNTkwOTg1fQ.Js6sEzcCbIkIx5QDtk4TDtSliUeD52e2H2D-Sxatg2w";
+var calCosts = null;
+var MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+function calFmt(n){ return n>=1000?"$"+(n/1000).toFixed(1)+"k":"$"+n.toFixed(0); }
+function calFmtFull(n){ return "$"+n.toLocaleString("en-CA",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+async function calLoadCosts(){
+  if(calCosts) return calCosts;
+  var c={}, offset=0;
+  while(true){
+    var r=await fetch(SURL+"/rest/v1/items?select=code,unit_cost&offset="+offset+"&limit=1000",{headers:{"apikey":SKEY,"Authorization":"Bearer "+SKEY}});
+    var d=await r.json();
+    if(!d.length) break;
+    d.forEach(function(item){
+      if(item.unit_cost&&item.code){
+        c[item.code]=item.unit_cost;
+        var s=item.code.replace(/[A-Za-z]+$/,"");
+        if(s) c[s]=item.unit_cost;
+      }
+    });
+    offset+=1000;
+    if(d.length<1000) break;
+  }
+  calCosts=c; return c;
+}
+
+async function calLoad(){
+  document.getElementById("calMonthLabel").textContent=MONTH_NAMES[CAL_MONTH]+" "+CAL_YEAR;
+  document.getElementById("calLoading").style.display="block";
+  document.getElementById("calDays").innerHTML="";
+  document.getElementById("calSummary").innerHTML="";
+  var s=CAL_YEAR+"-"+String(CAL_MONTH+1).padStart(2,"0")+"-01";
+  var eDate=new Date(CAL_YEAR,CAL_MONTH+1,1);
+  var e=eDate.getFullYear()+"-"+String(eDate.getMonth()+1).padStart(2,"0")+"-01";
+  var costs=await calLoadCosts();
+  var r=await fetch(SURL+"/rest/v1/services?select=code,amount,quantity,service_date&service_date=gte."+s+"T00:00:00&service_date=lt."+e+"T00:00:00&limit=10000",{headers:{"apikey":SKEY,"Authorization":"Bearer "+SKEY}});
+  var svcs=await r.json();
+  var byDay={};
+  svcs.forEach(function(svc){
+    if(!svc.service_date) return;
+    var day=svc.service_date.slice(0,10);
+    if(!byDay[day]) byDay[day]={rev:0,cogs:0};
+    var amt=svc.amount||0;
+    byDay[day].rev+=amt;
+    var code=String(svc.code||"").trim();
+    var stripped=code.replace(/[A-Za-z]+$/,"");
+    var uc=costs[code]||costs[stripped];
+    if(uc){var qty=svc.quantity||1;var c=uc*qty;if(c<=amt*3) byDay[day].cogs+=c;}
+  });
+  document.getElementById("calLoading").style.display="none";
+  var container=document.getElementById("calDays");
+  var firstDay=new Date(CAL_YEAR,CAL_MONTH,1).getDay();
+  var lastDay=new Date(CAL_YEAR,CAL_MONTH+1,0).getDate();
+  var totalRev=0,totalCogs=0;
+  for(var i=0;i<firstDay;i++){
+    var em=document.createElement("div");
+    em.style.cssText="min-height:85px;border-right:1px solid #dbeafe;border-bottom:1px solid #dbeafe;background:#fafbff;";
+    container.appendChild(em);
+  }
+  for(var d=1;d<=lastDay;d++){
+    var ds=CAL_YEAR+"-"+String(CAL_MONTH+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    var dd=byDay[ds];
+    var cell=document.createElement("div");
+    var col=(firstDay+d-1)%7;
+    var br=col<6?"1px solid #dbeafe":"none";
+    if(!dd||dd.rev===0){
+      cell.style.cssText="padding:0.4rem 0.5rem;min-height:85px;border-right:"+br+";border-bottom:1px solid #dbeafe;background:#f8fafc;";
+      cell.innerHTML="<div style='font-size:0.72rem;font-weight:700;color:#94a3b8'>"+d+"</div><div style='font-size:0.65rem;color:#cbd5e1;margin-top:4px'>Closed</div>";
+    } else {
+      var rev=dd.rev,cogs=dd.cogs,gp=rev-cogs,margin=rev>0?gp/rev*100:0,cogsP=rev>0?cogs/rev*100:0;
+      totalRev+=rev; totalCogs+=cogs;
+      var bg,bc;
+      if(margin>=85){bg="#dcfce7";bc="#16a34a";}
+      else if(margin>=70){bg="#fef9c3";bc="#ca8a04";}
+      else{bg="#fee2e2";bc="#ef4444";}
+      cell.style.cssText="padding:0.4rem 0.5rem;min-height:85px;border-right:"+br+";border-bottom:1px solid #dbeafe;background:"+bg+";border-left:3px solid "+bc+";cursor:pointer;";
+      cell.title=ds+"\nRevenue: "+calFmtFull(rev)+"\nCOGS: "+calFmtFull(cogs)+"\nMargin: "+margin.toFixed(1)+"%";
+      cell.innerHTML="<div style='font-size:0.72rem;font-weight:700;color:#1e3a5f'>"+d+"</div>"
+        +"<div style='font-size:0.8rem;font-weight:700;color:#1e3a5f'>"+calFmt(rev)+"</div>"
+        +"<div style='font-size:0.64rem;color:#64748b'>COGS "+calFmt(cogs)+"</div>"
+        +"<div style='font-size:0.64rem;font-weight:600;color:"+bc+"'>"+cogsP.toFixed(1)+"% of rev</div>";
+    }
+    container.appendChild(cell);
+  }
+  var total=firstDay+lastDay,rem=total%7;
+  if(rem>0){for(var i=rem;i<7;i++){var em=document.createElement("div");em.style.cssText="min-height:85px;border-bottom:1px solid #dbeafe;background:#fafbff;";container.appendChild(em);}}
+  var avgM=totalRev>0?(totalRev-totalCogs)/totalRev*100:0;
+  var sumEl=document.getElementById("calSummary");
+  function kpi(l,v,c){return "<div style='display:flex;flex-direction:column;gap:2px'><div style='font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em'>"+l+"</div><div style='font-size:1rem;font-weight:700;color:"+(c||"var(--text)")+"'>"+v+"</div></div>";}
+  sumEl.innerHTML=kpi("Month Revenue",calFmtFull(totalRev))+kpi("Total COGS",calFmtFull(totalCogs),"#ef4444")+kpi("Gross Profit",calFmtFull(totalRev-totalCogs),"#16a34a")+kpi("Avg Margin",avgM.toFixed(1)+"%",avgM>=85?"#16a34a":avgM>=70?"#ca8a04":"#ef4444");
+}
+function calPrev(){CAL_MONTH--;if(CAL_MONTH<0){CAL_MONTH=11;CAL_YEAR--;}calLoad();}
+function calNext(){CAL_MONTH++;if(CAL_MONTH>11){CAL_MONTH=0;CAL_YEAR++;}calLoad();}
+var _origShowTab=window.showTab;
+window.showTab=function(tab,btn){_origShowTab(tab,btn);if(tab==="insights")calLoad();};
 </script>
 
 <!-- Campaign Analytics Modal -->
