@@ -1144,7 +1144,39 @@
       <button class="btn-analytics" onclick="openCampaignAnalytics('micro-margin')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg> Analytics</button>
      </div></div></div><div id="c3Summary" style="display:flex;gap:2rem;padding:1rem 1.75rem;border-bottom:1px solid var(--border);background:#f8faff;flex-wrap:wrap"></div><button class="campaign-toggle" onclick="toggleCampaign(this)">See More <span class="toggle-arrow">&#9662;</span></button><div class="campaign-body"><div class="table-scroll"><table><thead><tr><th>Item</th><th class="num">Price Increase</th><th class="num">Current &rarr; +5% Bump</th><th class="num">Annual Volume</th><th class="num">Extra Margin / Year</th></tr></thead><tbody id="c3Table"></tbody></table></div></div></div></div></section><!--
  SECTION 3: Inventory Intelligence (Coming Soon)
- --><section id="tab-inventory" class="section"><div style="min-height:60vh;display:flex;align-items:center;justify-content:center;background:#eff6ff"><div style="background:#fff;border-radius:16px;box-shadow:0 2px 16px rgba(37,99,235,0.08);padding:3rem 4rem;text-align:center;max-width:480px"><div style="font-size:3.5rem;margin-bottom:1rem">&#128230;</div><div style="font-size:1.5rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem">Inventory Intelligence</div><div style="font-size:1rem;color:#94a3b8">This module is coming soon.</div></div></div></section><!--
+ --><section id="tab-inventory" class="section"><div style="padding:1.5rem 1.75rem">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+ <div>
+   <div style="font-size:1.2rem;font-weight:800;color:var(--text)">Inventory Usage & COGS</div>
+   <div style="font-size:0.8rem;color:var(--muted)">Estimated from billing lines matched to inventory items via service_code</div>
+ </div>
+ <div id="invKpis" style="display:flex;gap:1.5rem;flex-wrap:wrap"></div>
+</div>
+<div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+ <input id="invSearch" type="text" placeholder="Search inventory..." style="flex:1;min-width:200px;padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:8px;font-size:0.85rem">
+ <select id="invMarginFilter" style="padding:0.5rem;border:1px solid var(--border);border-radius:8px;font-size:0.85rem">
+   <option value="all">All margins</option>
+   <option value="profitable">Profitable (>0%)</option>
+   <option value="loss">Loss (&lt;0%)</option>
+   <option value="high">High margin (&gt;50%)</option>
+ </select>
+</div>
+<div class="table-scroll" style="max-height:calc(100vh - 280px);overflow-y:auto">
+<table style="width:100%;border-collapse:collapse;font-size:0.8rem">
+<thead style="position:sticky;top:0;z-index:2"><tr style="background:var(--header-bg)">
+ <th style="text-align:left;padding:0.6rem 0.75rem;color:#fff">Item</th>
+ <th style="text-align:right;padding:0.6rem 0.75rem;color:#fff">Unit Cost</th>
+ <th style="text-align:right;padding:0.6rem 0.75rem;color:#fff">Qty Sold</th>
+ <th style="text-align:right;padding:0.6rem 0.75rem;color:#fff">Revenue</th>
+ <th style="text-align:right;padding:0.6rem 0.75rem;color:#fff">Est. COGS</th>
+ <th style="text-align:right;padding:0.6rem 0.75rem;color:#fff">Gross Profit</th>
+ <th style="text-align:right;padding:0.6rem 0.75rem;color:#fff">Margin</th>
+ <th style="text-align:right;padding:0.6rem 0.75rem;color:#fff">Txns</th>
+</tr></thead>
+<tbody id="invTable"></tbody>
+</table>
+</div>
+</div></section><!--
  SECTION 4: Insights & Actions
  --><section id="tab-insights" class="section"><div style="padding:1.5rem 1.75rem">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
@@ -1355,6 +1387,40 @@ function toggleCampaign(btn) {
 // 
 // Tab Switching
 // 
+function renderInventory(){
+ var data=window._invUsage||[];
+ var q=(document.getElementById("invSearch")||{}).value||"";
+ var mf=(document.getElementById("invMarginFilter")||{}).value||"all";
+ if(q){var ql=q.toLowerCase();data=data.filter(r=>(r.name||"").toLowerCase().includes(ql)||(r.code||"").toLowerCase().includes(ql));}
+ if(mf==="profitable")data=data.filter(r=>r.margin_pct>0);
+ else if(mf==="loss")data=data.filter(r=>r.margin_pct<0);
+ else if(mf==="high")data=data.filter(r=>r.margin_pct>50);
+ // KPIs
+ var totRev=0,totCogs=0,totItems=data.length;
+ data.forEach(r=>{totRev+=r.total_revenue;totCogs+=r.total_cogs;});
+ var totGp=totRev-totCogs,totMargin=totRev>0?totGp/totRev*100:0;
+ var kpiEl=document.getElementById("invKpis");
+ if(kpiEl)kpiEl.innerHTML=
+   '<div style="text-align:center"><div style="font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase">Items</div><div style="font-size:1.1rem;font-weight:800">'+totItems+'</div></div>'+
+   '<div style="text-align:center"><div style="font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase">Revenue</div><div style="font-size:1.1rem;font-weight:800;color:var(--primary)">'+fmt$(totRev)+'</div></div>'+
+   '<div style="text-align:center"><div style="font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase">Est. COGS</div><div style="font-size:1.1rem;font-weight:800;color:#ef4444">'+fmt$(totCogs)+'</div></div>'+
+   '<div style="text-align:center"><div style="font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase">Margin</div><div style="font-size:1.1rem;font-weight:800;color:'+(totMargin>=50?"#16a34a":"#ca8a04")+'">'+totMargin.toFixed(1)+'%</div></div>';
+ // Table
+ var tb=document.getElementById("invTable");
+ if(!tb)return;
+ tb.innerHTML=data.map(r=>{
+   var mc=r.margin_pct>=50?"#16a34a":r.margin_pct>=0?"#ca8a04":"#ef4444";
+   return '<tr style="border-bottom:1px solid var(--border)">'+
+     '<td style="padding:0.45rem 0.75rem"><div style="font-weight:600">'+escHtml(r.name||r.code)+'</div><div style="font-size:0.7rem;color:var(--muted)">'+r.code+' → '+r.service_code+'</div></td>'+
+     '<td style="text-align:right;padding:0.45rem 0.75rem">'+fmt$(r.unit_cost)+'</td>'+
+     '<td style="text-align:right;padding:0.45rem 0.75rem">'+fmtN(Math.round(r.total_qty))+'</td>'+
+     '<td style="text-align:right;padding:0.45rem 0.75rem;font-weight:600;color:var(--primary)">'+fmt$(r.total_revenue)+'</td>'+
+     '<td style="text-align:right;padding:0.45rem 0.75rem;color:#ef4444">'+fmt$(r.total_cogs)+'</td>'+
+     '<td style="text-align:right;padding:0.45rem 0.75rem;color:'+mc+'">'+fmt$(r.gross_profit)+'</td>'+
+     '<td style="text-align:right;padding:0.45rem 0.75rem;font-weight:700;color:'+mc+'">'+r.margin_pct.toFixed(1)+'%</td>'+
+     '<td style="text-align:right;padding:0.45rem 0.75rem">'+r.txn_count+'</td></tr>';
+ }).join('');
+}
 function showTab(name, btn) {
  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1425,6 +1491,13 @@ let AI_byMonth = {};
 let AI_monthKeys = [];
 let AI_totalRevenue = 0; let AI_totalQty = 0;
 
+// Wire inventory search/filter after DOM ready
+window.addEventListener("DOMContentLoaded", function(){
+  var s=document.getElementById("invSearch"),f=document.getElementById("invMarginFilter");
+  if(s)s.addEventListener("input",function(){renderInventory();});
+  if(f)f.addEventListener("change",function(){renderInventory();});
+});
+
 async function loadDataAndBuild() {
  try {
    const svcRows = await sbFetchAll('service_usage_agg', 'select=code,total_amount,total_qty,txn_count,service_type');
@@ -1444,6 +1517,34 @@ async function loadDataAndBuild() {
    treatmentsData = treatRows;
    accountsData = acctRows;
    microMarginData = mmRows;
+   
+   // Load items for inventory usage estimation
+   const itemRows = await sbFetchAll('items', 'select=code,name,service_code,unit_cost');
+   const inventoryItems = itemRows.filter(r => r.service_code);
+   
+   // Build inventory usage from serviceData + items
+   const invMap = {};
+   for (const item of inventoryItems) {
+     if (!invMap[item.service_code]) invMap[item.service_code] = [];
+     invMap[item.service_code].push(item);
+   }
+   const invUsage = [];
+   for (const svc of serviceData || []) {
+     const code = svc.code;
+     const items = invMap[code];
+     if (!items) continue;
+     for (const item of items) {
+       const qty = svc.total_qty || 0;
+       const rev = svc.total_amount || 0;
+       const cost = item.unit_cost || 0;
+       const cogs = cost * qty;
+       const gp = rev - cogs;
+       invUsage.push({ code: item.code, name: item.name, service_code: code, unit_cost: cost, total_qty: qty, total_revenue: rev, total_cogs: cogs, gross_profit: gp, margin_pct: rev > 0 ? (gp/rev*100) : 0, txn_count: svc.txn_count || 0, service_type: svc.service_type });
+     }
+   }
+   invUsage.sort((a,b) => b.total_revenue - a.total_revenue);
+   window._invUsage = invUsage;
+   renderInventory();
    
    console.log('DATA LOADED:');
    console.log('  serviceData:', serviceData.length, 'rows');
