@@ -5037,13 +5037,13 @@ async function calLoad(){
 }
 function calPrev(){CAL_MONTH--;if(CAL_MONTH<0){CAL_MONTH=11;CAL_YEAR--;}calLoad();}
 function calNext(){CAL_MONTH++;if(CAL_MONTH>11){CAL_MONTH=0;CAL_YEAR++;}calLoad();}
-// Trigger calendar when insights tab becomes visible
-document.addEventListener("DOMContentLoaded", function(){
-  var insightsBtn = document.querySelector(".tab-btn[onclick*='insights']");
-  if(insightsBtn){
-    var origOnclick = insightsBtn.getAttribute("onclick");
-    insightsBtn.setAttribute("onclick", origOnclick + ";calLoad();");
-  }
+// Hook calendar into tab switching - run after all other DOMContentLoaded handlers
+window.addEventListener("load", function(){
+  var _st = window.showTab;
+  window.showTab = function(tab, btn){
+    _st(tab, btn);
+    if(tab === "insights") calLoad();
+  };
 });
 </script>
 
