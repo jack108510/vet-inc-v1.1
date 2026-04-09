@@ -1175,6 +1175,7 @@
 </div>
 <div id="calLoading" style="text-align:center;padding:2rem;color:var(--muted);font-size:0.85rem;display:none">Loading calendar data...</div>
 <div id="calSummary" style="display:flex;gap:2rem;margin-top:1rem;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;flex-wrap:wrap"></div>
+<div id="calErrorLog" style="margin-top:0.75rem;font-size:0.78rem;color:#ef4444"></div>
 <div style="margin-top:1.5rem">
   <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:0.75rem">Staff Hours &amp; Pay</div>
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden">
@@ -5133,7 +5134,14 @@ async function openDayModal(day){
   document.getElementById("calDayBody").innerHTML="<div style='text-align:center;padding:2rem;color:var(--muted)'>Loading...</div>";
   calDayModal.style.display="flex";
 
-  var data=await calFetchDay(day);
+  var data;
+  try {
+    data=await calFetchDay(day);
+  } catch(e){
+    logCalError('Failed to load day '+day, e);
+    document.getElementById('calDayBody').innerHTML='<div style="color:#ef4444;padding:1rem">Error loading day. See console.</div>';
+    return;
+  }
   var rev=data.rev,cogs=data.cogs,gp=rev-cogs,margin=rev>0?gp/rev*100:0;
   var monthlyFixed=0;
   if(window.clinicTotalFixed) monthlyFixed=window.clinicTotalFixed();
@@ -5174,6 +5182,8 @@ document.addEventListener('DOMContentLoaded', function(){
       var cell=e.target.closest('[data-day]');
       if(cell && cell.getAttribute('data-day')){
         openDayModal(cell.getAttribute('data-day'));
+      } else {
+        logCalError('Clicked calendar but no data-day attr');
       }
     });
     calDaysClickBound=true;
@@ -5183,6 +5193,15 @@ function calPrev(){CAL_MONTH--;if(CAL_MONTH<0){CAL_MONTH=11;CAL_YEAR--;}calLoad(
 function calNext(){CAL_MONTH++;if(CAL_MONTH>11){CAL_MONTH=0;CAL_YEAR++;}calLoad();}
 
 document.addEventListener('DOMContentLoaded', function(){ if(document.getElementById('tab-insights')?.classList.contains('active')) calLoad(); });
+
+function logCalError(msg, err){
+  console.error('[Calendar]', msg, err||'');
+  var log = document.getElementById('calErrorLog');
+  if(log){
+    var t = new Date().toLocaleTimeString();
+    log.innerHTML = '<div style="color:#ef4444">['+t+'] '+msg+'</div>' + (err?('<div style="font-size:0.8rem;color:#64748b">'+String(err)+'</div>'):'') + log.innerHTML;
+  }
+}
 window.addEventListener("load",function(){
   var _st=window.showTab;
   window.showTab=function(tab,btn){
