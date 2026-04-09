@@ -5162,7 +5162,11 @@ var calDayModal=null;
 function showDayDetail(day){
   var dd=byDay[day];
   var items=byDayItems[day];
-  if(!dd&&!items) return;
+  if(!dd&&!items){
+    // Fetch on demand if not in calendar cache
+    fetchDayDetail(day);
+    return;
+  }
   var rev=dd?dd.rev:0, cogs=dd?dd.cogs:0, gp=rev-cogs, margin=rev>0?gp/rev*100:0;
   var d=new Date(day+"T12:00:00");
   var label=CAL_MONTH_NAMES[d.getMonth()]+" "+d.getDate()+", "+d.getFullYear();
@@ -5213,6 +5217,83 @@ function showDayDetail(day){
   document.getElementById("calDayBody").innerHTML=h;
   calDayModal.style.display="flex";
 }
+async function fetchDayDetail(day){
+  // Fetch a single day's services directly from Supabase
+  var costs=await calLoadCosts();
+  var r=await fetch(SURL+"/rest/v1/services?select=code,amount,quantity,service_date,service_type,description&service_date=gte."+day+"T00:00:00&service_date=lt."+day+"T23:59:59&limit=5000",{headers:{"apikey":SKEY,"Authorization":"Bearer "+SKEY}});
+  var svcs=await r.json();
+  
+  var rev=0,cogs=0,txns=0,uniqueItems=0;
+  var itemMap={};
+  svcs.forEach(function(svc){
+    var amt=svc.amount||0;
+    rev+=amt;
+    txns++;
+    var code=String(svc.code||"").trim();
+    var stripped=code.replace(/[A-Za-z]+$/,"");
+    var uc=costs[code]||costs[stripped];
+    var itemCost=0;
+    if(uc){itemCost=uc*(svc.quantity||1);if(itemCost<=Math.abs(amt)*3)cogs+=itemCost;}
+    var key=code||"(N/A)";
+    if(!itemMap[key])itemMap[key]={code:key,name:svc.description||code,qty:0,rev:0,cogs:0,txns:0,type:svc.service_type||""};
+    itemMap[key].qty+=(svc.quantity||1);
+    itemMap[key].rev+=amt;
+    itemMap[key].cogs+=itemCost;
+    itemMap[key].txns++;
+  });
+  
+  var gp=rev-cogs,margin=rev>0?gp/rev*100:0;
+  var monthlyFixed=0;
+  if(window.clinicTotalFixed)monthlyFixed=window.clinicTotalFixed();
+  var dailyFixed=monthlyFixed/30;
+  var netProfit=gp-dailyFixed;
+  var avgTxn=txns>0?rev/txns:0;
+  uniqueItems=Object.keys(itemMap).length;
+  
+  var d=new Date(day+"T12:00:00");
+  var label=CAL_MONTH_NAMES[d.getMonth()]+" "+d.getDate()+", "+d.getFullYear();
+  
+  var h='<div style="max-width:600px;margin:0 auto">';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem">';
+  function kpi(l,v,c){return '<div style="background:#f8fafc;border-radius:10px;padding:0.8rem 1rem"><div style="font-size:0.68rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.05em">'+l+'</div><div style="font-size:1.2rem;font-weight:800;color:'+(c||"#1e3a5f")+'">'+v+'</div></div>';}
+  h+=kpi("Revenue",calFmtFull(rev),"#1e3a5f");
+  h+=kpi("COGS",calFmtFull(cogs),"#ef4444");
+  h+=kpi("Gross Profit",calFmtFull(gp),"#16a34a");
+  h+=kpi("Margin",margin.toFixed(1)+"%",margin>=85?"#16a34a":margin>=70?"#ca8a04":"#ef4444");
+  h+=kpi("Fixed Cost (daily)",calFmtFull(dailyFixed),"#8b5cf6");
+  h+=kpi("Net Profit",calFmtFull(netProfit),netProfit>=0?"#16a34a":"#ef4444");
+  h+=kpi("Staff Cost","—","#64748b");
+  h+=kpi("Avg Transaction",calFmtFull(avgTxn),"#0ea5e9");
+  h+=kpi("Transactions",fmtN(txns),"#1e3a5f");
+  h+=kpi("Unique Services",fmtN(uniqueItems),"#1e3a5f");
+  h+='</div>';
+  
+  // Service breakdown table
+  var sorted=Object.values(itemMap).sort(function(a,b){return b.rev-a.rev;});
+  if(sorted.length){
+    h+='<div style="font-size:0.85rem;font-weight:700;margin-bottom:0.5rem">Service Breakdown</div>';
+    h+='<div style="max-height:350px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px">';
+    h+='<table style="width:100%;border-collapse:collapse;font-size:0.78rem">';
+    h+='<thead><tr style="background:#f8fafc;position:sticky;top:0"><th style="text-align:left;padding:0.5rem 0.75rem;border-bottom:1px solid #e2e8f0">Service</th><th style="text-align:right;padding:0.5rem 0.75rem;border-bottom:1px solid #e2e8f0">Qty</th><th style="text-align:right;padding:0.5rem 0.75rem;border-bottom:1px solid #e2e8f0">Revenue</th></tr></thead><tbody>';
+    sorted.slice(0,30).forEach(function(r){
+      h+='<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:0.35rem 0.75rem"><div style="font-weight:600">'+(r.name||r.code)+'</div><div style="font-size:0.68rem;color:#64748b">'+r.code+' ('+r.type+')</div></td><td style="text-align:right;padding:0.35rem 0.75rem">'+r.qty.toFixed(0)+'</td><td style="text-align:right;padding:0.35rem 0.75rem;font-weight:600;color:'+(r.rev>=0?"#1e3a5f":"#ef4444")+'">'+calFmtFull(r.rev)+'</td></tr>';
+    });
+    h+='</tbody></table></div>';
+  }
+  h+='</div>';
+  
+  if(!calDayModal){
+    calDayModal=document.createElement("div");
+    calDayModal.className="modal-overlay";
+    calDayModal.onclick=function(e){if(e.target===calDayModal)calDayModal.style.display="none";};
+    calDayModal.innerHTML='<div class="modal-content" style="max-width:660px"><div class="modal-header"><h2 id="calDayTitle"></h2><button class="modal-close" onclick="calDayModal.style.display=\'none\'">&times;</button></div><div class="modal-body" id="calDayBody"></div></div>';
+    document.body.appendChild(calDayModal);
+  }
+  document.getElementById("calDayTitle").textContent=label+" — Daily Summary";
+  document.getElementById("calDayBody").innerHTML=h;
+  calDayModal.style.display="flex";
+}
+
 function calPrev(){CAL_MONTH--;if(CAL_MONTH<0){CAL_MONTH=11;CAL_YEAR--;}calLoad();}
 function calNext(){CAL_MONTH++;if(CAL_MONTH>11){CAL_MONTH=0;CAL_YEAR++;}calLoad();}
 // Hook calendar into tab switching - run after all other DOMContentLoaded handlers
