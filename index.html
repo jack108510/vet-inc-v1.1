@@ -5035,41 +5035,20 @@ async function calFetchMonth(y,m){
 
 // Fetch single day detail
 async function calFetchDay(day){
-  // Revenue from daily_kpis
+  // Revenue & stats from daily_kpis
   var kr=await fetch(SB_URL+"/rest/v1/daily_kpis?select=txn_day,revenue,visits,line_items,unique_services,avg_line_amount&txn_day=eq."+day,{headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}});
   var kpis=await kr.json();
   var kpi=kpis.length?kpis[0]:{revenue:0,visits:0,line_items:0,unique_services:0,avg_line_amount:0};
   var rev=kpi.revenue||0;
 
-  // COGS + service breakdown from billing lines
-  var costs=await calGetCosts();
-  var all=[],off=0;
-  while(true){
-    var r=await fetch(SB_URL+"/rest/v1/services?select=code,amount,quantity,service_date,service_type,description&service_date=gte."+day+"T00:00:00&service_date=lt."+day+"T23:59:59&offset="+off+"&limit=1000",{headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}});
-    var d=await r.json();
-    all=all.concat(d);
-    off+=1000;
-    if(d.length<1000) break;
-  }
-  var cogs=0,items={};
-  all.forEach(function(svc){
-    var amt=svc.amount||0;
-    var code=String(svc.code||"").trim();
-    var stripped=code.replace(/[A-Za-z]+$/,"");
-    var uc=costs[code]||costs[stripped]||0;
-    var qty=svc.quantity||1;
-    var itemCost=0;
-    if(uc){itemCost=uc*qty;if(itemCost<=Math.abs(amt)*3) cogs+=itemCost;}
-    var key=code||"(N/A)";
-    if(!items[key]) items[key]={code:key,name:svc.description||code,qty:0,rev:0,cogs:0,txns:0,type:svc.service_type||""};
-    items[key].qty+=qty;
-    items[key].rev+=amt;
-    items[key].cogs+=itemCost;
-    items[key].txns++;
-  });
+  // COGS from daily_cogs
+  var cr=await fetch(SB_URL+"/rest/v1/daily_cogs?select=day,cogs&day=eq."+day,{headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}});
+  var crows=cr.ok?await cr.json():[];
+  var cogs=crows.length? (crows[0].cogs||0) : 0;
 
-  return {rev:rev,cogs:cogs,items:items,txns:all.length,visits:kpi.visits||0,line_items:kpi.line_items||0,unique_services:kpi.unique_services||0,avg_line:kpi.avg_line_amount||0};
+  return {rev:rev,cogs:cogs,items:{},txns:kpi.line_items||0,visits:kpi.visits||0,line_items:kpi.line_items||0,unique_services:kpi.unique_services||0,avg_line:kpi.avg_line_amount||0};
 }
+
 
 async function calLoad(){
   document.getElementById("calLoading").style.display="block";
@@ -5178,18 +5157,7 @@ async function openDayModal(day){
   h+=kpi("Visits",""+data.visits,"#1e3a5f");
   h+=kpi("Unique Services",""+data.unique_services,"#1e3a5f");
   h+='</div>';
-
-  if(sorted.length){
-    h+='<div style="font-size:0.85rem;font-weight:700;margin-bottom:0.5rem">Service Breakdown</div>';
-    h+='<div style="max-height:300px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px">';
-    h+='<table style="width:100%;border-collapse:collapse;font-size:0.78rem">';
-    h+='<thead><tr style="background:#f8fafc;position:sticky;top:0"><th style="text-align:left;padding:0.4rem 0.6rem;border-bottom:1px solid #e2e8f0">Service</th><th style="text-align:right;padding:0.4rem 0.6rem;border-bottom:1px solid #e2e8f0">Qty</th><th style="text-align:right;padding:0.4rem 0.6rem;border-bottom:1px solid #e2e8f0">Revenue</th></tr></thead><tbody>';
-    sorted.slice(0,30).forEach(function(r){
-      h+='<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:0.3rem 0.6rem"><div style="font-weight:600">'+(r.name||r.code)+'</div><div style="font-size:0.66rem;color:#64748b">'+r.code+' &middot; '+r.type+'</div></td><td style="text-align:right;padding:0.3rem 0.6rem">'+r.qty.toFixed(0)+'</td><td style="text-align:right;padding:0.3rem 0.6rem;font-weight:600;color:'+(r.rev>=0?"#1e3a5f":"#ef4444")+'">'+calFmtFull(r.rev)+'</td></tr>';
-    });
-    if(sorted.length>30) h+='<tr><td colspan="3" style="padding:0.4rem 0.6rem;font-weight:700;color:#64748b">+'+( sorted.length-30)+' more</td></tr>';
-    h+='</tbody></table></div>';
-  }
+  // Service breakdown omitted for fast view
   h+='</div>';
   document.getElementById("calDayBody").innerHTML=h;
 }
@@ -5197,6 +5165,7 @@ async function openDayModal(day){
 function calPrev(){CAL_MONTH--;if(CAL_MONTH<0){CAL_MONTH=11;CAL_YEAR--;}calLoad();}
 function calNext(){CAL_MONTH++;if(CAL_MONTH>11){CAL_MONTH=0;CAL_YEAR++;}calLoad();}
 
+document.addEventListener('DOMContentLoaded', function(){ if(document.getElementById('tab-insights')?.classList.contains('active')) calLoad(); });
 window.addEventListener("load",function(){
   var _st=window.showTab;
   window.showTab=function(tab,btn){
