@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Vet INC - Business Dashboard</title><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><style>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Vet INC - Business Dashboard</title><link rel="icon" href="data:," /><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><style>
  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
  :root {
@@ -1512,7 +1512,7 @@ async function loadDataAndBuild() {
    }
    invUsage.sort((a,b) => b.total_revenue - a.total_revenue);
    window._invUsage = invUsage;
-   renderInventory();
+   if (document.getElementById('invTable')) renderInventory();
    
    console.log('DATA LOADED:');
    console.log('  serviceData:', serviceData.length, 'rows');
@@ -1522,9 +1522,12 @@ async function loadDataAndBuild() {
    if (serviceData.length > 0) console.log('  Sample service:', serviceData[0]);
    if (pricesData.length > 0) console.log('  Sample price:', pricesData[0]);
    
-   document.getElementById('dotService').classList.add('loaded');
-   document.getElementById('dotCatalog').classList.add('loaded');
-   document.getElementById('dotPriceHistory').classList.add('loaded');
+   const ds=document.getElementById('dotService');
+   const dc=document.getElementById('dotCatalog');
+   const dp=document.getElementById('dotPriceHistory');
+   if(ds) ds.classList.add('loaded');
+   if(dc) dc.classList.add('loaded');
+   if(dp) dp.classList.add('loaded');
    buildAnalytics();
  } catch(e) {
    console.error(' Data load error:', e);
@@ -1889,42 +1892,112 @@ async function loadCapturedRevenue() {
 
 async function loadServiceData() {
   try {
-    // Fetch last 90 days of services (type_flag 'A' = services only)
-    const res = await fetch('https://rnqhhzatlxmyvccdvqkr.supabase.co/rest/v1/services?select=service_date,amount&service_date=not.is.null&amount=gt.0&order=service_date.desc&limit=10000', {
-      headers: {
-        apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTQ5ODUsImV4cCI6MjA5MDU5MDk4NX0.zokle21pVEPG5bIOFiyZIWYkYIwhkolWNOhJ7Cbub30',
-        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJucWhoemF0bHhteXZjY2R2cWtyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTQ5ODUsImV4cCI6MjA5MDU5MDk4NX0.zokle21pVEPG5bIOFiyZIWYkYIwhkolWNOhJ7Cbub30'
-      }
+    // Use daily_kpis for reliable daily revenue + visits
+    const res = await fetch(`${SB_URL}/rest/v1/daily_kpis?select=txn_day,revenue,visits,line_items,avg_line_amount&order=txn_day.desc&limit=200`, {
+      headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY }
     });
-    
     if (!res.ok) {
-      console.error('Failed to load service data');
+      console.error('Failed to load daily_kpis');
       return;
     }
-    
-    window.serviceData = await res.json();
-    
-    // Calculate baseline monthly revenue (last 90 days / 3)
-    const now = new Date();
-    const ninetyDaysAgo = new Date(now - 90 * 24 * 60 * 60 * 1000);
-    
-    let totalRevenue = 0;
-    window.serviceData.forEach(row => {
-      const date = new Date(row.service_date);
-      if (date >= ninetyDaysAgo) {
-        totalRevenue += parseFloat(row.amount) || 0;
-      }
-    });
-    
+    const kpis = await res.json();
+    window.dailyKpis = kpis;
+
+    // Baseline monthly revenue (last 90 days / 3)
+    const last90 = kpis.slice(0, 90);
+    const totalRevenue = last90.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0);
     window._baselineMonthly = Math.round(totalRevenue / 3);
+
     refreshUpliftBoard();
     buildAvgTxnChart();
   } catch (e) {
-    console.error('Failed to load service data:', e);
+    console.error('Failed to load daily_kpis:', e);
   }
 }
 
 function buildAvgTxnChart() {
+  const canvas = document.getElementById('avgTxnChart');
+  if (!canvas || !window.dailyKpis || window.dailyKpis.length === 0) return;
+
+  const byDate = {};
+  window.dailyKpis.forEach(row => {
+    const date = row.txn_day;
+    if (!date) return;
+    const d = date.substring(0, 10);
+    const rev = parseFloat(row.revenue) || 0;
+    const visits = parseFloat(row.visits) || 0;
+    if (!byDate[d]) byDate[d] = { total: 0, count: 0 };
+    byDate[d].total += rev;
+    byDate[d].count += visits;
+  });
+
+  const dates = Object.keys(byDate).sort().slice(-90);
+  const values = dates.map(d => byDate[d].count > 0 ? byDate[d].total / byDate[d].count : 0);
+
+  if (values.length === 0) return;
+
+  // Calculate stats
+  const current = values[values.length - 1] || 0;
+  const avg30 = values.slice(-30).reduce((a, b) => a + b, 0) / Math.min(30, values.length);
+  const avg60 = values.slice(-60, -30).reduce((a, b) => a + b, 0) / Math.min(30, values.slice(-60, -30).length || 1);
+  const trendPct = avg60 > 0 ? ((current - avg60) / avg60 * 100) : 0;
+
+  // Update stat displays
+  const fmtMoney = v => '$' + v.toFixed(2);
+  document.getElementById('chart-current').textContent = fmtMoney(current);
+  document.getElementById('chart-avg30').textContent = fmtMoney(avg30);
+
+  const trendEl = document.getElementById('chart-trend');
+  if (trendPct > 0.5) {
+    trendEl.textContent = '+' + trendPct.toFixed(1) + '%';
+    trendEl.className = 'stat-value trend-up';
+  } else if (trendPct < -0.5) {
+    trendEl.textContent = trendPct.toFixed(1) + '%';
+    trendEl.className = 'stat-value trend-down';
+  } else {
+    trendEl.textContent = 'Flat';
+    trendEl.className = 'stat-value trend-flat';
+  }
+
+  const ctx = canvas.getContext('2d');
+  if (window.avgTxnChart) window.avgTxnChart.destroy();
+  window.avgTxnChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [{
+        label: 'Avg Transaction',
+        data: values,
+        borderColor: '#2563eb',
+        backgroundColor: 'rgba(37,99,235,0.1)',
+        tension: 0.3,
+        fill: true,
+        pointRadius: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { display: false },
+        y: {
+          ticks: {
+            callback: value => '$' + value
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => '$' + ctx.parsed.y.toFixed(2)
+          }
+        }
+      }
+    }
+  });
+}
+
   const canvas = document.getElementById('avgTxnChart');
   if (!canvas || !window.serviceData || window.serviceData.length === 0) return;
   
@@ -5020,7 +5093,7 @@ async function calGetCosts(){
   if(calCostsCache) return calCostsCache;
   var c={},off=0;
   while(true){
-    var r=await fetch(SURL+"/rest/v1/items?select=code,unit_cost&offset="+off+"&limit=1000",{headers:{"apikey":SKEY,"Authorization":"Bearer "+SKEY}});
+    var r=await fetch(SB_URL+"/rest/v1/items?select=code,unit_cost&offset="+off+"&limit=1000",{headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}});
     var d=await r.json();
     if(!d.length) break;
     d.forEach(function(item){
@@ -5048,7 +5121,7 @@ async function calFetchMonth(y,m){
 
   // 1. Revenue from daily_kpis (pre-computed, accurate)
   var kpiMap={};
-  var kr=await fetch(SURL+"/rest/v1/daily_kpis?select=txn_day,revenue,visits,line_items,unique_services,avg_line_amount&txn_day=gte."+s+"&txn_day=lt."+e+"&limit=500",{headers:{"apikey":SKEY,"Authorization":"Bearer "+SKEY}});
+  var kr=await fetch(SB_URL+"/rest/v1/daily_kpis?select=txn_day,revenue,visits,line_items,unique_services,avg_line_amount&txn_day=gte."+s+"&txn_day=lt."+e+"&limit=500",{headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}});
   var kpis=await kr.json();
   kpis.forEach(function(k){
     var day=k.txn_day;
@@ -5067,7 +5140,7 @@ async function calFetchMonth(y,m){
 // Fetch single day detail
 async function calFetchDay(day){
   // Revenue from daily_kpis
-  var kr=await fetch(SURL+"/rest/v1/daily_kpis?select=txn_day,revenue,visits,line_items,unique_services,avg_line_amount&txn_day=eq."+day,{headers:{"apikey":SKEY,"Authorization":"Bearer "+SKEY}});
+  var kr=await fetch(SB_URL+"/rest/v1/daily_kpis?select=txn_day,revenue,visits,line_items,unique_services,avg_line_amount&txn_day=eq."+day,{headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}});
   var kpis=await kr.json();
   var kpi=kpis.length?kpis[0]:{revenue:0,visits:0,line_items:0,unique_services:0,avg_line_amount:0};
   var rev=kpi.revenue||0;
@@ -5076,7 +5149,7 @@ async function calFetchDay(day){
   var costs=await calGetCosts();
   var all=[],off=0;
   while(true){
-    var r=await fetch(SURL+"/rest/v1/services?select=code,amount,quantity,service_date,service_type,description&service_date=gte."+day+"T00:00:00&service_date=lt."+day+"T23:59:59&offset="+off+"&limit=1000",{headers:{"apikey":SKEY,"Authorization":"Bearer "+SKEY}});
+    var r=await fetch(SB_URL+"/rest/v1/services?select=code,amount,quantity,service_date,service_type,description&service_date=gte."+day+"T00:00:00&service_date=lt."+day+"T23:59:59&offset="+off+"&limit=1000",{headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}});
     var d=await r.json();
     all=all.concat(d);
     off+=1000;
