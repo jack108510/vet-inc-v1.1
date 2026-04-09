@@ -5075,6 +5075,7 @@ async function calLoad(){
     var ds=CAL_YEAR+"-"+String(CAL_MONTH+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
     var dd=byDay[ds];
     var cell=document.createElement("div");
+    cell.setAttribute('data-day', ds);
     var col=(firstDay+d-1)%7;
     var br=col<6?"1px solid #dbeafe":"none";
 
@@ -5162,6 +5163,22 @@ async function openDayModal(day){
   document.getElementById("calDayBody").innerHTML=h;
 }
 
+
+// Calendar click delegation (robust)
+var calDaysClickBound=false;
+document.addEventListener('DOMContentLoaded', function(){
+  if(calDaysClickBound) return;
+  var container=document.getElementById('calDays');
+  if(container){
+    container.addEventListener('click', function(e){
+      var cell=e.target.closest('[data-day]');
+      if(cell && cell.getAttribute('data-day')){
+        openDayModal(cell.getAttribute('data-day'));
+      }
+    });
+    calDaysClickBound=true;
+  }
+});
 function calPrev(){CAL_MONTH--;if(CAL_MONTH<0){CAL_MONTH=11;CAL_YEAR--;}calLoad();}
 function calNext(){CAL_MONTH++;if(CAL_MONTH>11){CAL_MONTH=0;CAL_YEAR++;}calLoad();}
 
