@@ -5042,6 +5042,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ===== REVENUE CALENDAR (clean rewrite) =====
+// Revenue from daily_kpis, COGS from services + items
 var CAL_YEAR = new Date().getFullYear();
 var CAL_MONTH = new Date().getMonth();
 var calCostsCache = null;
@@ -5068,7 +5069,65 @@ async function calGetCosts(){
   return c;
 }
 
+function calFmt(n){return n>=1000?"$"+(n/1000).toFixed(1)+"k":"$"+n.toFixed(0);}
+function calFmtFull(n){return "$"+n.toLocaleString("en-CA",{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+// Fetch month: revenue from daily_kpis, COGS from services
+async function calFetchMonth(y,m){
+  var s=y+"-"+String(m+1).padStart(2,"0")+"-01";
+  var eDt=new Date(y,m+1,1);
+  var e=eDt.getFullYear()+"-"+String(eDt.getMonth()+1).padStart(2,"0")+"-01";
+
+  // 1. Revenue from daily_kpis (pre-computed, accurate)
+  var kpiMap={};
+  var kr=await fetch(SURL+"/rest/v1/daily_kpis?select=txn_day,revenue,visits,line_items,unique_services,avg_line_amount&txn_day=gte."+s+"&txn_day=lt."+e+"&limit=500",{headers:{"apikey":SKEY,"Authorization":"Bearer "+SKEY}});
+  var kpis=await kr.json();
+  kpis.forEach(function(k){
+    var day=k.txn_day;
+    if(day) kpiMap[day.slice(0,10)]={rev:k.revenue||0,visits:k.visits||0,line_items:k.line_items||0,unique_services:k.unique_services||0,avg_line:k.avg_line_amount||0};
+  });
+
+  // 2. COGS from billing lines
+  var costs=await calGetCosts();
+  var all=[],off=0;
+  while(true){
+    var r=await fetch(SURL+"/rest/v1/services?select=code,amount,quantity,service_date&service_date=gte."+s+"&service_date=lt."+e+"&offset="+off+"&limit=1000",{headers:{"apikey":SKEY,"Authorization":"Bearer "+SKEY}});
+    var d=await r.json();
+    all=all.concat(d);
+    off+=1000;
+    if(d.length<1000) break;
+  }
+  var cogsByDay={};
+  all.forEach(function(svc){
+    if(!svc.service_date) return;
+    var day=svc.service_date.slice(0,10);
+    if(!cogsByDay[day]) cogsByDay[day]=0;
+    var amt=svc.amount||0;
+    var code=String(svc.code||"").trim();
+    var stripped=code.replace(/[A-Za-z]+$/,"");
+    var uc=costs[code]||costs[stripped]||0;
+    if(uc){var qty=svc.quantity||1;var c=uc*qty;if(c<=Math.abs(amt)*3) cogsByDay[day]+=c;}
+  });
+
+  // 3. Merge
+  var byDay={};
+  var allDays=new Set(Object.keys(kpiMap).concat(Object.keys(cogsByDay)));
+  allDays.forEach(function(day){
+    var k=kpiMap[day];
+    byDay[day]={rev:k?k.rev:0,cogs:cogsByDay[day]||0,visits:k?k.visits:0,line_items:k?k.line_items:0,unique_services:k?k.unique_services:0,avg_line:k?k.avg_line:0};
+  });
+  return byDay;
+}
+
+// Fetch single day detail
 async function calFetchDay(day){
+  // Revenue from daily_kpis
+  var kr=await fetch(SURL+"/rest/v1/daily_kpis?select=txn_day,revenue,visits,line_items,unique_services,avg_line_amount&txn_day=eq."+day,{headers:{"apikey":SKEY,"Authorization":"Bearer "+SKEY}});
+  var kpis=await kr.json();
+  var kpi=kpis.length?kpis[0]:{revenue:0,visits:0,line_items:0,unique_services:0,avg_line_amount:0};
+  var rev=kpi.revenue||0;
+
+  // COGS + service breakdown from billing lines
   var costs=await calGetCosts();
   var all=[],off=0;
   while(true){
@@ -5078,10 +5137,9 @@ async function calFetchDay(day){
     off+=1000;
     if(d.length<1000) break;
   }
-  var rev=0,cogs=0,items={};
+  var cogs=0,items={};
   all.forEach(function(svc){
     var amt=svc.amount||0;
-    rev+=amt;
     var code=String(svc.code||"").trim();
     var stripped=code.replace(/[A-Za-z]+$/,"");
     var uc=costs[code]||costs[stripped]||0;
@@ -5095,39 +5153,9 @@ async function calFetchDay(day){
     items[key].cogs+=itemCost;
     items[key].txns++;
   });
-  return {rev:rev,cogs:cogs,items:items,txns:all.length};
-}
 
-async function calFetchMonth(y,m){
-  var s=y+"-"+String(m+1).padStart(2,"0")+"-01";
-  var eDt=new Date(y,m+1,1);
-  var e=eDt.getFullYear()+"-"+String(eDt.getMonth()+1).padStart(2,"0")+"-01";
-  var costs=await calGetCosts();
-  var all=[],off=0;
-  while(true){
-    var r=await fetch(SURL+"/rest/v1/services?select=code,amount,quantity,service_date&service_date=gte."+s+"&service_date=lt."+e+"&offset="+off+"&limit=1000",{headers:{"apikey":SKEY,"Authorization":"Bearer "+SKEY}});
-    var d=await r.json();
-    all=all.concat(d);
-    off+=1000;
-    if(d.length<1000) break;
-  }
-  var byDay={};
-  all.forEach(function(svc){
-    if(!svc.service_date) return;
-    var day=svc.service_date.slice(0,10);
-    if(!byDay[day]) byDay[day]={rev:0,cogs:0};
-    var amt=svc.amount||0;
-    byDay[day].rev+=amt;
-    var code=String(svc.code||"").trim();
-    var stripped=code.replace(/[A-Za-z]+$/,"");
-    var uc=costs[code]||costs[stripped]||0;
-    if(uc){var qty=svc.quantity||1;var c=uc*qty;if(c<=Math.abs(amt)*3) byDay[day].cogs+=c;}
-  });
-  return byDay;
+  return {rev:rev,cogs:cogs,items:items,txns:all.length,visits:kpi.visits||0,line_items:kpi.line_items||0,unique_services:kpi.unique_services||0,avg_line:kpi.avg_line_amount||0};
 }
-
-function calFmt(n){return n>=1000?"$"+(n/1000).toFixed(1)+"k":"$"+n.toFixed(0);}
-function calFmtFull(n){return "$"+n.toLocaleString("en-CA",{minimumFractionDigits:2,maximumFractionDigits:2});}
 
 async function calLoad(){
   document.getElementById("calLoading").style.display="block";
@@ -5137,8 +5165,8 @@ async function calLoad(){
   document.getElementById("calMonthLabel").textContent=MN[CAL_MONTH]+" "+CAL_YEAR;
 
   var byDay=await calFetchMonth(CAL_YEAR,CAL_MONTH);
-
   document.getElementById("calLoading").style.display="none";
+
   var container=document.getElementById("calDays");
   var firstDay=new Date(CAL_YEAR,CAL_MONTH,1).getDay();
   var lastDay=new Date(CAL_YEAR,CAL_MONTH+1,0).getDate();
@@ -5172,9 +5200,7 @@ async function calLoad(){
         +"<div style='font-size:0.8rem;font-weight:700;color:#1e3a5f'>"+calFmt(rev)+"</div>"
         +"<div style='font-size:0.64rem;color:#64748b'>COGS "+calFmt(cogs)+"</div>"
         +"<div style='font-size:0.64rem;font-weight:600;color:"+bc+"'>"+cogsP.toFixed(1)+"% of rev</div>";
-      (function(dayStr){
-        cell.onclick=function(){openDayModal(dayStr);};
-      })(ds);
+      (function(dayStr){cell.onclick=function(){openDayModal(dayStr);};})(ds);
     }
     container.appendChild(cell);
   }
@@ -5208,8 +5234,7 @@ async function openDayModal(day){
   if(window.clinicTotalFixed) monthlyFixed=window.clinicTotalFixed();
   var dailyFixed=monthlyFixed/30;
   var netProfit=gp-dailyFixed;
-  var avgTxn=data.txns>0?rev/data.txns:0;
-  var uniqueItems=Object.keys(data.items).length;
+  var avgTxn=data.visits>0?rev/data.visits:0;
   var sorted=Object.values(data.items).sort(function(a,b){return b.rev-a.rev;});
 
   var h='<div style="max-width:620px;margin:0 auto">';
@@ -5221,10 +5246,10 @@ async function openDayModal(day){
   h+=kpi("Margin",margin.toFixed(1)+"%",margin>=85?"#16a34a":margin>=70?"#ca8a04":"#ef4444");
   h+=kpi("Fixed Cost",calFmtFull(dailyFixed),"#8b5cf6");
   h+=kpi("Net Profit",calFmtFull(netProfit),netProfit>=0?"#16a34a":"#ef4444");
-  h+=kpi("Staff Cost","—","#64748b");
-  h+=kpi("Avg Transaction",calFmtFull(avgTxn),"#0ea5e9");
-  h+=kpi("Transactions",""+data.txns,"#1e3a5f");
-  h+=kpi("Unique Items",""+uniqueItems,"#1e3a5f");
+  h+=kpi("Staff Cost","\u2014","#64748b");
+  h+=kpi("Avg per Visit",calFmtFull(avgTxn),"#0ea5e9");
+  h+=kpi("Visits",""+data.visits,"#1e3a5f");
+  h+=kpi("Unique Services",""+data.unique_services,"#1e3a5f");
   h+='</div>';
 
   if(sorted.length){
