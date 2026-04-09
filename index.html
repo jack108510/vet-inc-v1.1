@@ -5004,18 +5004,29 @@ async function calFetchMonth(y,m){
 
   // 1. Revenue from daily_kpis (pre-computed, accurate)
   var kpiMap={};
-  var kr=await fetch(SB_URL+"/rest/v1/daily_kpis?select=txn_day,revenue,visits,line_items,unique_services,avg_line_amount&txn_day=gte."+s+"&txn_day=lt."+e+"&limit=500",{headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}});
+  var kr=await fetch(SB_URL+"/rest/v1/daily_kpis?select=txn_day,revenue,visits,line_items,unique_services,avg_line_amount&txn_day=gte."+s+"&txn_day=lt."+e+"&limit=1000",{headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}});
   var kpis=await kr.json();
   kpis.forEach(function(k){
     var day=k.txn_day;
     if(day) kpiMap[day.slice(0,10)]={rev:k.revenue||0,visits:k.visits||0,line_items:k.line_items||0,unique_services:k.unique_services||0,avg_line:k.avg_line_amount||0};
   });
 
-  // 2. Merge (COGS computed on click only, to keep calendar fast)
+  // 2. COGS from daily_cogs (precomputed)
+  var cogsMap={};
+  var cr=await fetch(SB_URL+"/rest/v1/daily_cogs?select=day,cogs&day=gte."+s+"&day=lt."+e+"&limit=1000",{headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}});
+  if(cr.ok){
+    var cogsRows=await cr.json();
+    cogsRows.forEach(function(r){
+      if(r.day) cogsMap[String(r.day).slice(0,10)] = r.cogs||0;
+    });
+  }
+
+  // 3. Merge
   var byDay={};
-  Object.keys(kpiMap).forEach(function(day){
+  var allDays=new Set(Object.keys(kpiMap).concat(Object.keys(cogsMap)));
+  allDays.forEach(function(day){
     var k=kpiMap[day];
-    byDay[day]={rev:k?k.rev:0,cogs:null,visits:k?k.visits:0,line_items:k?k.line_items:0,unique_services:k?k.unique_services:0,avg_line:k?k.avg_line:0};
+    byDay[day]={rev:k?k.rev:0,cogs:(cogsMap[day]===undefined?null:cogsMap[day]),visits:k?k.visits:0,line_items:k?k.line_items:0,unique_services:k?k.unique_services:0,avg_line:k?k.avg_line:0};
   });
   return byDay;
 }
@@ -5116,9 +5127,13 @@ async function calLoad(){
   var avgM=(totalRev>0 && totalCogs>0)?(totalRev-totalCogs)/totalRev*100:null;
   var sumEl=document.getElementById("calSummary");
   function kpi(l,v,c){return "<div style='display:flex;flex-direction:column;gap:2px'><div style='font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em'>"+l+"</div><div style='font-size:1rem;font-weight:700;color:"+(c||"var(--text)")+"'>"+v+"</div></div>";}
+  var monthlyFixed=0; if(window.clinicTotalFixed) monthlyFixed=window.clinicTotalFixed();
+  var daysInMonth=new Date(CAL_YEAR, CAL_MONTH+1, 0).getDate();
+  var dailyFixed=monthlyFixed/daysInMonth;
   sumEl.innerHTML=kpi("Month Revenue",calFmtFull(totalRev))
     +kpi("Total COGS",(totalCogs>0?calFmtFull(totalCogs):"—"),"#ef4444")
     +kpi("Gross Profit",(totalCogs>0?calFmtFull(totalRev-totalCogs):"—"),"#16a34a")
+    +kpi("Fixed / Day",calFmtFull(dailyFixed),"#8b5cf6")
     +kpi("Avg Margin",(avgM==null?"—":avgM.toFixed(1)+"%"),avgM>=85?"#16a34a":avgM>=70?"#ca8a04":"#ef4444");
 }
 
@@ -5140,7 +5155,8 @@ async function openDayModal(day){
   var rev=data.rev,cogs=data.cogs,gp=rev-cogs,margin=rev>0?gp/rev*100:0;
   var monthlyFixed=0;
   if(window.clinicTotalFixed) monthlyFixed=window.clinicTotalFixed();
-  var dailyFixed=monthlyFixed/30;
+  var daysInMonth=new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  var dailyFixed=monthlyFixed/daysInMonth;
   var netProfit=gp-dailyFixed;
   var avgTxn=data.visits>0?rev/data.visits:0;
   var sorted=Object.values(data.items).sort(function(a,b){return b.rev-a.rev;});
