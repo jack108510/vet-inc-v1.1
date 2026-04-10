@@ -5125,14 +5125,15 @@ async function openDayModal(day){
   if(!calDayModal){
     calDayModal=document.createElement("div");
     calDayModal.className="modal-overlay";
-    calDayModal.onclick=function(e){if(e.target===calDayModal)calDayModal.style.display="none";};
-    calDayModal.innerHTML='<div class="modal-content" style="max-width:92vw;height:88vh;overflow:hidden"><div class="modal-header"><h2 id="calDayTitle"></h2><button class="modal-close" onclick="calDayModal.style.display=\'none\'">&times;</button></div><div class="modal-body" id="calDayBody" style="height:calc(88vh - 64px);overflow:auto"></div></div>';
+    calDayModal.onclick=function(e){if(e.target===calDayModal){calDayModal.classList.remove('open');calDayModal.style.display="none";}};
+    calDayModal.innerHTML='<div class="modal-content" style="max-width:92vw;height:88vh;overflow:hidden"><div class="modal-header"><h2 id="calDayTitle"></h2><button class="modal-close" onclick="calDayModal.classList.remove(\'open\');calDayModal.style.display=\'none\'">&times;</button></div><div class="modal-body" id="calDayBody" style="height:calc(88vh - 64px);overflow:auto"></div></div>';
     document.body.appendChild(calDayModal);
   }
   var d=new Date(day+"T12:00:00");
   document.getElementById("calDayTitle").textContent=MN[d.getMonth()]+" "+d.getDate()+", "+d.getFullYear();
   document.getElementById("calDayBody").innerHTML="<div style='text-align:center;padding:2rem;color:var(--muted)'>Loading...</div>";
   calDayModal.style.display="flex";
+  calDayModal.classList.add('open');
 
   var data;
   try {
